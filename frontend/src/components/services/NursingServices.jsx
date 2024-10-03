@@ -1,13 +1,17 @@
 import React from "react";
 import nursing1 from "../../assets/services_img/nursing1.png";
+import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import Header from "../Header";
 import "./service_style.css";
+import { useBookingContext } from "./BookingContext";
 
 const NursingServices = () => {
+  const navigate = useNavigate();
+ 
   const nurse = [
     {
-      title: "Wound Dressing",
+      title: "Wound Care",
       description: [
         "Major dressing at home",
         "Minor dressing at home",
@@ -188,6 +192,17 @@ const NursingServices = () => {
     },
   ];
 
+  const { setBookingData } = useBookingContext();
+  const handleBookNow = (subService) => {
+    const mainService = "Nursing"; 
+    setBookingData(prev => ({
+      ...prev,
+      mainService,
+      subService,
+  }));
+    navigate("/SelectOffer"); 
+  };
+
   return (
     <>
       <Header />
@@ -213,7 +228,9 @@ const NursingServices = () => {
                   alt={nurseservice.title}
                   className="rounded-lg h-[400px] w-[95%] object-cover"
                 />
-                <button className="absolute bottom-4 left-10 bg-white text-orange-500 text-3xl font-bold py-2 px-4 rounded-full">
+                <button className="absolute bottom-4 left-10 bg-white text-orange-500 text-3xl font-bold py-2 px-4 rounded-full"
+                  onClick={() => handleBookNow(nurseservice.title)} // Pass subService title here
+                >
                   Book Now
                 </button>
               </div>

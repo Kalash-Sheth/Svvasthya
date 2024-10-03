@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import logo from "../assets/svvasthya_logo.svg";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,7 +64,15 @@ const Header = () => {
               href="#faqs"
               className="text-midnightblue font-inter-tight hover:border-b-2"
             >
-              FAQS
+              Svvasthya Saathi
+            </a>
+          </li>
+          <li className="mx-4">
+            <a
+              href="#account"
+              className="text-midnightblue font-inter-tight hover:border-b-2"
+            >
+            <FontAwesomeIcon icon={faUser} className="mr-1" /> {/* Account Icon */}
             </a>
           </li>
         </ul>
@@ -129,17 +139,6 @@ const Header = () => {
                 FAQS
               </a>
             </li>
-            {/* <li className="my-4">
-              <a
-                href="tel:+919998877777"
-                className="emergency-call  text-white bg-orange-600 px-4  rounded-md font-normal"
-                onClick={closeMenu}
-              >
-                Emergency Call
-                <br />
-                <span className="font-bold">+91 99988 77777</span>
-              </a>
-            </li> */}
           </ul>
         </div>
       </div>

@@ -1,46 +1,71 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/svvasthya_logo.svg";
+import { useNavigate } from "react-router-dom";
+import { useBookingContext } from "./BookingContext";
+import Footer from "../Footer";
+import Header from "../Header";
+import axios from 'axios';
 
 const BookingConfirmation = () => {
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-white to-gray-100 px-4">
-      <div className="w-full max-w-4xl bg-white px-6 py-10 md:px-16 md:py-14 lg:px-24 lg:py-16 rounded-3xl border border-gray-300">
-        <div className="flex justify-center mb-6">
-          <img
-            src={logo}
-            alt="Sdaasthya"
-            className="h-20 w-36 md:h-24 md:w-40"
-          />{" "}
-          {/* Adjusted sizes for responsiveness */}
-        </div>
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#282261] text-center mb-4">
-          Thank You for Booking
-          <br /> with us!!
-        </h1>
-        <p className="text-center text-lg md:text-xl lg:text-2xl mb-8 text-[#282261]">
-          Hi <span className="font-bold">Manish Patel</span>, Just a friendly
-          reminder that your appointment with{" "}
-          <span className="font-bold">Dr. Sunil Patil</span> is tomorrow at
-          7:30PM. We look forward to seeing you!
-        </p>
-        <div className="flex justify-center space-x-4 mb-4">
-          <Link to="/" className="w-full">
-            <button className="border-2 w-full max-w-2xl border-orange-500 text-orange-500 font-semibold py-2 px-6 rounded-full hover:bg-orange-100 transition duration-200">
-              Doctor Profile
-            </button>
-          </Link>
-        </div>
-        <div className="flex justify-center space-x-4">
-          <Link to="/" className="w-full">
-            <button className="bg-orange-500 w-full max-w-2xl text-white font-semibold py-2 px-6 rounded-full hover:bg-orange-600 transition duration-200">
-              Home
-            </button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
+    const { bookingData } = useBookingContext();
+    const navigate = useNavigate();
+
+    const handleConfirm = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/appointment/appointments', {
+                mobileNumber: '+919510822738', // Ensure this data is part of bookingData
+                mainService: bookingData.mainService,
+                subService: bookingData.subService,
+                duration: bookingData.duration,
+                startTime: bookingData.startTime,
+                endTime: bookingData.endTime,
+                address: bookingData.address,
+                location: bookingData.location,
+            });
+
+            // If the appointment is successfully created, navigate to the success page
+            alert("successfully created appointment");
+            // navigate("/success");
+        } catch (error) {
+            // Handle errors
+            console.error('Error:', error);
+            const errorMessage = error.response?.data?.message || 'There was an error creating your appointment. Please try again.';
+            alert(errorMessage); // Display the error message to the user
+        }
+    };
+
+    return (
+        <>
+            <Header />
+            <div className="container mx-auto px-4 mt-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-[#282261] mb-4">Booking Confirmation</h2>
+                <div className="bg-white shadow-md rounded-lg p-6">
+                    <h3 className="text-xl font-semibold mb-2">Service Details</h3>
+                    <p><strong>Service:</strong>{bookingData.mainService} - {bookingData.subService}</p>
+                    <p><strong>Offer Duration:</strong>{bookingData.duration}</p>
+                    <p><strong>Price:</strong>{bookingData.price}</p>
+                    <hr className="my-4" />
+
+                    <h3 className="text-xl font-semibold mb-2">Appointment Details</h3>
+                    <p><strong>Start DateTime:</strong>{bookingData.startTime}</p>
+                    <p><strong>End DateTime:</strong>{bookingData.endTime}</p>
+                    <p><strong>Address:</strong>  {`${bookingData.address.name}, ${bookingData.address.houseNumber}, ${bookingData.address.landmark},${bookingData.address.fullAddress}`}</p>
+
+                    <p><strong>Location:</strong> Latitude: {bookingData.location?.latitude}, Longitude: {bookingData.location?.longitude}</p>
+                    
+                    <hr className="my-4" />
+                    <button
+                        onClick={handleConfirm}
+                        className="w-full bg-green-500 text-white py-2 rounded-3xl"
+                    >
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+            <Footer />
+        </>
+    );
+}
 
 export default BookingConfirmation;

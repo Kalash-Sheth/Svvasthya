@@ -4,9 +4,9 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require("dotenv").config({path: "backend/config/config.env"});
 
+
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server)
+
 
 // Connect Database
 connectDB();
@@ -26,22 +26,6 @@ app.use('/api/appointment',require('./routes/appointmentRoutes'));
 app.use('/api/attendant',require('./routes/attendantRoutes'));
 app.use('/api/admin',require('./routes/adminRoutes'));
 
-// WebSocket Connection Logic
-io.on('connection', (socket) => {
-  console.log('New attendant connected');
-
-  socket.on('attendantAvailable', async ({ attendantId, location, serviceType }) => {
-      // Call a function to handle updating attendant availability
-      await updateAttendantAvailability(attendantId, location, serviceType);
-  });
-
-  socket.on('disconnect', () => {
-      console.log('Attendant disconnected');
-  });
-});
-
-// Import your controller function to update attendant's availability
-const { updateAttendantAvailability } = require('./controllers/attendantController');
 
 const PORT = process.env.PORT || 5000;
 

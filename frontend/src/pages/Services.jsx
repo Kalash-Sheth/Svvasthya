@@ -50,7 +50,7 @@ const BannerComponent = ({
           className="mt-4 py-2 px-4 bg-white rounded-3xl h-12 w-44 font-bold text-xl"
           style={{ color: buttonColor }}
         >
-          <Link to="/ContactDetails">Book Now</Link>
+          <Link to="/nursingservices">Book Now</Link>
         </button>
       </div>
       <div className="flex mt-4 md:mt-0 md:ml-6 banner_img">

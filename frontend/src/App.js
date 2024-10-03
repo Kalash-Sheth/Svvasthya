@@ -10,35 +10,32 @@ import Attendant from "./pages/Attendant";
 import Home from './pages/Home';
 import Services from "./pages/Services";
 import Time from './pages/Time';
+import SelectOffer from './components/services/SelectOffer';
+import AddressContact from './components/services/AddressContact';
+import { BookingProvider } from "./components/services/BookingContext";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/ContactDetails" element={<ContactDetails />} />
-          <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
-          <Route path="/nursingservices" element={<NursingServices />}></Route>
-          <Route path="/BookingConfirmation" element={<BookingConfirmation />}></Route>
-          <Route path="/Admin" element={<Admin />}></Route>
-          <Route path="/Attendant" element={<Attendant />}></Route>
-          <Route path='/Dashboard' element={<Dashboard />}></Route>
-          <Route path='/Time' element={<Time />}></Route>
-
-
-
-
-
-          {/* <Route path="/services" element={<ServiceDetail />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/otpverification" element={<OtpVerification />} /> */}
-        </Routes>
-      </div>
-    </Router>
+        <BookingProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/SelectOffer" element={<SelectOffer />} />
+            <Route path="/AddressContact" element={<AddressContact />} />
+            <Route path="/ContactDetails" element={<ContactDetails />} />
+            <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
+            <Route path="/nursingservices" element={<NursingServices />}></Route>
+            <Route path="/BookingConfirmation" element={<BookingConfirmation />}></Route>
+            <Route path="/Admin" element={<Admin />}></Route>
+            <Route path="/Attendant" element={<Attendant />}></Route>
+            <Route path='/Dashboard' element={<Dashboard />}></Route>
+            <Route path='/Time' element={<Time />}></Route>
+          </Routes>
+        </BookingProvider>
+      </div >
+    </Router >
   );
 }
 

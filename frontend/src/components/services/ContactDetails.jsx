@@ -1,11 +1,13 @@
 import { useFormik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import Header from "../Header";
+import axios from "axios";
 
 export default function ContactDetails({ onSubmit }) {
   const navigate = useNavigate();
+  const [otpSent, setOtpSent] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -22,18 +24,55 @@ export default function ContactDetails({ onSubmit }) {
         .min(2, "Last Name must be at least 2 characters")
         .required("Last Name is required"),
       mobileNumber: Yup.string()
-        .matches(/^[0-9]+$/, "Mobile Number must be digits only")
-        .min(10, "Mobile Number must be at least 10 digits")
+        .matches(/^[0-9]{10}$/, "Mobile Number must be exactly 10 digits")
         .required("Mobile Number is required"),
       otp: Yup.string()
         .min(4, "OTP must be at least 4 digits")
         .required("OTP is required"),
     }),
-    onSubmit: (values) => {
-      console.log(values);
-      navigate("/CustomDatePicker");
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post("http://localhost:5000/api/auth/verify_otp_and_signup_login", {
+          mobileNumber: `+91${values.mobileNumber}`,
+          otp: values.otp,
+          firstname: values.firstName,
+          lastname: values.lastName,
+        });
+
+        if (response.data.success) {
+          navigate("/CustomDatePicker");
+        } else {
+          alert(response.data.error);
+        }
+      } catch (error) {
+        console.error("Error during OTP verification and signup/login:", error);
+        alert("Something went wrong. Please try again.");
+      }
     },
   });
+
+  const handleSendOtp = async () => {
+    if (formik.values.mobileNumber && !formik.errors.mobileNumber) {
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/send-otp",
+          { mobileNumber: `+91${formik.values.mobileNumber}` }
+        );
+
+        if (response.status === 200) {
+          setOtpSent(true);
+          alert("OTP sent successfully");
+        } else {
+          alert("Failed to send OTP. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        alert("Error sending OTP. Please try again.");
+      }
+    } else {
+      alert("Please enter a valid mobile number.");
+    }
+  };
 
   return (
     <>
@@ -103,8 +142,9 @@ export default function ContactDetails({ onSubmit }) {
               <button
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm sm:text-base text-[#282261] font-semibold hover:underline"
                 type="button"
+                onClick={handleSendOtp}
               >
-                Send OTP
+                {otpSent ? "Resend OTP" : "Send OTP"}
               </button>
             </div>
 
