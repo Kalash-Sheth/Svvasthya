@@ -13,6 +13,7 @@ import Time from './pages/Time';
 import SelectOffer from './components/services/SelectOffer';
 import AddressContact from './components/services/AddressContact';
 import { BookingProvider } from "./components/services/BookingContext";
+import AdminDash from './components/AdminComponent/AdminDash';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/nursingservices" element={<NursingServices />}></Route>
             <Route path="/BookingConfirmation" element={<BookingConfirmation />}></Route>
             <Route path="/Admin" element={<Admin />}></Route>
+            <Route path="/AdminDash" element={<AdminDash />}></Route>
             <Route path="/Attendant" element={<Attendant />}></Route>
             <Route path='/Dashboard' element={<Dashboard />}></Route>
             <Route path='/Time' element={<Time />}></Route>
