@@ -46,57 +46,73 @@ exports.loginAttendant = async (req, res) => {
 };
 
 // Function to update availability
-exports.updateAvailability = async (req, res) => {
-    try {
-        const { email, availability } = req.body;
-
-        // Find and update the attendant
-        const attendant = await Attendant.findOneAndUpdate(
-            { email: email },
-            { $set: { availability: availability } },
-            { new: true, runValidators: true }
-        );
-
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
-        res.status(200).json({ message: 'Availability updated successfully', availability: attendant.availability });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-
-// Function to get availability for an attendant
 exports.getAvailability = async (req, res) => {
+    // Extract token from the Authorization header
+    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+    }
+
     try {
-        // Extract token from the Authorization header
-        const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
-        
-        if (!token) {
-          return res.status(401).json({ message: 'Authorization token missing' });
-        }
-    
+
         // Verify the token and extract the payload
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const attendantId = decoded._id; // Assuming _id is part of the token payload
-    
-        // Find attendant by ID
+
+        // Find the attendant by ID
         const attendant = await Attendant.findById(attendantId);
-        
         if (!attendant) {
-          return res.status(404).json({ message: 'Attendant not found' });
+            return res.status(404).json({ message: 'Attendant not found' });
         }
 
-        res.status(200).json(attendant.availability);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+         // Respond with the attendant's availability data
+         res.status(200).json(attendant.availability);
+
+    } catch (err) {
+        console.error("Error fetching availability: ", err);
+        return res.status(500).json({ message: "Server error" });
     }
 };
 
-// Function to assign an appointment to an attendant
+
+// Function to update availability slots
+exports.updateAvailability = async (req, res) => {
+    const { startTime, endTime, location } = req.body;
+    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+    }
+
+    try {
+        // Verify the token and extract the payload
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+        // Fetch the attendant's record
+        let attendant = await Attendant.findById(attendantId);
+        if (!attendant) {
+            return res.status(404).json({ message: 'Attendant not found' });
+        }
+
+        attendant.availability.push({
+            startTime: new Date(startTime),
+            endTime: new Date(endTime),
+            location: location, // Store the attendant's current location (optional)
+        });
+
+        // Save the updated attendant data
+        await attendant.save();
+
+        return res.status(200).json({ message: 'Availability updated successfully', availability: attendant.availability });
+    } catch (error) {
+        console.error('Error updating availability:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
 exports.assignAppointment = async (req, res) => {
     try {
         const { appointmentId } = req.body;
@@ -192,40 +208,40 @@ exports.rejectAppointment = async (req, res) => {
 // Controller to get attendant profile based on the token
 exports.getProfile = async (req, res) => {
     try {
-      // Extract token from the Authorization header
-      const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
-      
-      if (!token) {
-        return res.status(401).json({ message: 'Authorization token missing' });
-      }
-  
-      // Verify the token and extract the payload
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const attendantId = decoded._id; // Assuming _id is part of the token payload
-  
-      // Find attendant by ID
-      const attendant = await Attendant.findById(attendantId);
-      
-      if (!attendant) {
-        return res.status(404).json({ message: 'Attendant not found' });
-      }
-  
-      // Respond with the attendant's profile data
-      res.json({
-        firstName: attendant.firstName,
-        lastName: attendant.lastName,
-        mobileNumber: attendant.mobileNumber,
-        email: attendant.email,
-        address: attendant.address,
-        availability: attendant.availability,
-        rating: attendant.rating,
-        role: attendant.role,
-      });
+        // Extract token from the Authorization header
+        const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+
+        if (!token) {
+            return res.status(401).json({ message: 'Authorization token missing' });
+        }
+
+        // Verify the token and extract the payload
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+        // Find attendant by ID
+        const attendant = await Attendant.findById(attendantId);
+
+        if (!attendant) {
+            return res.status(404).json({ message: 'Attendant not found' });
+        }
+
+        // Respond with the attendant's profile data
+        res.json({
+            firstName: attendant.firstName,
+            lastName: attendant.lastName,
+            mobileNumber: attendant.mobileNumber,
+            email: attendant.email,
+            address: attendant.address,
+            availability: attendant.availability,
+            rating: attendant.rating,
+            role: attendant.role,
+        });
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      res.status(500).json({ message: 'Server error. Please try again later.' });
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
     }
-  };
+};
 
 
 

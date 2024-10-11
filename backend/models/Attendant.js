@@ -41,27 +41,11 @@ const attendantSchema = new mongoose.Schema({
     },
     availability: [
         {
-            startTime: {
-                type: Date,
-                required: true
-            },
-            endTime: {
-                type: Date,
-                required: true
-            },
-            fullAddress: {
-                type: String,
-                required: true
-            },
+            startTime: { type: Date, required: true },
+            endTime: { type: Date, required: true },
             location: {
-                latitude: {
-                    type: Number,
-                    required: true
-                },
-                longitude: {
-                    type: Number,
-                    required: true
-                }
+                latitude: { type: Number, required: true },
+                longitude: { type: Number, required: true }
             }
         }
     ],
@@ -76,6 +60,11 @@ const attendantSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    CurrentAvailability: { type: Boolean, default: false },
+    CurrentLocation: {
+        latitude: { type: Number, default: 0 },
+        longitude: { type: Number, default: 0 }
     }
 });
 

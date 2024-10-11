@@ -12,6 +12,11 @@ export default function HomeScreen({ navigation }) {
         <Text>Set your Availability</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('RealTimeModel')}>
+        <Text style={styles.cardTitle}>Real Time Model</Text>
+        <Text>Real Time Model</Text>
+      </TouchableOpacity>
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Upcoming Tasks</Text>
         <Text>No upcoming tasks.</Text>

@@ -12,16 +12,27 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationWhenInUseUsageDescription": "We need your location to provide real-time services while you are using the app.",
+        "NSLocationAlwaysUsageDescription": "We need your location to provide real-time services even when the app is in the background.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide real-time services both in the background and foreground."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
     }
   }
 }

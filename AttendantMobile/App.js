@@ -11,6 +11,8 @@ import EarningsScreen from './src/screens/EarningsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
+import RealTimeModel from './src/screens/RealTimeModel';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +67,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="UpdateAvailability" component={UpdateAvailabilityScreen} />
+        <Stack.Screen name="RealTimeModel" component={RealTimeModel} />
       </Stack.Navigator>
     </NavigationContainer>
   );

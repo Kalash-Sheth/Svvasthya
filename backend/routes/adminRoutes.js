@@ -13,6 +13,6 @@ router.get('/appointments', adminController.getAllAppointments);
 router.post('/available', adminController.fetchAvailableAttendants);
 
 // Assign an attendant to an appointment
-router.post('/assign', adminController.assignAttendant);
+router.post('/:appointmentId/assign', adminController.assignAttendant);
 
 module.exports = router;
