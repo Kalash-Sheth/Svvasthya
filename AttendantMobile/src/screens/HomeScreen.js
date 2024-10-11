@@ -6,8 +6,8 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome, Attendant!</Text>
 
-     {/* TouchableOpacity for the Update Availability card */}
-     <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('UpdateAvailability')}>
+      {/* TouchableOpacity for the Update Availability card */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('UpdateAvailability')}>
         <Text style={styles.cardTitle}>Update Availability</Text>
         <Text>Set your Availability</Text>
       </TouchableOpacity>
@@ -17,10 +17,10 @@ export default function HomeScreen({ navigation }) {
         <Text>Real Time Model</Text>
       </TouchableOpacity>
 
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('UpcomingTasks')}>
         <Text style={styles.cardTitle}>Upcoming Tasks</Text>
         <Text>No upcoming tasks.</Text>
-      </View>
+      </TouchableOpacity>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Total Earnings</Text>
         <Text>$0.00</Text>

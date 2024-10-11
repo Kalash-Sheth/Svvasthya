@@ -12,6 +12,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
 import RealTimeModel from './src/screens/RealTimeModel';
+import UpcomingTasks from './src/screens/UpcomingTasks';
 
 
 const Stack = createStackNavigator();
@@ -68,6 +69,7 @@ export default function App() {
         />
         <Stack.Screen name="UpdateAvailability" component={UpdateAvailabilityScreen} />
         <Stack.Screen name="RealTimeModel" component={RealTimeModel} />
+        <Stack.Screen name="UpcomingTasks" component={UpcomingTasks} />
       </Stack.Navigator>
     </NavigationContainer>
   );

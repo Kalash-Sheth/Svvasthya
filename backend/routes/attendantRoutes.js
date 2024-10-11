@@ -13,16 +13,17 @@ router.get('/fetchavailability', attendantController.getAvailability);
 // Update Availability
 router.post('/updateavailability', attendantController.updateAvailability);
 
-// Assign Appointment
-router.post('/appointments/:attendantId', attendantController.assignAppointment);
+//get accepted appointments appointments
+router.get('/acceptedAppointments', attendantController.getAcceptedAppointments);
 
-router.get('/assignedAppointments', authMiddleware, attendantController.getAssignedAppointments);
+// get assigned appointments
+router.get('/assignedAppointments', attendantController.getAssignedAppointments);
 
 // Route to accept an appointment
-router.post('/acceptAppointment', authMiddleware, attendantController.acceptAppointment);
+router.post('/acceptAppointment', attendantController.acceptAppointment);
 
 // Route to reject an appointment
-router.post('/rejectAppointment', authMiddleware, attendantController.rejectAppointment);
+router.post('/rejectAppointment', attendantController.rejectAppointment);
 
 // Route to get profile
 router.get('/profile', authMiddleware, attendantController.getProfile);

@@ -66,8 +66,8 @@ exports.getAvailability = async (req, res) => {
             return res.status(404).json({ message: 'Attendant not found' });
         }
 
-         // Respond with the attendant's availability data
-         res.status(200).json(attendant.availability);
+        // Respond with the attendant's availability data
+        res.status(200).json(attendant.availability);
 
     } catch (err) {
         console.error("Error fetching availability: ", err);
@@ -112,41 +112,58 @@ exports.updateAvailability = async (req, res) => {
     }
 };
 
+// Function to get accepted appointments for the logged-in attendant
+exports.getAcceptedAppointments = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
 
-exports.assignAppointment = async (req, res) => {
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+    }
+
     try {
-        const { appointmentId } = req.body;
-        const { attendantId } = req.params;
+        // Verify the token and extract the payload
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded._id; // Assuming _id is part of the token payload
 
-        const attendant = await Attendant.findById(attendantId);
+        // Fetch the attendant's record
+        let attendant = await Attendant.findById(attendantId);
         if (!attendant) {
             return res.status(404).json({ message: 'Attendant not found' });
         }
 
-        const appointment = await Appointment.findById(appointmentId);
-        if (!appointment) {
-            return res.status(404).json({ message: 'Appointment not found' });
-        }
+        // Find all appointments where the attendant is assigned and the status is 'accepted'
+        const acceptedAppointments = await Appointment.find({
+            assignedAttendant: attendantId, // Adjust based on your Appointment model
+            status: 'accepted'
+        });
 
-        attendant.assignedAppointments.push(appointmentId);
-        await attendant.save();
-
-        res.status(200).json({ message: 'Appointment assigned successfully', assignedAppointments: attendant.assignedAppointments });
+        // Return the accepted appointments
+        res.status(200).json({
+            message: 'Accepted appointments fetched successfully',
+            acceptedAppointments,
+        });
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching accepted appointments:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
+
 // Function to get assigned appointments for the logged-in attendant
 exports.getAssignedAppointments = async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+    }
+
     try {
-        // Extract attendant ID from the JWT token (req.user is set by the auth middleware)
-        const attendantId = req.user._id;
+        // Verify the token and extract the payload
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded._id; // Assuming _id is part of the token payload
 
-        // Find the attendant by their ID and populate assigned appointments
-        const attendant = await Attendant.findById(attendantId).populate('assignedAppointments');
-
+        // Fetch the attendant's record
+        let attendant = await Attendant.findById(attendantId).populate('assignedAppointments');;
         if (!attendant) {
             return res.status(404).json({ message: 'Attendant not found' });
         }

@@ -1,25 +1,58 @@
-import React from 'react';
-import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
-
-const tasks = [
-  { id: '1', title: 'Task 1', date: '2024-09-28', time: '10:00 AM' },
-  { id: '2', title: 'Task 2', date: '2024-09-29', time: '12:00 PM' },
-];
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, FlatList, StyleSheet, Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TaskScreen() {
-  const renderTaskItem = ({ item }) => (
+  const [acceptedJobs, setAcceptedJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Function to fetch accepted jobs from the backend
+  const fetchAcceptedJobs = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in.');
+        navigation.navigate('Login');
+        return;
+      }
+
+      const response = await axios.get('http://192.168.1.7:5000/api/attendant/acceptedAppointments', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setAcceptedJobs(response.data.acceptedAppointments);
+    } catch (error) {
+      console.error('Error fetching accepted jobs:', error);
+      Alert.alert('Error', 'Could not fetch accepted jobs. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAcceptedJobs();
+  }, []);
+
+  const renderJobItem = ({ item }) => (
     <View style={styles.taskCard}>
-      <Text style={styles.taskTitle}>{item.title}</Text>
-      <Text>{item.date} at {item.time}</Text>
+      <Text style={styles.taskTitle}>{item.title || 'Accepted Appointment'}</Text>
+      <Text>{item.duration} at {item.startTime}</Text>
+      <Text>Status: {item.status}</Text>
     </View>
   );
+
+  if (loading) {
+    return <Text>Loading...</Text>; // Loading state
+  }
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={tasks}
-        keyExtractor={item => item.id}
-        renderItem={renderTaskItem}
+        data={acceptedJobs}
+        keyExtractor={item => item._id} 
+        renderItem={renderJobItem}
       />
     </View>
   );
