@@ -5,7 +5,6 @@ import nurse from "../assets/services_img/nurse_img.png";
 import second_img from "../assets/services_img/second_img.png";
 import third_img from "../assets/services_img/third_img.png";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
 import "../components/services/service_style.css";
 
 const BannerComponent = ({
@@ -110,7 +109,7 @@ function Explore() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <h1 className="text-5xl md:text-7xl mt-6 font-extrabold text-[#3C3B6E] mb-6">
         EXPLORE OUR SERVICES
       </h1>

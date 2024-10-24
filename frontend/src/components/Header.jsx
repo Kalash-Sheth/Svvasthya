@@ -1,7 +1,7 @@
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import logo from "../assets/svvasthya_logo.svg";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,7 +15,7 @@ const Header = () => {
   };
 
   return (
-    <header className="flex  items-center h-24 p-4 bg-white  ">
+    <header className="relative flex  items-center h-24 p-4 bg-white  ">
       <button
         onClick={toggleMenu}
         className="md:hidden flex flex-col space-y-1 ml-3"
@@ -69,10 +69,11 @@ const Header = () => {
           </li>
           <li className="mx-4">
             <a
-              href="#account"
+              href="/Profile"
               className="text-midnightblue font-inter-tight hover:border-b-2"
             >
-            <FontAwesomeIcon icon={faUser} className="mr-1" /> {/* Account Icon */}
+              <FontAwesomeIcon icon={faUser} className="mr-1" />{" "}
+              {/* Account Icon */}
             </a>
           </li>
         </ul>

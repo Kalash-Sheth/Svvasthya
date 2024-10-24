@@ -1,9 +1,8 @@
+import axios from "axios";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import Header from "../Header";
-import axios from "axios";
 
 export default function ContactDetails({ onSubmit }) {
   const navigate = useNavigate();
@@ -32,12 +31,15 @@ export default function ContactDetails({ onSubmit }) {
     }),
     onSubmit: async (values) => {
       try {
-        const response = await axios.post("http://localhost:5000/api/auth/verify_otp_and_signup_login", {
-          mobileNumber: `+91${values.mobileNumber}`,
-          otp: values.otp,
-          firstname: values.firstName,
-          lastname: values.lastName,
-        });
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/verify_otp_and_signup_login",
+          {
+            mobileNumber: `+91${values.mobileNumber}`,
+            otp: values.otp,
+            firstname: values.firstName,
+            lastname: values.lastName,
+          }
+        );
 
         if (response.data.success) {
           navigate("/CustomDatePicker");
@@ -76,8 +78,9 @@ export default function ContactDetails({ onSubmit }) {
 
   return (
     <>
-      <Header />
-      <div className="container mx-auto px-4 flex justify-center items-center h-screen">
+      {/* <Header /> */}
+
+      <div className=" mx-auto px-4 flex justify-center items-center h-screen bg-gradient-to-r from-[#ef5b2a1a] to-[#03a3491a]">
         <div className="bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 w-full max-w-5xl">
           <h2
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-left mb-4 sm:mb-6"
