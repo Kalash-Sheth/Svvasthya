@@ -21,7 +21,8 @@
         "NSLocationWhenInUseUsageDescription": "We need your location to provide real-time services while you are using the app.",
         "NSLocationAlwaysUsageDescription": "We need your location to provide real-time services even when the app is in the background.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide real-time services both in the background and foreground."
-      }
+      },
+      "bundleIdentifier": "com.kalash14.AttendantMobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +33,14 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION"
-      ]
+      ],
+      "package": "com.kalash14.AttendantMobile",
+      "versionCode": 1
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7adf403f-8137-4399-967b-63f9ad7c600b"
+      }
     }
   }
 }

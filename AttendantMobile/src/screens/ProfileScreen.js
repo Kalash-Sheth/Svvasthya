@@ -18,7 +18,7 @@ export default function ProfileScreen({ navigation }) {
       }
 
       // Call API to get user data based on token
-      const response = await fetch('http://192.168.1.7:5000/api/attendant/profile', {
+      const response = await fetch('http://192.168.1.4:5000/api/attendant/profile', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`, // Pass token in Authorization header

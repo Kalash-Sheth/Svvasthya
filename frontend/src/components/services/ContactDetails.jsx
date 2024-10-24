@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import Header from "../Header";
 import axios from "axios";
+import Cookies from 'js-cookie';
 
 export default function ContactDetails({ onSubmit }) {
   const navigate = useNavigate();
@@ -38,6 +39,10 @@ export default function ContactDetails({ onSubmit }) {
           firstname: values.firstName,
           lastname: values.lastName,
         });
+        const token = response.data.token;
+
+
+        Cookies.set('token', token, { expires: 7, path: '/' }); 
 
         if (response.data.success) {
           navigate("/CustomDatePicker");

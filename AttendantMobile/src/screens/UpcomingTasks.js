@@ -16,7 +16,7 @@ const UpcomingTasks = () => {
                 navigation.navigate('Login');
                 return;
             }
-            const response = await axios.get('http://192.168.1.7:5000/api/attendant/assignedAppointments', {
+            const response = await axios.get('http://192.168.1.4:5000/api/attendant/assignedAppointments', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -36,7 +36,7 @@ const UpcomingTasks = () => {
     // Function to accept an appointment
     const acceptAppointment = async (appointmentId) => {
         try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/acceptAppointment', { appointmentId });
+            await axios.post('http://192.168.1.4:5000/api/attendant/acceptAppointment', { appointmentId });
             Alert.alert('Success', 'Appointment accepted successfully');
             fetchAssignedAppointments(); // Refresh appointments
         } catch (error) {
@@ -48,7 +48,7 @@ const UpcomingTasks = () => {
     // Function to reject an appointment
     const rejectAppointment = async (appointmentId) => {
         try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/rejectAppointment', { appointmentId });
+            await axios.post('http://192.168.1.4:5000/api/attendant/rejectAppointment', { appointmentId });
             Alert.alert('Success', 'Appointment rejected successfully');
             fetchAssignedAppointments(); // Refresh appointments
         } catch (error) {

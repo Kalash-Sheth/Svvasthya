@@ -23,7 +23,7 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
     if (token) {
       try {
 
-        await axios.put('http://192.168.1.7:5000/api/realtime/updateLocation', {
+        await axios.put('http://192.168.1.4:5000/api/realtime/updateLocation', {
           currentLocation: {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -80,7 +80,7 @@ export default function RealTimeModel() {
 
 
       const response = await axios.put(
-        'http://192.168.1.7:5000/api/realtime/updateAvailability',
+        'http://192.168.1.4:5000/api/realtime/updateAvailability',
         {
           currentAvailability: available,
           currentLocation: available ? {

@@ -75,7 +75,17 @@ const CustomerSchema = new mongoose.Schema({
             type: [Number],
             required: true
         }
-    }
+    },
+    CurrentLocation: {
+        latitude: { type: Number, default: 0 },
+        longitude: { type: Number, default: 0 }
+    },
+    selectedCurrentService: { type: String },
+    assignedCurrentAttendant: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the Attendant model
+        ref: 'Attendant'
+    } // New field to track the currently assigned attendant
+
 });
 
 CustomerSchema.methods.generateToken = function () {

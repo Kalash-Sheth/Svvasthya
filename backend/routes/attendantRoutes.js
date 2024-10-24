@@ -26,6 +26,6 @@ router.post('/acceptAppointment', attendantController.acceptAppointment);
 router.post('/rejectAppointment', attendantController.rejectAppointment);
 
 // Route to get profile
-router.get('/profile', authMiddleware, attendantController.getProfile);
+router.get('/profile', attendantController.getProfile);
 
 module.exports = router;

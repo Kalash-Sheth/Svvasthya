@@ -11,7 +11,7 @@ export default function LoginScreen({ navigation }) {
     setIsLoading(true);
 
     // Sample API URL (replace with actual API endpoint)
-    const apiUrl = 'http://192.168.1.7:5000/api/attendant/login';
+    const apiUrl = 'http://192.168.1.4:5000/api/attendant/login';
 
     // Request body
     const requestBody = {

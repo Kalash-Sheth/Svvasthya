@@ -3,7 +3,7 @@ import { View, Button, Text, Alert, ActivityIndicator, ScrollView } from 'react-
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import * as Location from 'expo-location'; // Optional: to fetch current location
+import * as Location from 'expo-location'; 
 
 const UpdateAvailabilityScreen = ({ navigation }) => {
     const [startTime, setStartTime] = useState(new Date());
@@ -26,7 +26,7 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
                     return;
                 }
 
-                const response = await axios.get('http://192.168.1.7:5000/api/attendant/fetchavailability', {
+                const response = await axios.get('http://192.168.1.4:5000/api/attendant/fetchavailability', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -112,7 +112,7 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
 
             // Make the API call to update availability
             await axios.post(
-                'http://192.168.1.7:5000/api/attendant/updateavailability',
+                'http://192.168.1.4:5000/api/attendant/updateavailability',
                 {
                     startTime: startTime,
                     endTime: endTime,

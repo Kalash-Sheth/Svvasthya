@@ -65,7 +65,29 @@ const attendantSchema = new mongoose.Schema({
     CurrentLocation: {
         latitude: { type: Number, default: 0 },
         longitude: { type: Number, default: 0 }
-    }
+    },
+    realtimeAssignments: [
+        {
+            customerId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Customer',
+                required: true
+            },
+            service: {
+                type: String,
+                required: true
+            },
+            assignedAt: {
+                type: Date,
+                default: Date.now
+            },
+            status: {
+                type: String,
+                enum: ['pending', 'ongoing', 'completed'],
+                default: 'pending'
+            }
+        }
+    ]
 });
 
 const Attendant = mongoose.model('Attendant', attendantSchema);
