@@ -1,14 +1,13 @@
 import React from "react";
-import nursing1 from "../../assets/services_img/nursing1.png";
 import { useNavigate } from "react-router-dom";
+import nursing1 from "../../assets/services_img/nursing1.png";
 import Footer from "../Footer";
-import Header from "../Header";
-import "./service_style.css";
 import { useBookingContext } from "./BookingContext";
+import "./service_style.css";
 
 const NursingServices = () => {
   const navigate = useNavigate();
- 
+
   const nurse = [
     {
       title: "Wound Care",
@@ -194,18 +193,18 @@ const NursingServices = () => {
 
   const { setBookingData } = useBookingContext();
   const handleBookNow = (subService) => {
-    const mainService = "Nursing"; 
-    setBookingData(prev => ({
+    const mainService = "Nursing";
+    setBookingData((prev) => ({
       ...prev,
       mainService,
       subService,
-  }));
-    navigate("/SelectOffer"); 
+    }));
+    navigate("/SelectOffer");
   };
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <div className="p-6 bg-white">
         <h2 className="text-4xl md:text-7xl flex justify-center font-bold text-[#282261] m-0">
           HOW WE WORK
@@ -228,7 +227,8 @@ const NursingServices = () => {
                   alt={nurseservice.title}
                   className="rounded-lg h-[400px] w-[95%] object-cover"
                 />
-                <button className="absolute bottom-4 left-10 bg-white text-orange-500 text-3xl font-bold py-2 px-4 rounded-full"
+                <button
+                  className="absolute bottom-4 left-10 bg-white text-orange-500 text-3xl font-bold py-2 px-4 rounded-full"
                   onClick={() => handleBookNow(nurseservice.title)} // Pass subService title here
                 >
                   Book Now

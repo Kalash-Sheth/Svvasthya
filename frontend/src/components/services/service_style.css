@@ -15,7 +15,7 @@
   float: right;
 }
 
-.container {
+/* .container {
   background: linear-gradient(
     78.83deg,
     rgba(239, 91, 42, 0.1) 0%,
@@ -23,7 +23,7 @@
     rgba(139, 197, 65, 0.1) 66%,
     rgba(3, 147, 71, 0.1) 100%
   );
-}
+} */
 
 /* .container_nurse {
   background: url("/src/assets/services_img/watermarkedit.svg") no-repeat top

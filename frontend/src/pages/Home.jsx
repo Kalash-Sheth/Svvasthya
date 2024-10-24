@@ -3,7 +3,7 @@ import AboutUs from "../components/AboutUs";
 import FAQS from "../components/FAQS";
 import FeaturedPartners from "../components/FeaturedPartners";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
+// import Header from "../components/Header";
 import Hero from "../components/Hero";
 import HowWeWorks from "../components/HowWrWorks";
 import NumericalsComponent from "../components/NumericalsComponent";
@@ -14,7 +14,7 @@ import WhyChooseUs from "../components/WhyChooseUs";
 function Home() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <Hero />
       <RealTimeSearch />
       <HowWeWorks />
