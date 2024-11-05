@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid"; // Import UUID to generate unique IDs
 import { useBookingContext } from "./BookingContext";
 
 function AddressContact() {
-  const [showContactDetails, setShowContactDetails] = useState(false);
   const { setBookingData } = useBookingContext();
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");

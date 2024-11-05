@@ -51,7 +51,7 @@ const RealTimeSearch = () => {
         }
       );
       console.log("Search response:", response.data);
-      navigate('/attendant-details', { state: { attendant: response.data.attendant } });
+      navigate('/AttendatDetails', { state: { attendant: response.data.attendant } });
     } catch (error) {
       console.error("Error searching attendants:", error);
       alert("Error fetching attendants. Please try again.");

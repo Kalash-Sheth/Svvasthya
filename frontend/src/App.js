@@ -14,6 +14,7 @@ import ContactDetails from './components/services/ContactDetails';
 import CustomDatePicker from './components/services/CustomDatePicker';
 import NursingServices from './components/services/NursingServices';
 import SelectOffer from './components/services/SelectOffer';
+import AttendantDetails from './components/AttendantDetails';
 import Admin from './pages/Admin';
 import Attendant from "./pages/Attendant";
 import Home from './pages/Home';
@@ -33,6 +34,7 @@ function App() {
             <Route path="/SelectOffer" element={<SelectOffer />} />
             <Route path="/AddressContact" element={<AddressContact />} />
             <Route path="/ContactDetails" element={<ContactDetails />} />
+            <Route path="/AttendatDetails" element={<AttendantDetails />} />
             <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
             <Route path="/nursingservices" element={<NursingServices />}></Route>
             <Route path="/BookingConfirmation" element={<BookingConfirmation />}></Route>
