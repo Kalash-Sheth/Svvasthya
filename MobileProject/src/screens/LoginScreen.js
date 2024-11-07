@@ -18,6 +18,14 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+
+  const handleSignUp = async () => {
+        Alert.alert('SignUp Successful', `Welcome`);
+        navigation.navigate('Onboarding');
+
+  };
+
+
   const handleLogin = async () => {
     setIsLoading(true);
 
@@ -137,7 +145,7 @@ const LoginScreen = ({ navigation }) => {
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleSignUp}>
               <Text style={styles.signupLink}>Sign up</Text>
             </TouchableOpacity>
           </View>
@@ -174,7 +182,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: rgba(40,34,97,255)
+    color: '#6b7280'
   },
   welcomeContainer: {
     alignItems: 'center',

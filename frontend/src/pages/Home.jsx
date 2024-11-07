@@ -5,7 +5,7 @@ import FeaturedPartners from "../components/FeaturedPartners";
 import Footer from "../components/Footer";
 // import Header from "../components/Header";
 import Hero from "../components/Hero";
-import HowWeWorks from "../components/HowWrWorks";
+import HowWeWorks from "../components/HowWeWorks";
 import NumericalsComponent from "../components/NumericalsComponent";
 import RealTimeSearch from "../components/RealTimeSearch";
 import Testimonials from "../components/Testimonials";

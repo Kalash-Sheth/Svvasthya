@@ -11,6 +11,8 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import UpcomingTasks from './src/screens/UpcomingTasks';
 import TaskScreen from './src/screens/TaskScreen';
 import RealTimeModel from './src/screens/RealTimeModel';
+import Onboarding from './src/components/Onboarding';
+
 
 import EarningsScreen from './src/screens/EarningsScreen';
 
@@ -71,6 +73,7 @@ const App = () => {
         <Stack.Navigator initialRouteName="Splash">
           <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Onboarding" component={Onboarding} />
           <Stack.Screen name="UpcomingTasks" component={UpcomingTasks} />
           <Stack.Screen name="Tasks" component={TaskScreen} />
           <Stack.Screen name="Earnings" component={EarningsScreen} />

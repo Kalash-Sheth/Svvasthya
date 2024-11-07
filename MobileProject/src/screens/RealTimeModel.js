@@ -3,52 +3,7 @@ import { View, Text, StyleSheet, Button, Alert, PermissionsAndroid, Platform } f
 import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-
-// Function to update location in the background
-const updateLocationInBackground = async (location) => {
-  const token = await AsyncStorage.getItem('token');
-  if (token) {
-    try {
-      await axios.put('http://192.168.1.7:5000/api/realtime/updateLocation', {
-        currentLocation: {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        },
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Location updated to backend successfully');
-    } catch (err) {
-      console.error('Failed to update location:', err);
-    }
-  }
-};
-
-// Request location permission
-const requestLocationPermission = async () => {
-  try {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Access Permission',
-          message: 'We need to access your location for real-time tracking',
-          buttonPositive: 'OK',
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } else {
-      const response = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      return response === RESULTS.GRANTED;
-    }
-  } catch (err) {
-    console.warn(err);
-    return false;
-  }
-};
+import BackgroundLocationService from '../components/BackgroundLocationService';
 
 export default function RealTimeModel() {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -57,19 +12,59 @@ export default function RealTimeModel() {
 
   useEffect(() => {
     const loadAvailability = async () => {
-      const availability = await AsyncStorage.getItem('isAvailable');
-      if (availability) {
-        setIsAvailable(JSON.parse(availability));
+      try {
+        const availability = await AsyncStorage.getItem('isAvailable');
+        if (availability === 'true') {
+          setIsAvailable(true);
+          const permissionGranted = await requestLocationPermission();
+          if (permissionGranted) {
+            await BackgroundLocationService.start();
+          }
+        }
+      } catch (error) {
+        console.error('Error loading availability:', error);
       }
     };
 
     loadAvailability();
-
-    // Cleanup function to stop tracking location on unmount
-    return () => {
-      stopBackgroundLocationTracking();
-    };
   }, []);
+
+  const requestLocationPermission = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Access Required',
+            message: 'This app needs to access your location in the background',
+            buttonPositive: 'OK',
+          }
+        );
+
+        // For Android 10 and above, we need to request background location separately
+        if (Platform.Version >= 29) {
+          const backgroundGranted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+            {
+              title: 'Background Location Access Required',
+              message: 'This app needs to access your location in the background',
+              buttonPositive: 'OK',
+            }
+          );
+          return (
+            granted === PermissionsAndroid.RESULTS.GRANTED &&
+            backgroundGranted === PermissionsAndroid.RESULTS.GRANTED
+          );
+        }
+        
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
+      return true; // For iOS, handle permissions differently if needed
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
 
   const updateAvailability = async (available) => {
     try {
@@ -79,95 +74,95 @@ export default function RealTimeModel() {
         return;
       }
 
-      const permissionGranted = await requestLocationPermission();
-      if (!permissionGranted) {
-        Alert.alert('Permission Denied', 'Location permission is required to proceed.');
-        return;
-      }
-
-      // Get current location if setting available
       if (available) {
+        const permissionGranted = await requestLocationPermission();
+        if (!permissionGranted) {
+          Alert.alert('Permission Denied', 'Location permission is required.');
+          return;
+        }
+
+        // Get current location
         Geolocation.getCurrentPosition(
-          (position) => {
+          async (position) => {
             const currentLocation = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
             };
             setLocation(currentLocation);
-            updateLocationInBackground(currentLocation);
+
+            try {
+              // Update availability status with location
+              const response = await axios.put(
+                'http://192.168.1.7:5000/api/realtime/updateAvailability',
+                {
+                  currentAvailability: true,
+                  currentLocation,
+                },
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+
+              if (response.data.success) {
+                setIsAvailable(true);
+                await AsyncStorage.setItem('isAvailable', 'true');
+                await BackgroundLocationService.start();
+                console.log('Available status and background service started');
+              }
+            } catch (error) {
+              console.error('Failed to update availability:', error);
+              setError('Failed to update availability: ' + error.message);
+            }
           },
           (error) => {
-            console.error(error);
+            console.error('Location error:', error);
             setError('Failed to get location: ' + error.message);
           },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
         );
-      }
+      } else {
+        // Set unavailable
+        try {
+          const response = await axios.put(
+            'http://192.168.1.7:5000/api/realtime/updateAvailability',
+            {
+              currentAvailability: false,
+              currentLocation: null,
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-      const response = await axios.put(
-        'http://192.168.1.7:5000/api/realtime/updateAvailability',
-        {
-          currentAvailability: available,
-          currentLocation: available ? location : null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        console.log('Availability updated successfully');
-        setIsAvailable(available);
-        await AsyncStorage.setItem('isAvailable', JSON.stringify(available));
-
-        // Start or stop background location tracking based on availability
-        if (available) {
-          startBackgroundLocationTracking();
-        } else {
-          stopBackgroundLocationTracking();
+          if (response.data.success) {
+            setIsAvailable(false);
+            await AsyncStorage.setItem('isAvailable', 'false');
+            await BackgroundLocationService.stop();
+            console.log('Unavailable status set and background service stopped');
+          }
+        } catch (error) {
+          console.error('Failed to update availability:', error);
+          setError('Failed to update availability: ' + error.message);
         }
       }
     } catch (err) {
-      console.error('Failed to update availability:', err);
-      setError('Failed to update availability: ' + (err.response?.data?.message || err.message));
+      console.error('Error in updateAvailability:', err);
+      setError('Error updating availability: ' + err.message);
     }
-  };
-
-  const startBackgroundLocationTracking = () => {
-    Geolocation.watchPosition(
-      (position) => {
-        const currentLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        updateLocationInBackground(currentLocation);
-      },
-      (error) => {
-        console.error(error);
-        Alert.alert('Error', 'Failed to track location: ' + error.message);
-      },
-      { enableHighAccuracy: true, distanceFilter: 0, interval: 5000 }
-    );
-    console.log('Started background location tracking');
-  };
-
-  const stopBackgroundLocationTracking = () => {
-    Geolocation.stopObserving();
-    console.log('Stopped background location tracking');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Real Time Model</Text>
-      <Button title="Set Available" onPress={() => updateAvailability(true)} />
-      <Button title="Set Not Available" onPress={() => updateAvailability(false)} />
+      <Button 
+        title={isAvailable ? "Stop Availability" : "Set Available"} 
+        onPress={() => updateAvailability(!isAvailable)} 
+      />
       {error && <Text style={styles.error}>{error}</Text>}
       {isAvailable ? (
         <Text style={styles.successMessage}>You are now available for real-time service!</Text>
       ) : (
-        <Text style={styles.error}>You are not available for real-time service.</Text>
+        <Text style={styles.message}>You are not available for real-time service.</Text>
       )}
     </View>
   );
@@ -186,13 +181,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   error: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'red',
     textAlign: 'center',
+    marginTop: 10,
   },
   successMessage: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'green',
     textAlign: 'center',
+    marginTop: 10,
+  },
+  message: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
