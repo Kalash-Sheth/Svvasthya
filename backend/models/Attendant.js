@@ -23,6 +23,12 @@ const attendantSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    otp: {
+        type: String,
+    },
+    otpExpires: {
+        type: Date
+    },
     address: {
         type: String,
         required: true
@@ -37,7 +43,6 @@ const attendantSchema = new mongoose.Schema({
             // Babycare subservices
             'Newborn Care', 'Infant Feeding', 'Baby Massage'
         ], // Subservice options categorized by mainService
-        required: true
     },
     availability: [
         {

@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, TextInput, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, Image, ScrollView, Alert } from 'react-native';
 import styled from 'styled-components/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Styled components
 const Container = styled.View`
@@ -43,9 +45,45 @@ const ButtonText = styled.Text`
 // Onboarding Component
 const Onboarding = () => {
     const [screen, setScreen] = React.useState('OnboardingScreen1');
+    const [mobileNumber, setMobileNumber] = React.useState('');
+    const [otp, setOtp] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const [bio, setBio] = React.useState('');
+    const[bio,setBio] = React.useState('');
+
+    const sendOtp = async () => {
+        try {
+            await axios.post('http://192.168.1.18:5000/api/attendant/send-otp', { mobileNumber });
+            Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
+            setScreen('OtpVerificationScreen');
+        } catch (error) {
+            Alert.alert('Error', 'Failed to send OTP. Please try again.');
+        }
+    };
+
+    const verifyOtp = async () => {
+        try {
+            const response = await axios.post('http://192.168.1.18:5000/api/attendant/verify-otp', { mobileNumber, otp });
+            if (response.data.success) {
+                Alert.alert('Success', 'OTP Verified.');
+                setScreen('AccountSetupScreen');
+            } else {
+                Alert.alert('Error', 'Invalid OTP.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+        }
+    };
+
+    const completeOnboarding = async () => {
+        try {
+            await axios.post('http://192.168.1.18:5000/api/attendant/complete-onboarding', { mobileNumber, email, password });
+            Alert.alert('Success', 'Onboarding Complete.');
+            setScreen('ProfileCompletionScreen');
+        } catch (error) {
+            Alert.alert('Error', 'Failed to complete onboarding.');
+        }
+    };
 
     const renderScreen = () => {
         switch (screen) {
@@ -54,8 +92,30 @@ const Onboarding = () => {
                     <Container>
                         <Header>Welcome to Svvasthya</Header>
                         <Image source={require('../../assets/Svvasthya_logo.png')} style={{ width: 200, height: 200 }} />
-                        <ButtonStyled onPress={() => setScreen('AccountSetupScreen')}>
+                        <ButtonStyled onPress={() => setScreen('MobileNumberScreen')}>
                             <ButtonText>Get Started</ButtonText>
+                        </ButtonStyled>
+                    </Container>
+                );
+
+            case 'MobileNumberScreen':
+                return (
+                    <Container>
+                        <Header>Enter Mobile Number</Header>
+                        <Input placeholder="Mobile Number" keyboardType="phone-pad" value={mobileNumber} onChangeText={setMobileNumber} />
+                        <ButtonStyled onPress={sendOtp}>
+                            <ButtonText>Send OTP</ButtonText>
+                        </ButtonStyled>
+                    </Container>
+                );
+
+            case 'OtpVerificationScreen':
+                return (
+                    <Container>
+                        <Header>Verify OTP</Header>
+                        <Input placeholder="Enter OTP" keyboardType="numeric" value={otp} onChangeText={setOtp} />
+                        <ButtonStyled onPress={verifyOtp}>
+                            <ButtonText>Verify OTP</ButtonText>
                         </ButtonStyled>
                     </Container>
                 );
@@ -63,14 +123,15 @@ const Onboarding = () => {
             case 'AccountSetupScreen':
                 return (
                     <Container>
-                        <Header>Account Setup</Header>
+                        <Header>Set Up Account</Header>
                         <Input placeholder="Email" value={email} onChangeText={setEmail} />
                         <Input placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
-                        <ButtonStyled onPress={() => setScreen('ProfileCompletionScreen')}>
+                        <ButtonStyled onPress={completeOnboarding}>
                             <ButtonText>Continue</ButtonText>
                         </ButtonStyled>
                     </Container>
                 );
+
 
             case 'ProfileCompletionScreen':
                 return (

@@ -5,18 +5,122 @@ const Attendant = require('../models/Attendant');
 const Appointment = require('../models/Appointment');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config({ path: "backend/config/config.env" });
+const twilio = require('twilio');
 
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = new twilio(accountSid, authToken);
 
 // Helper function to generate JWT
 const generateToken = (attendantId) => {
     return jwt.sign({ _id: attendantId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
+
+// function to send otp
+exports.send_otp = async (req, res) => {
+    const { mobileNumber } = req.body;
+    console.log(mobileNumber);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60000);
+
+    try {
+        let attendant = await Attendant.findOne({ mobileNumber });
+        const newuser = "newuser"
+        if (!attendant) {
+            attendant = new Attendant({
+                firstName: newuser,
+                lastName: newuser,
+                email: newuser,
+                password: newuser,
+                address: newuser,
+                mobileNumber,
+            });
+        }
+        console.log(attendant);
+        attendant.otp = otp;
+        attendant.otpExpires = otpExpires;
+
+        await attendant.save();
+
+        await client.messages.create({
+            body: `Your OTP is ${otp}`,
+            to: mobileNumber,
+            from: process.env.TWILIO_PHONE_NUMBER
+        });
+
+        res.status(200).json({ message: 'OTP sent successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error sending OTP' });
+    }
+};
+
+
+exports.verify_otp = async (req, res) => {
+    const { mobileNumber, otp } = req.body;
+
+    try {
+        let attendant = await Attendant.findOne({ mobileNumber });
+
+        if (!attendant) {
+            return res.status(404).json({ success: false, message: 'Mobile number not found. Please register first.' });
+        }
+
+        // Verify OTP and expiration
+        if (attendant.otp !== otp || attendant.otpExpires < new Date()) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+        }
+
+        // Clear OTP fields after successful verification
+        attendant.otp = null;
+        attendant.otpExpires = null;
+
+        // Save changes to the attendant
+        await attendant.save();
+
+        // Generate a JWT token for authentication
+        const token = jwt.sign({ id: attendant._id }, process.env.JWT_SECRET, { expiresIn: '90d' });
+        const options = {
+            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+        };
+
+        return res.status(200).cookie('token', token, options).json({
+            success: true,
+            message: 'Login successful',
+            user: attendant,
+            token,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error verifying OTP and logging in', error });
+    }
+};
+
+
+//function for onboarding
+exports.completeOnboarding = async (req, res) => {
+    const { mobileNumber, email, password } = req.body;
+
+    try {
+        const attendant = await Attendant.findOne({ mobileNumber });
+
+        attendant.email = email;
+        attendant.password = password;
+
+        await attendant.save();
+        res.status(201).json({ success: true, message: 'Onboarding complete'});
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to complete onboarding', error });
+    }
+};
+
 // Function to log in an attendant
 exports.loginAttendant = async (req, res) => {
     try {
         const { email, password } = req.body;
-
+        console.log(email);
         // Check if attendant exists
         const attendant = await Attendant.findOne({ email });
         if (!attendant) {

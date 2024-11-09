@@ -43,7 +43,7 @@ export default function ProfileScreen({ navigation }) {
         return;
       }
 
-      const response = await fetch('http://192.168.1.7:5000/api/attendant/profile', {
+      const response = await fetch('http://192.168.1.18:5000/api/attendant/profile', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

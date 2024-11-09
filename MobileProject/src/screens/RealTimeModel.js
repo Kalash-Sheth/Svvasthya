@@ -93,7 +93,7 @@ export default function RealTimeModel() {
             try {
               // Update availability status with location
               const response = await axios.put(
-                'http://192.168.1.7:5000/api/realtime/updateAvailability',
+                'http://192.168.1.18:5000/api/realtime/updateAvailability',
                 {
                   currentAvailability: true,
                   currentLocation,
@@ -124,7 +124,7 @@ export default function RealTimeModel() {
         // Set unavailable
         try {
           const response = await axios.put(
-            'http://192.168.1.7:5000/api/realtime/updateAvailability',
+            'http://192.168.1.18:5000/api/realtime/updateAvailability',
             {
               currentAvailability: false,
               currentLocation: null,

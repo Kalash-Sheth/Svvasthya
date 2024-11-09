@@ -4,6 +4,15 @@ const router = express.Router();
 const attendantController = require('../controllers/attendantController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
+// send otp
+router.post('/send-otp', attendantController.send_otp);
+
+// verify otp
+router.post('/verify-otp', attendantController.verify_otp);
+
+// onboarding
+router.post('/complete-onboarding', attendantController.completeOnboarding);
+
 // Login Attendant
 router.post('/login', attendantController.loginAttendant);
 
