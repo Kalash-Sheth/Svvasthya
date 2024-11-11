@@ -1,0 +1,59 @@
+<svg viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#ffffff"/>
+  
+  <!-- Status Bar -->
+  <rect width="360" height="24" fill="#1a237e"/>
+  
+  <!-- Top Bar -->
+  <rect y="24" width="360" height="56" fill="#ffffff"/>
+  <text x="24" y="58" font-family="sans-serif" font-size="20" fill="#1a237e">Professional Details</text>
+  
+  <!-- Progress Bar -->
+  <rect y="80" width="360" height="4" fill="#e0e0e0"/>
+  <rect y="80" width="135" height="4" fill="#4caf50"/>
+  
+  <!-- Form Fields -->
+  <g transform="translate(16, 100)">
+    <!-- Professional Title Dropdown -->
+    <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+    <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Professional Title</text>
+    <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+    <path d="M300,46 l-8,8 l8,8" fill="none" stroke="#1a237e" stroke-width="2"/>
+    
+    <!-- Specialization -->
+    <g transform="translate(0, 84)">
+      <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Specialization</text>
+      <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+      <path d="M300,46 l-8,8 l8,8" fill="none" stroke="#1a237e" stroke-width="2"/>
+    </g>
+    
+    <!-- Experience -->
+    <g transform="translate(0, 168)">
+      <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Years of Experience</text>
+      <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+    </g>
+    
+    <!-- Previous Employer -->
+    <g transform="translate(0, 252)">
+      <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Previous Employer</text>
+      <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+    </g>
+    
+    <!-- Reference Contact -->
+    <g transform="translate(0, 336)">
+      <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Reference Contact</text>
+      <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+    </g>
+  </g>
+  
+  <!-- Next Button -->
+  <g transform="translate(60, 560)">
+    <rect width="240" height="56" rx="28" fill="#ff5722"/>
+    <text x="120" y="35" font-family="sans-serif" font-size="18" fill="white" text-anchor="middle">Next</text>
+  </g>
+</svg>

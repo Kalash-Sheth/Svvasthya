@@ -1,0 +1,49 @@
+<svg viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#ffffff"/>
+  
+  <!-- Status Bar -->
+  <rect width="360" height="24" fill="#1a237e"/>
+  
+  <!-- Top Bar -->
+  <rect y="24" width="360" height="56" fill="#ffffff"/>
+  <text x="24" y="58" font-family="sans-serif" font-size="20" fill="#1a237e">Upload Documents</text>
+  
+  <!-- Progress Bar -->
+  <rect y="80" width="360" height="4" fill="#e0e0e0"/>
+  <rect y="80" width="90" height="4" fill="#4caf50"/>
+  
+  <!-- Document Upload Sections -->
+  <g transform="translate(16, 100)">
+    <!-- Aadhaar Card -->
+    <rect width="328" height="120" rx="8" fill="#f5f5f5"/>
+    <text x="16" y="30" font-family="sans-serif" font-size="16" fill="#1a237e">Aadhaar Card</text>
+    <rect x="16" y="45" width="296" height="60" rx="4" fill="#ffffff" stroke="#ddd"/>
+    <path d="M148,65 l32,32 l32,-32" fill="none" stroke="#666666" stroke-width="2"/>
+    <text x="164" y="85" font-family="sans-serif" font-size="14" fill="#666666" text-anchor="middle">Upload File</text>
+    
+    <!-- PAN Card -->
+    <g transform="translate(0, 130)">
+      <rect width="328" height="120" rx="8" fill="#f5f5f5"/>
+      <text x="16" y="30" font-family="sans-serif" font-size="16" fill="#1a237e">PAN Card</text>
+      <rect x="16" y="45" width="296" height="60" rx="4" fill="#ffffff" stroke="#ddd"/>
+      <path d="M148,65 l32,32 l32,-32" fill="none" stroke="#666666" stroke-width="2"/>
+      <text x="164" y="85" font-family="sans-serif" font-size="14" fill="#666666" text-anchor="middle">Upload File</text>
+    </g>
+    
+    <!-- Passport Photo -->
+    <g transform="translate(0, 260)">
+      <rect width="328" height="120" rx="8" fill="#f5f5f5"/>
+      <text x="16" y="30" font-family="sans-serif" font-size="16" fill="#1a237e">Passport Size Photo</text>
+      <rect x="16" y="45" width="296" height="60" rx="4" fill="#ffffff" stroke="#ddd"/>
+      <path d="M148,65 l32,32 l32,-32" fill="none" stroke="#666666" stroke-width="2"/>
+      <text x="164" y="85" font-family="sans-serif" font-size="14" fill="#666666" text-anchor="middle">Upload Image</text>
+    </g>
+  </g>
+  
+  <!-- Next Button -->
+  <g transform="translate(60, 560)">
+    <rect width="240" height="56" rx="28" fill="#ff5722"/>
+    <text x="120" y="35" font-family="sans-serif" font-size="18" fill="white" text-anchor="middle">Next</text>
+  </g>
+</svg>

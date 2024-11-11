@@ -1,0 +1,56 @@
+<svg viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#ffffff"/>
+  
+  <!-- Status Bar -->
+  <rect width="360" height="24" fill="#1a237e"/>
+  
+  <!-- Top Bar -->
+  <rect y="24" width="360" height="56" fill="#ffffff"/>
+  <text x="24" y="58" font-family="sans-serif" font-size="20" fill="#1a237e">Personal Information</text>
+  
+  <!-- Progress Bar -->
+  <rect y="80" width="360" height="4" fill="#e0e0e0"/>
+  <rect y="80" width="45" height="4" fill="#4caf50"/>
+  
+  <!-- Form Fields -->
+  <g transform="translate(16, 100)">
+    <!-- Profile Photo Upload -->
+    <circle cx="164" cy="60" r="40" fill="#e0e0e0"/>
+    <path d="M164,30 a20,20 0 0,1 0,40 a20,20 0 0,1 0,-40" fill="#9e9e9e"/>
+    <circle cx="190" cy="86" r="12" fill="#ff5722"/>
+    <path d="M184,86 h12 v-2 h-12z M190,80 v12" fill="white"/>
+    
+    <!-- Name Fields -->
+    <g transform="translate(0, 120)">
+      <rect width="328" height="56" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="20" font-family="sans-serif" font-size="12" fill="#666666">First Name</text>
+      <line x1="12" y1="44" x2="316" y2="44" stroke="#1a237e" stroke-width="2"/>
+    </g>
+    
+    <g transform="translate(0, 188)">
+      <rect width="328" height="56" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="20" font-family="sans-serif" font-size="12" fill="#666666">Last Name</text>
+      <line x1="12" y1="44" x2="316" y2="44" stroke="#1a237e" stroke-width="2"/>
+    </g>
+    
+    <!-- Contact Fields -->
+    <g transform="translate(0, 256)">
+      <rect width="328" height="56" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="20" font-family="sans-serif" font-size="12" fill="#666666">Mobile Number</text>
+      <line x1="12" y1="44" x2="316" y2="44" stroke="#1a237e" stroke-width="2"/>
+    </g>
+    
+    <g transform="translate(0, 324)">
+      <rect width="328" height="56" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="20" font-family="sans-serif" font-size="12" fill="#666666">Email Address</text>
+      <line x1="12" y1="44" x2="316" y2="44" stroke="#1a237e" stroke-width="2"/>
+    </g>
+  </g>
+  
+  <!-- Next Button -->
+  <g transform="translate(60, 560)">
+    <rect width="240" height="56" rx="28" fill="#ff5722"/>
+    <text x="120" y="35" font-family="sans-serif" font-size="18" fill="white" text-anchor="middle">Next</text>
+  </g>
+</svg>

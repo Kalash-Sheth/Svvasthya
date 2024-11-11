@@ -7,7 +7,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
+// import SettingsScreen from './src/screens/SettingsScreen';
 import UpcomingTasks from './src/screens/UpcomingTasks';
 import TaskScreen from './src/screens/TaskScreen';
 import RealTimeModel from './src/screens/RealTimeModel';
@@ -24,6 +24,7 @@ import AgreementScreen from './src/screens/Onboarding/AgreementScreen';
 import ConfirmationScreen from './src/screens/Onboarding/ConfirmationScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
 import { Icon } from 'react-native-elements';
+import ProfessionalInfoScreen from './src/screens/Onboarding/ProfessionalInfoScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -88,6 +89,7 @@ const App = () => {
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
           <Stack.Screen name="Document" component={DocumentScreen} />
+          <Stack.Screen name="ProfessionalInfo" component={ProfessionalInfoScreen} />
           <Stack.Screen name="Skills" component={SkillsScreen} />
           <Stack.Screen name="Availability" component={AvailabilityScreen} />
           <Stack.Screen name="MedicalInfo" component={MedicalInfoScreen} />

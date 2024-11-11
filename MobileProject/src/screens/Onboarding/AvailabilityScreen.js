@@ -1,39 +1,179 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, ToggleButton, Switch, Text } from 'react-native-paper';
+import React, {useState} from 'react';
+import {View, StyleSheet, ScrollView} from 'react-native';
+import {Button, Switch, Text, Chip} from 'react-native-paper';
+import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
 
-export default function AvailabilityScreen({ navigation }) {
-  const [availability, setAvailability] = React.useState('fulltime');
-  const [isWillingToTravel, setIsWillingToTravel] = React.useState(false);
+const BRAND_COLORS = {
+  orange: '#FF7F50',
+  green: '#4CAF50',
+  blue: '#2196F3',
+  lightBlue: '#E3F2FD',
+  lightOrange: '#FFF3E0',
+  lightGreen: '#E8F5E9',
+  gray: '#666666',
+  lightGray: '#F5F5F5',
+};
+
+const shifts = ['Morning', 'Afternoon', 'Night'];
+const days = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+
+export default function AvailabilityScreen({navigation}) {
+  const [availability, setAvailability] = useState('fulltime');
+  const [isWillingToTravel, setIsWillingToTravel] = useState(false);
+  const [selectedShifts, setSelectedShifts] = useState([]);
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [locationPreference, setLocationPreference] = useState('');
+
+  const handleShiftSelect = shift => {
+    if (selectedShifts.includes(shift)) {
+      setSelectedShifts(prev => prev.filter(s => s !== shift));
+    } else {
+      setSelectedShifts(prev => [...prev, shift]);
+    }
+  };
+
+  const handleDaySelect = day => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays(prev => prev.filter(d => d !== day));
+    } else {
+      setSelectedDays(prev => [...prev, day]);
+    }
+  };
 
   const handleNext = () => {
-    console.log({ availability, isWillingToTravel });
+    console.log({
+      availability,
+      isWillingToTravel,
+      selectedShifts,
+      selectedDays,
+      locationPreference,
+    });
     navigation.navigate('MedicalInfo');
   };
 
   return (
-    <View style={styles.container}>
-      <ProgressBar progress={0.7} />
+    <ScrollView style={styles.container}>
+      <ProgressBar step={5} totalSteps={8} />
+      <Text style={styles.headerText}>Availability Preferences</Text>
 
-      <Text>Choose Availability</Text>
-      <ToggleButton.Row onValueChange={setAvailability} value={availability}>
-        <ToggleButton icon="clock" value="fulltime" />
-        <ToggleButton icon="clock-outline" value="parttime" />
-      </ToggleButton.Row>
-
-      <View style={styles.switchContainer}>
-        <Text>Willing to Travel?</Text>
-        <Switch
-          value={isWillingToTravel}
-          onValueChange={setIsWillingToTravel}
-        />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Work Type</Text>
+        <View style={styles.chipContainer}>
+          <Chip
+            // selected={availability === 'fulltime'}
+            onPress={() => setAvailability('fulltime')}
+            style={[
+              styles.chip,
+              availability === 'fulltime' && styles.selectedChip,
+            ]}
+            textStyle={[
+              styles.chipText,
+              availability === 'fulltime' && styles.selectedChipText,
+            ]}>
+            Full Time
+          </Chip>
+          <Chip
+            // selected={availability === 'parttime'}
+            onPress={() => setAvailability('parttime')}
+            style={[
+              styles.chip,
+              availability === 'parttime' && styles.selectedChip,
+            ]}
+            textStyle={[
+              styles.chipText,
+              availability === 'parttime' && styles.selectedChipText,
+            ]}>
+            Part Time
+          </Chip>
+        </View>
       </View>
 
-      <Button mode="contained" onPress={handleNext}>
-        Next
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Preferred Days</Text>
+        <Text style={styles.sectionSubtitle}>Select your available days</Text>
+        <View style={styles.chipContainer}>
+          {days.map(day => (
+            <Chip
+              key={day}
+              // selected={selectedDays.includes(day)}
+              onPress={() => handleDaySelect(day)}
+              style={[
+                styles.chip,
+                selectedDays.includes(day) && styles.selectedChip,
+              ]}
+              textStyle={[
+                styles.chipText,
+                selectedDays.includes(day) && styles.selectedChipText,
+              ]}>
+              {day}
+            </Chip>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Shift Preferences</Text>
+        <Text style={styles.sectionSubtitle}>Select your preferred shifts</Text>
+        <View style={styles.chipContainer}>
+          {shifts.map(shift => (
+            <Chip
+              key={shift}
+              // selected={selectedShifts.includes(shift)}
+              onPress={() => handleShiftSelect(shift)}
+              style={[
+                styles.chip,
+                selectedShifts.includes(shift) && styles.selectedChip,
+              ]}
+              textStyle={[
+                styles.chipText,
+                selectedShifts.includes(shift) && styles.selectedChipText,
+              ]}>
+              {shift}
+            </Chip>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Location Preferences</Text>
+        <Text style={styles.sectionSubtitle}>
+          Specify your preferred work areas
+        </Text>
+        <FormInput
+          label="Preferred Locations"
+          value={locationPreference}
+          onChangeText={setLocationPreference}
+          icon="map-pin"
+          placeholder="e.g., South Delhi, Noida"
+        />
+        <View style={styles.switchContainer}>
+          <Text style={styles.switchLabel}>Willing to Travel?</Text>
+          <Switch
+            value={isWillingToTravel}
+            onValueChange={setIsWillingToTravel}
+            color={BRAND_COLORS.orange}
+          />
+        </View>
+      </View>
+
+      <Button
+        mode="contained"
+        onPress={handleNext}
+        style={styles.button}
+        contentStyle={styles.buttonContent}
+        labelStyle={styles.buttonText}>
+        Continue
       </Button>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -41,11 +181,102 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#fff',
+  },
+  headerText: {
+    fontSize: 28,
+    fontFamily: 'Poppins-SemiBold',
+    color: BRAND_COLORS.blue,
+    marginBottom: 25,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
+  },
+  section: {
+    marginBottom: 25,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    paddingTop: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.green,
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.gray,
+    marginBottom: 20,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 10,
+  },
+  chip: {
+    backgroundColor: '#F1F5F9',
+  },
+  selectedChip: {
+    backgroundColor: BRAND_COLORS.lightOrange,
+  },
+  chipText: {
+    color: '#64748B',
+    fontFamily: 'Poppins-Regular',
+  },
+  selectedChipText: {
+    color: BRAND_COLORS.orange,
+    fontFamily: 'Poppins-Medium',
   },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
     alignItems: 'center',
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  switchLabel: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    color: '#334155',
+  },
+  button: {
+    marginVertical: 25,
+    backgroundColor: BRAND_COLORS.orange,
+    borderRadius: 30,
+    elevation: 8,
+    shadowColor: BRAND_COLORS.orange,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    marginHorizontal: 20,
+  },
+  buttonContent: {
+    height: 56,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    color: 'white',
+    letterSpacing: 1,
   },
 });

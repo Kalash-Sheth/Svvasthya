@@ -1,0 +1,78 @@
+<svg viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#ffffff"/>
+  
+  <!-- Status Bar -->
+  <rect width="360" height="24" fill="#1a237e"/>
+  
+  <!-- Top Bar -->
+  <rect y="24" width="360" height="56" fill="#ffffff"/>
+  <text x="24" y="58" font-family="sans-serif" font-size="20" fill="#1a237e">Skills & Qualifications</text>
+  
+  <!-- Progress Bar -->
+  <rect y="80" width="360" height="4" fill="#e0e0e0"/>
+  <rect y="80" width="180" height="4" fill="#4caf50"/>
+  
+  <!-- Skills Section -->
+  <g transform="translate(16, 100)">
+    <!-- Skills Selection -->
+    <text x="0" y="24" font-family="sans-serif" font-size="16" fill="#1a237e">Select Your Skills</text>
+    
+    <!-- Skill Tags -->
+    <g transform="translate(0, 40)">
+      <!-- Patient Care -->
+      <rect width="120" height="32" rx="16" fill="#ff5722" opacity="0.1"/>
+      <text x="60" y="21" font-family="sans-serif" font-size="14" fill="#ff5722" text-anchor="middle">Patient Care</text>
+      <circle cx="105" cy="16" r="8" fill="#ff5722"/>
+      <path d="M102,16 h6" stroke="white" stroke-width="2"/>
+      
+      <!-- Wound Management -->
+      <g transform="translate(130, 0)">
+        <rect width="160" height="32" rx="16" fill="#4caf50" opacity="0.1"/>
+        <text x="80" y="21" font-family="sans-serif" font-size="14" fill="#4caf50" text-anchor="middle">Wound Management</text>
+        <circle cx="145" cy="16" r="8" fill="#4caf50"/>
+        <path d="M142,16 h6" stroke="white" stroke-width="2"/>
+      </g>
+    </g>
+    
+    <!-- Certifications -->
+    <g transform="translate(0, 100)">
+      <text x="0" y="24" font-family="sans-serif" font-size="16" fill="#1a237e">Certifications</text>
+      
+      <!-- Add Certificate Button -->
+      <g transform="translate(0, 40)">
+        <rect width="328" height="56" rx="8" fill="#f5f5f5"/>
+        <circle cx="28" cy="28" r="16" fill="#ff5722"/>
+        <path d="M28,22 v12 M22,28 h12" stroke="white" stroke-width="2"/>
+        <text x="56" y="33" font-family="sans-serif" font-size="16" fill="#1a237e">Add Certification</text>
+      </g>
+      
+      <!-- Added Certificate -->
+      <g transform="translate(0, 104)">
+        <rect width="328" height="72" rx="8" fill="#f5f5f5"/>
+        <text x="16" y="24" font-family="sans-serif" font-size="14" fill="#1a237e">BLS Certification</text>
+        <text x="16" y="48" font-family="sans-serif" font-size="12" fill="#666666">American Heart Association</text>
+        <rect x="240" y="20" width="72" height="32" rx="16" fill="#4caf50"/>
+        <text x="276" y="40" font-family="sans-serif" font-size="12" fill="white" text-anchor="middle">Valid</text>
+      </g>
+    </g>
+    
+    <!-- Languages -->
+    <g transform="translate(0, 300)">
+      <text x="0" y="24" font-family="sans-serif" font-size="16" fill="#1a237e">Languages Known</text>
+      
+      <!-- Language Selection -->
+      <g transform="translate(0, 40)">
+        <rect width="328" height="56" rx="8" fill="#f5f5f5"/>
+        <text x="16" y="33" font-family="sans-serif" font-size="16" fill="#1a237e">Select Languages</text>
+        <path d="M300,28 l-8,8 l8,8" fill="none" stroke="#1a237e" stroke-width="2"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Next Button -->
+  <g transform="translate(60, 560)">
+    <rect width="240" height="56" rx="28" fill="#ff5722"/>
+    <text x="120" y="35" font-family="sans-serif" font-size="18" fill="white" text-anchor="middle">Next</text>
+  </g>
+</svg>

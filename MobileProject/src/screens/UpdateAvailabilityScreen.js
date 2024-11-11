@@ -54,173 +54,191 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
     };
 
     useEffect(() => {
-        const fetchAvailability = async () => {
-            setFetchingAvailability(true);
-            try {
-                const token = await AsyncStorage.getItem('token');
-                if (!token) {
-                    Alert.alert('Error', 'You are not logged in.');
-                    navigation.navigate('Login');
-                    return;
-                }
+      const fetchAvailability = async () => {
+        setFetchingAvailability(true);
+        try {
+          const token = await AsyncStorage.getItem('token');
+          if (!token) {
+            Alert.alert('Error', 'You are not logged in.');
+            navigation.navigate('Login');
+            return;
+          }
 
-                const response = await axios.get('http://192.168.1.7:5000/api/attendant/fetchavailability', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+          const response = await axios.get(
+            'http://192.168.0.107:5000/api/attendant/fetchavailability',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
 
-                setAvailability(response.data);
-            } catch (error) {
-                console.error('Error fetching availability:', error);
-                Alert.alert('Error', 'An error occurred while fetching availability.');
-            } finally {
-                setFetchingAvailability(false);
-            }
-        };
+          setAvailability(response.data);
+        } catch (error) {
+          console.error('Error fetching availability:', error);
+          Alert.alert(
+            'Error',
+            'An error occurred while fetching availability.',
+          );
+        } finally {
+          setFetchingAvailability(false);
+        }
+      };
 
-        fetchAvailability();
+      fetchAvailability();
     }, []);
 
     const onChangeStartDate = (event, selectedDate) => {
-        if (Platform.OS === 'android') {
-            setShowStartDatePicker(false);
+      if (Platform.OS === 'android') {
+        setShowStartDatePicker(false);
+      }
+      if (selectedDate) {
+        const currentDate = selectedDate || startDate;
+        if (currentDate < new Date()) {
+          Alert.alert('Error', 'Start date cannot be in the past.');
+          return;
         }
-        if (selectedDate) {
-            const currentDate = selectedDate || startDate;
-            if (currentDate < new Date()) {
-                Alert.alert('Error', 'Start date cannot be in the past.');
-                return;
-            }
-            setStartDate(currentDate);
-        }
+        setStartDate(currentDate);
+      }
     };
 
     const onChangeStartTime = (event, selectedTime) => {
-        if (Platform.OS === 'android') {
-            setShowStartTimePicker(false);
+      if (Platform.OS === 'android') {
+        setShowStartTimePicker(false);
+      }
+      if (selectedTime) {
+        selectedTime.setMinutes(0, 0, 0);
+        const currentTime = selectedTime || startTime;
+        if (currentTime < new Date()) {
+          Alert.alert('Error', 'Start Time cannot be in the past.');
+          return;
         }
-        if (selectedTime) {
-            selectedTime.setMinutes(0, 0, 0);
-            const currentTime = selectedTime || startTime;
-            if (currentTime < new Date()) {
-                Alert.alert('Error', 'Start Time cannot be in the past.');
-                return;
-            }
-            setStartTime(selectedTime);
-        }
+        setStartTime(selectedTime);
+      }
     };
 
     const onChangeEndDate = (event, selectedDate) => {
-        if (Platform.OS === 'android') {
-            setShowEndDatePicker(false);
+      if (Platform.OS === 'android') {
+        setShowEndDatePicker(false);
+      }
+      if (selectedDate) {
+        const currentDate = selectedDate || endDate;
+        if (currentDate < startDate) {
+          Alert.alert('Error', 'End Date must be after the Start Date.');
+          return;
         }
-        if (selectedDate) {
-            const currentDate = selectedDate || endDate;
-            if (currentDate < startDate) {
-                Alert.alert('Error', 'End Date must be after the Start Date.');
-                return;
-            }
-            setEndDate(currentDate);
-        }
+        setEndDate(currentDate);
+      }
     };
 
     const onChangeEndTime = (event, selectedTime) => {
-        if (Platform.OS === 'android') {
-            setShowEndTimePicker(false);
-        }
-        if (selectedTime) {
-            selectedTime.setMinutes(0, 0, 0);
+      if (Platform.OS === 'android') {
+        setShowEndTimePicker(false);
+      }
+      if (selectedTime) {
+        selectedTime.setMinutes(0, 0, 0);
 
-            const currentTime = selectedTime || endTime;
-            if (currentTime <= startTime) {
-                Alert.alert('Error', 'End Time must be after the Start Time.');
-                return;
-            }
-            setEndTime(selectedTime);
+        const currentTime = selectedTime || endTime;
+        if (currentTime <= startTime) {
+          Alert.alert('Error', 'End Time must be after the Start Time.');
+          return;
         }
+        setEndTime(selectedTime);
+      }
     };
 
     const checkForOverlappingSlots = (newStartTime, newEndTime) => {
-        return availability.some(slot => {
-            const existingStartTime = new Date(slot.startTime).getTime();
-            const existingEndTime = new Date(slot.endTime).getTime();
+      return availability.some(slot => {
+        const existingStartTime = new Date(slot.startTime).getTime();
+        const existingEndTime = new Date(slot.endTime).getTime();
 
-            return (
-                (newStartTime >= existingStartTime && newStartTime < existingEndTime) ||
-                (newEndTime > existingStartTime && newEndTime <= existingEndTime) ||
-                (newStartTime <= existingStartTime && newEndTime >= existingEndTime)
-            );
-        });
+        return (
+          (newStartTime >= existingStartTime &&
+            newStartTime < existingEndTime) ||
+          (newEndTime > existingStartTime && newEndTime <= existingEndTime) ||
+          (newStartTime <= existingStartTime && newEndTime >= existingEndTime)
+        );
+      });
     };
 
     const submitAvailability = async () => {
-        setLoading(true);
-        try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                Alert.alert('Error', 'You are not logged in.');
-                navigation.navigate('Login');
-                return;
-            }
-
-            const finalStartTime = combineDateTime(startDate, startTime);
-            const finalEndTime = combineDateTime(endDate, endTime);
-
-            if (finalStartTime >= finalEndTime) {
-                Alert.alert('Error', 'End time must be after the start time.');
-                setLoading(false);
-                return;
-            }
-
-            if (checkForOverlappingSlots(finalStartTime.getTime(), finalEndTime.getTime())) {
-                Alert.alert('Error', 'New availability overlaps with an existing slot.');
-                setLoading(false);
-                return;
-            }
-
-            const hasLocationPermission = await requestLocationPermission();
-            if (!hasLocationPermission) {
-                Alert.alert('Error', 'Location permission denied.');
-                setLoading(false);
-                return;
-            }
-
-            Geolocation.getCurrentPosition(
-                position => {
-                    setCurrentLocation({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    });
-                },
-                error => {
-                    console.error(error);
-                    Alert.alert('Error', 'Unable to fetch current location. Using default location.');
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-            );
-
-            await axios.post(
-                'http://192.168.1.7:5000/api/attendant/updateavailability',
-                {
-                    startTime: finalStartTime.toISOString(),
-                    endTime: finalEndTime.toISOString(),
-                    location: currentLocation
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            Alert.alert('Success', 'Availability updated successfully.');
-        } catch (error) {
-            console.error('Error updating availability:', error);
-            Alert.alert('Error', 'An error occurred while updating availability.');
-        } finally {
-            setLoading(false);
+      setLoading(true);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Error', 'You are not logged in.');
+          navigation.navigate('Login');
+          return;
         }
+
+        const finalStartTime = combineDateTime(startDate, startTime);
+        const finalEndTime = combineDateTime(endDate, endTime);
+
+        if (finalStartTime >= finalEndTime) {
+          Alert.alert('Error', 'End time must be after the start time.');
+          setLoading(false);
+          return;
+        }
+
+        if (
+          checkForOverlappingSlots(
+            finalStartTime.getTime(),
+            finalEndTime.getTime(),
+          )
+        ) {
+          Alert.alert(
+            'Error',
+            'New availability overlaps with an existing slot.',
+          );
+          setLoading(false);
+          return;
+        }
+
+        const hasLocationPermission = await requestLocationPermission();
+        if (!hasLocationPermission) {
+          Alert.alert('Error', 'Location permission denied.');
+          setLoading(false);
+          return;
+        }
+
+        Geolocation.getCurrentPosition(
+          position => {
+            setCurrentLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          },
+          error => {
+            console.error(error);
+            Alert.alert(
+              'Error',
+              'Unable to fetch current location. Using default location.',
+            );
+          },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        );
+
+        await axios.post(
+          'http://192.168.0.107:5000/api/attendant/updateavailability',
+          {
+            startTime: finalStartTime.toISOString(),
+            endTime: finalEndTime.toISOString(),
+            location: currentLocation,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        Alert.alert('Success', 'Availability updated successfully.');
+      } catch (error) {
+        console.error('Error updating availability:', error);
+        Alert.alert('Error', 'An error occurred while updating availability.');
+      } finally {
+        setLoading(false);
+      }
     };
 
     return (

@@ -9,52 +9,69 @@ const UpcomingTasks = () => {
 
     // Function to fetch assigned appointments
     const fetchAssignedAppointments = async () => {
-        try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) {
-                Alert.alert('Error', 'You are not logged in.');
-                navigation.navigate('Login');
-                return;
-            }
-            const response = await axios.get('http://192.168.1.7:5000/api/attendant/assignedAppointments', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            console.log(response.data.assignedAppointments);
-            setAppointments(response.data.assignedAppointments);
-
-        } catch (error) {
-            console.error('Error fetching appointments:', error);
-            Alert.alert('Error', 'Could not fetch appointments. Please try again later.');
-        } finally {
-            setLoading(false);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Alert.alert('Error', 'You are not logged in.');
+          navigation.navigate('Login');
+          return;
         }
+        const response = await axios.get(
+          'http://192.168.0.107:5000/api/attendant/assignedAppointments',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        console.log(response.data.assignedAppointments);
+        setAppointments(response.data.assignedAppointments);
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+        Alert.alert(
+          'Error',
+          'Could not fetch appointments. Please try again later.',
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
     // Function to accept an appointment
-    const acceptAppointment = async (appointmentId) => {
-        try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/acceptAppointment', { appointmentId });
-            Alert.alert('Success', 'Appointment accepted successfully');
-            fetchAssignedAppointments(); // Refresh appointments
-        } catch (error) {
-            console.error('Error accepting appointment:', error);
-            Alert.alert('Error', 'Could not accept appointment. Please try again later.');
-        }
+    const acceptAppointment = async appointmentId => {
+      try {
+        await axios.post(
+          'http://192.168.0.107:5000/api/attendant/acceptAppointment',
+          {appointmentId},
+        );
+        Alert.alert('Success', 'Appointment accepted successfully');
+        fetchAssignedAppointments(); // Refresh appointments
+      } catch (error) {
+        console.error('Error accepting appointment:', error);
+        Alert.alert(
+          'Error',
+          'Could not accept appointment. Please try again later.',
+        );
+      }
     };
 
     // Function to reject an appointment
-    const rejectAppointment = async (appointmentId) => {
-        try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/rejectAppointment', { appointmentId });
-            Alert.alert('Success', 'Appointment rejected successfully');
-            fetchAssignedAppointments(); // Refresh appointments
-        } catch (error) {
-            console.error('Error rejecting appointment:', error);
-            Alert.alert('Error', 'Could not reject appointment. Please try again later.');
-        }
+    const rejectAppointment = async appointmentId => {
+      try {
+        await axios.post(
+          'http://192.168.0.107:5000/api/attendant/rejectAppointment',
+          {appointmentId},
+        );
+        Alert.alert('Success', 'Appointment rejected successfully');
+        fetchAssignedAppointments(); // Refresh appointments
+      } catch (error) {
+        console.error('Error rejecting appointment:', error);
+        Alert.alert(
+          'Error',
+          'Could not reject appointment. Please try again later.',
+        );
+      }
     };
 
     useEffect(() => {

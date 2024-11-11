@@ -24,9 +24,9 @@ const locationUpdateTask = async (taskDataArguments) => {
               // Update location to backend
               try {
                 await axios.put(
-                  'http://192.168.1.7:5000/api/realtime/updateLocation',
-                  { currentLocation },
-                  { headers: { Authorization: `Bearer ${token}` } }
+                  'http://192.168.0.107:5000/api/realtime/updateLocation',
+                  {currentLocation},
+                  {headers: {Authorization: `Bearer ${token}`}},
                 );
                 console.log('Background location updated successfully');
               } catch (error) {

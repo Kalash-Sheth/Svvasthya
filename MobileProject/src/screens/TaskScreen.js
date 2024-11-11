@@ -17,11 +17,14 @@ export default function TaskScreen() {
         return;
       }
 
-      const response = await axios.get('http://192.168.1.7:5000/api/attendant/acceptedAppointments', {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        'http://192.168.0.107:5000/api/attendant/acceptedAppointments',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       setAcceptedJobs(response.data.acceptedAppointments);
     } catch (error) {
       console.error('Error fetching accepted jobs:', error);

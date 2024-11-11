@@ -1,0 +1,58 @@
+<svg viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="360" height="640" fill="#ffffff"/>
+  
+  <!-- Status Bar -->
+  <rect width="360" height="24" fill="#1a237e"/>
+  
+  <!-- Top Bar -->
+  <rect y="24" width="360" height="56" fill="#ffffff"/>
+  <text x="24" y="58" font-family="sans-serif" font-size="20" fill="#1a237e">Banking Details</text>
+  
+  <!-- Progress Bar -->
+  <rect y="80" width="360" height="4" fill="#e0e0e0"/>
+  <rect y="80" width="270" height="4" fill="#4caf50"/>
+  
+  <!-- Form Fields -->
+  <g transform="translate(16, 100)">
+    <!-- Bank Info Icon -->
+    <rect width="328" height="80" rx="8" fill="#f5f5f5"/>
+    <circle cx="164" cy="40" r="24" fill="#1a237e"/>
+    <path d="M164,25 l15,20 h-30 z" fill="#ffffff"/>
+    
+    <!-- Account Details -->
+    <g transform="translate(0, 100)">
+      <!-- Account Holder -->
+      <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+      <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Account Holder Name</text>
+      <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+      
+      <!-- Bank Name -->
+      <g transform="translate(0, 84)">
+        <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+        <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Bank Name</text>
+        <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+      </g>
+      
+      <!-- Account Number -->
+      <g transform="translate(0, 168)">
+        <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+        <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">Account Number</text>
+        <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+      </g>
+      
+      <!-- IFSC -->
+      <g transform="translate(0, 252)">
+        <rect width="328" height="72" rx="4" fill="#f5f5f5"/>
+        <text x="12" y="24" font-family="sans-serif" font-size="12" fill="#666666">IFSC Code</text>
+        <rect x="12" y="32" width="304" height="28" rx="4" fill="#ffffff" stroke="#1a237e"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Next Button -->
+  <g transform="translate(60, 560)">
+    <rect width="240" height="56" rx="28" fill="#ff5722"/>
+    <text x="120" y="35" font-family="sans-serif" font-size="18" fill="white" text-anchor="middle">Next</text>
+  </g>
+</svg>

@@ -52,37 +52,45 @@ const Onboarding = () => {
     const[bio,setBio] = React.useState('');
 
     const sendOtp = async () => {
-        try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/send-otp', { mobileNumber });
-            Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
-            setScreen('OtpVerificationScreen');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to send OTP. Please try again.');
-        }
+      try {
+        await axios.post('http://192.168.0.107:5000/api/attendant/send-otp', {
+          mobileNumber,
+        });
+        Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
+        setScreen('OtpVerificationScreen');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to send OTP. Please try again.');
+      }
     };
 
     const verifyOtp = async () => {
-        try {
-            const response = await axios.post('http://192.168.1.7:5000/api/attendant/verify-otp', { mobileNumber, otp });
-            if (response.data.success) {
-                Alert.alert('Success', 'OTP Verified.');
-                setScreen('AccountSetupScreen');
-            } else {
-                Alert.alert('Error', 'Invalid OTP.');
-            }
-        } catch (error) {
-            Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+      try {
+        const response = await axios.post(
+          'http://192.168.0.107:5000/api/attendant/verify-otp',
+          {mobileNumber, otp},
+        );
+        if (response.data.success) {
+          Alert.alert('Success', 'OTP Verified.');
+          setScreen('AccountSetupScreen');
+        } else {
+          Alert.alert('Error', 'Invalid OTP.');
         }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+      }
     };
 
     const completeOnboarding = async () => {
-        try {
-            await axios.post('http://192.168.1.7:5000/api/attendant/complete-onboarding', { mobileNumber, email, password });
-            Alert.alert('Success', 'Onboarding Complete.');
-            setScreen('ProfileCompletionScreen');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to complete onboarding.');
-        }
+      try {
+        await axios.post(
+          'http://192.168.0.107:5000/api/attendant/complete-onboarding',
+          {mobileNumber, email, password},
+        );
+        Alert.alert('Success', 'Onboarding Complete.');
+        setScreen('ProfileCompletionScreen');
+      } catch (error) {
+        Alert.alert('Error', 'Failed to complete onboarding.');
+      }
     };
 
     const renderScreen = () => {
