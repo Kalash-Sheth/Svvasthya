@@ -53,7 +53,7 @@ const Onboarding = () => {
 
     const sendOtp = async () => {
         try {
-            await axios.post('http://192.168.1.18:5000/api/attendant/send-otp', { mobileNumber });
+            await axios.post('http://192.168.1.7:5000/api/attendant/send-otp', { mobileNumber });
             Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
             setScreen('OtpVerificationScreen');
         } catch (error) {
@@ -63,7 +63,7 @@ const Onboarding = () => {
 
     const verifyOtp = async () => {
         try {
-            const response = await axios.post('http://192.168.1.18:5000/api/attendant/verify-otp', { mobileNumber, otp });
+            const response = await axios.post('http://192.168.1.7:5000/api/attendant/verify-otp', { mobileNumber, otp });
             if (response.data.success) {
                 Alert.alert('Success', 'OTP Verified.');
                 setScreen('AccountSetupScreen');
@@ -77,7 +77,7 @@ const Onboarding = () => {
 
     const completeOnboarding = async () => {
         try {
-            await axios.post('http://192.168.1.18:5000/api/attendant/complete-onboarding', { mobileNumber, email, password });
+            await axios.post('http://192.168.1.7:5000/api/attendant/complete-onboarding', { mobileNumber, email, password });
             Alert.alert('Success', 'Onboarding Complete.');
             setScreen('ProfileCompletionScreen');
         } catch (error) {

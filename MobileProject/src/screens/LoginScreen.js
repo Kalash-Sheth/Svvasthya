@@ -21,7 +21,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleSignUp = async () => {
         Alert.alert('SignUp Successful', `Welcome`);
-        navigation.navigate('Onboarding');
+        navigation.navigate('Welcome');
 
   };
 
@@ -29,7 +29,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setIsLoading(true);
 
-    const apiUrl = 'http://192.168.1.18:5000/api/attendant/login';
+    const apiUrl = 'http://192.168.1.7:5000/api/attendant/login';
     const requestBody = {
       email: email,
       password: password,

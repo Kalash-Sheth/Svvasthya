@@ -127,8 +127,8 @@ exports.verify_otp_and_signup_login_basic = async (req, res) => {
             const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET, { expiresIn: '90d' });
             const options = {
                 expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-                httponly: false,
-                secure: false,
+                httponly: true,
+                secure: ture,
                 path: '/', // Accessible in all paths
             };
 

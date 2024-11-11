@@ -12,10 +12,16 @@ import UpcomingTasks from './src/screens/UpcomingTasks';
 import TaskScreen from './src/screens/TaskScreen';
 import RealTimeModel from './src/screens/RealTimeModel';
 import Onboarding from './src/components/Onboarding';
-
-
+import WelcomeScreen from './src/screens/Onboarding/WelcomeScreen';
+import PersonalInfoScreen from './src/screens/Onboarding/PersonalInfoScreen';
+import DocumentScreen from './src/screens/Onboarding/DocumentScreen';
 import EarningsScreen from './src/screens/EarningsScreen';
-
+import SkillsScreen from './src/screens/Onboarding/SkillsScreen';
+import AvailabilityScreen from './src/screens/Onboarding/AvailabilityScreen';
+import MedicalInfoScreen from './src/screens/Onboarding/MedicalInfoScreen';
+import BankingInfoScreen from './src/screens/Onboarding/BankingInfoScreen';
+import AgreementScreen from './src/screens/Onboarding/AgreementScreen';
+import ConfirmationScreen from './src/screens/Onboarding/ConfirmationScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
 import { Icon } from 'react-native-elements';
 
@@ -79,7 +85,15 @@ const App = () => {
           <Stack.Screen name="Earnings" component={EarningsScreen} />
           <Stack.Screen name="RealTimeModel" component={RealTimeModel} />
           <Stack.Screen name="UpdateAvailability" component={UpdateAvailabilityScreen} />
-
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+          <Stack.Screen name="Document" component={DocumentScreen} />
+          <Stack.Screen name="Skills" component={SkillsScreen} />
+          <Stack.Screen name="Availability" component={AvailabilityScreen} />
+          <Stack.Screen name="MedicalInfo" component={MedicalInfoScreen} />
+          <Stack.Screen name="BankingInfo" component={BankingInfoScreen} />
+          <Stack.Screen name="Agreements" component={AgreementScreen} />
+          <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
           <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>

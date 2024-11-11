@@ -1,46 +1,55 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
-import { UserCircle, Calendar, Clock, DollarSign } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  FlatList,
+} from 'react-native';
+import { UserCircle, Calendar, Clock, DollarSign, Menu } from 'lucide-react-native';
 
-// Brand color palette based on Sdasthya logo
 const COLORS = {
-  primary: '#FF6B35',    // Orange from logo
-  secondary: '#4CAF50',  // Green from logo
-  accent: '#FF9F1C',     // Warm accent
-  background: '#FFF9F5', // Warm light background
+  primary: '#FF6B35',
+  secondary: '#4CAF50',
+  accent: '#FF9F1C',
+  background: '#FFF9F5',
   cardBg: '#FFFFFF',
   text: {
     primary: '#333333',
     secondary: '#666666',
-    light: '#FFFFFF'
-  }
+    light: '#FFFFFF',
+  },
 };
 
 export default function HomeScreen({ navigation, userName = 'Attendant' }) {
+  const [menuVisible, setMenuVisible] = useState(false); // State to toggle menu visibility
+
   const menuItems = [
+    { id: 'availability', title: 'Update Availability', screen: 'UpdateAvailability' },
+    { id: 'realtime', title: 'Real-Time Model', screen: 'RealTimeModel' },
+    { id: 'tasks', title: 'Upcoming Tasks', screen: 'UpcomingTasks' },
+    { id: 'earnings', title: 'Total Earnings', screen: 'Earnings' },
+    { id: 'profile', title: 'Profile', screen: 'Profile' },
+  ];
+
+  const upcomingAppointments = [
     {
-      id: 'availability',
-      title: 'Update Availability',
-      description: 'Set your working hours',
-      icon: Calendar,
-      screen: 'UpdateAvailability',
-      iconColor: COLORS.primary
+      id: '1',
+      patientName: 'John Doe',
+      service: 'Nursing',
+      date: '2024-11-12',
+      time: '10:00 AM',
+      address: '123 Main Street, Cityville',
     },
     {
-      id: 'realtime',
-      title: 'Real Time Model',
-      description: 'View current activities',
-      icon: Clock,
-      screen: 'RealTimeModel',
-      iconColor: COLORS.secondary
-    },
-    {
-      id: 'tasks',
-      title: 'Upcoming Tasks',
-      description: 'No upcoming tasks',
-      icon: Clock,
-      screen: 'UpcomingTasks',
-      iconColor: COLORS.accent
+      id: '2',
+      patientName: 'Jane Smith',
+      service: 'Physiotherapy',
+      date: '2024-11-13',
+      time: '2:00 PM',
+      address: '456 Park Avenue, Townsville',
     },
   ];
 
@@ -48,52 +57,49 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => setMenuVisible((prev) => !prev)} // Toggle menu visibility
+            style={styles.menuButton}
+          >
+            <Menu size={24} color={COLORS.text.primary} />
+          </TouchableOpacity>
           <Text style={styles.welcomeText}>Welcome,</Text>
           <Text style={styles.nameText}>{userName}!</Text>
         </View>
 
-        {/* Menu Cards */}
-        {menuItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.card}
-            onPress={() => navigation.navigate(item.screen)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.cardContent}>
-              <View style={[styles.iconContainer, { backgroundColor: `${item.iconColor}15` }]}>
-                <item.icon size={24} color={item.iconColor} />
-              </View>
-              <View style={styles.cardTextContainer}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardDescription}>{item.description}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-
-        {/* Earnings Card */}
-        <View style={[styles.card, styles.earningsCard]}>
-          <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: `${COLORS.secondary}15` }]}>
-              <DollarSign size={24} color={COLORS.secondary} />
-            </View>
-            <View style={styles.cardTextContainer}>
-              <Text style={styles.cardTitle}>Total Earnings</Text>
-              <Text style={[styles.earningsAmount, { color: COLORS.secondary }]}>$0.00</Text>
-            </View>
+        {/* Conditional rendering of menu */}
+        {menuVisible && (
+          <View style={styles.menu}>
+            {menuItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false); // Close menu after navigation
+                  navigation.navigate(item.screen);
+                }}
+              >
+                <Text style={styles.menuText}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
+        )}
 
-        {/* Profile Button */}
-        <TouchableOpacity
-          style={[styles.profileButton, { backgroundColor: COLORS.primary }]}
-          onPress={() => navigation.navigate('Profile')}
-          activeOpacity={0.7}
-        >
-          <UserCircle size={24} color={COLORS.text.light} />
-          <Text style={styles.profileButtonText}>View Profile</Text>
-        </TouchableOpacity>
+        {/* Upcoming Appointments Section */}
+        <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
+        <FlatList
+          data={upcomingAppointments}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{item.patientName}</Text>
+              <Text style={styles.cardDescription}>{item.service}</Text>
+              <Text style={styles.cardDetail}>Date: {item.date}</Text>
+              <Text style={styles.cardDetail}>Time: {item.time}</Text>
+              <Text style={styles.cardDetail}>Address: {item.address}</Text>
+            </View>
+          )}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -105,8 +111,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 20,
-    paddingBottom: 10,
+  },
+  menuButton: {
+    padding: 10,
   },
   welcomeText: {
     fontSize: 18,
@@ -117,6 +128,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.text.primary,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+  },
   card: {
     backgroundColor: COLORS.cardBg,
     borderRadius: 12,
@@ -124,59 +142,46 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     padding: 16,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  cardTextContainer: {
-    flex: 1,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text.primary,
-    marginBottom: 4,
   },
   cardDescription: {
     fontSize: 14,
     color: COLORS.text.secondary,
   },
-  earningsCard: {
+  cardDetail: {
+    fontSize: 14,
+    color: COLORS.text.primary,
+    marginTop: 4,
+  },
+  menu: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
     backgroundColor: COLORS.cardBg,
-  },
-  earningsAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  profileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
     borderRadius: 12,
-    marginHorizontal: 20,
-    marginVertical: 20,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 10, // Ensure the menu is on top
   },
-  profileButtonText: {
-    color: COLORS.text.light,
+  menuItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.text.secondary + '20',
+  },
+  menuText: {
     fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+    color: COLORS.text.primary,
   },
 });

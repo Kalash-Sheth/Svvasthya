@@ -64,7 +64,7 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
                     return;
                 }
 
-                const response = await axios.get('http://192.168.1.18:5000/api/attendant/fetchavailability', {
+                const response = await axios.get('http://192.168.1.7:5000/api/attendant/fetchavailability', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

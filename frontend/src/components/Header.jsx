@@ -1,10 +1,22 @@
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../assets/svvasthya_logo.svg";
+import LoginModal from "./LoginModal";
+import { useCookies } from 'react-cookie';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
+
+  useEffect(() => {
+    if (cookies.token) {
+      setIsLoggedIn(true);
+    }
+  }, [cookies]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -12,6 +24,25 @@ const Header = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      setIsAccountDropdownOpen(!isAccountDropdownOpen);
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setShowLoginModal(false);
+  };
+
+  const handleLogout = () => {
+    removeCookie('token', { path: '/' });
+    setIsLoggedIn(false);
+    setIsAccountDropdownOpen(false);
   };
 
   return (
@@ -68,13 +99,43 @@ const Header = () => {
             </a>
           </li>
           <li className="mx-4">
-            <a
-              href="/Profile"
-              className="text-midnightblue font-inter-tight hover:border-b-2"
+            <button
+              onClick={handleAccountClick}
+              className="relative text-midnightblue font-inter-tight hover:border-b-2 flex items-center"
             >
-              <FontAwesomeIcon icon={faUser} className="mr-1" />{" "}
-              {/* Account Icon */}
-            </a>
+              <FontAwesomeIcon icon={faUser} className="mr-2" />
+            </button>
+            {isAccountDropdownOpen && (
+              <div className="absolute right-70 mt-2 w-48 bg-white shadow-lg rounded-lg p-2 z-20">
+                <ul className="list-none text-midnightblue">
+                  <li>
+                    <a href="/profile" className="block p-2 hover:bg-gray-200">
+                      My Account
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/bookings" className="block p-2 hover:bg-gray-200">
+                      My Bookings
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left p-2 hover:bg-gray-200"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+            {/* Login Modal */}
+            {showLoginModal && (
+              <LoginModal
+                onClose={() => setShowLoginModal(false)}
+                onLogin={handleLogin}
+              />
+            )}
           </li>
         </ul>
       </nav>
@@ -91,9 +152,8 @@ const Header = () => {
       </div>
 
       <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-md transform ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-10 w-3/4 md:hidden`}
+        className={`fixed top-0 left-0 h-full bg-white shadow-md transform ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out z-10 w-3/4 md:hidden`}
       >
         <button
           onClick={toggleMenu}

@@ -15,6 +15,7 @@ import CustomDatePicker from './components/services/CustomDatePicker';
 import NursingServices from './components/services/NursingServices';
 import SelectOffer from './components/services/SelectOffer';
 import AttendantDetails from './components/AttendantDetails';
+import PaymentModal from './components/PaymentModal';
 import Admin from './pages/Admin';
 import Attendant from "./pages/Attendant";
 import Home from './pages/Home';
@@ -48,6 +49,7 @@ function App() {
             <Route path='/UpcomingBooking' element={<UpcomingBooking />}></Route>
             <Route path='/BookingDetails' element={<BookingDetails />}></Route>
             <Route path='/UserProfile' element={<UserProfile />}></Route>
+            <Route path='/PaymentModal' element={<PaymentModal />}></Route>
 
 
           </Routes>
