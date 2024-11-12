@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {Button, Text, RadioButton} from 'react-native-paper';
-import {useForm, Controller} from 'react-hook-form';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { Button, Text, RadioButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useForm, Controller } from 'react-hook-form';
+import { launchImageLibrary } from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const BRAND_COLORS = {
   orange: '#FF7F50',
@@ -25,41 +28,42 @@ const BRAND_COLORS = {
 
 const inputFields = [
   {
-    section: 'Name',
-    fields: [
-      {name: 'firstName', label: 'First Name', icon: 'account'},
-      {name: 'middleName', label: 'Middle Name', icon: 'account'},
-      {name: 'lastName', label: 'Last Name', icon: 'account'},
-    ],
-  },
-  {
-    section: 'Basic Information',
-    fields: [{name: 'dob', label: 'Date of Birth', icon: 'calendar'}],
-  },
-  {
     section: 'Contact Information',
     fields: [
       {
-        name: 'mobile',
+        name: 'mobileNumber',
         label: 'Mobile Number',
         icon: 'phone',
         keyboardType: 'phone-pad',
       },
-      {
-        name: 'email',
-        label: 'Email Address',
-        icon: 'email',
-        keyboardType: 'email-address',
-      },
+    ],
+  },
+  {
+    section: 'Name',
+    fields: [
+      { name: 'firstName', label: 'First Name', icon: 'account' },
+      { name: 'middleName', label: 'Middle Name', icon: 'account' },
+      { name: 'lastName', label: 'Last Name', icon: 'account' },
+    ],
+  },
+  {
+    section: 'Basic Information',
+    fields: [{ name: 'dob', label: 'Date of Birth', icon: 'calendar' },
+    {
+      name: 'email',
+      label: 'Email Address',
+      icon: 'email',
+      keyboardType: 'email-address',
+    },
     ],
   },
   {
     section: 'Permanent Address',
     fields: [
-      {name: 'houseNumber', label: 'House Number', icon: 'home'},
-      {name: 'street', label: 'Street', icon: 'road'},
-      {name: 'city', label: 'City', icon: 'city'},
-      {name: 'state', label: 'State', icon: 'map-marker'},
+      { name: 'houseNumber', label: 'House Number', icon: 'home' },
+      { name: 'street', label: 'Street', icon: 'road' },
+      { name: 'city', label: 'City', icon: 'city' },
+      { name: 'state', label: 'State', icon: 'map-marker' },
       {
         name: 'zipCode',
         label: 'ZIP Code',
@@ -70,10 +74,15 @@ const inputFields = [
   },
 ];
 
-export default function PersonalInfoScreen({navigation}) {
-  const {control, handleSubmit} = useForm();
+export default function PersonalInfoScreen({ navigation }) {
+  const { control, handleSubmit, setValue, getValues } = useForm();
   const [profileImage, setProfileImage] = useState(null);
   const [gender, setGender] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [formData, setFormData] = useState({});
+
 
   const pickImage = async () => {
     const result = await launchImageLibrary({
@@ -85,57 +94,145 @@ export default function PersonalInfoScreen({navigation}) {
     }
   };
 
-  const onSubmit = data => {
-    console.log({...data, profileImage, gender});
-    navigation.navigate('Document');
+  const sendOtp = async () => {
+    try {
+      await axios.post('http://192.168.1.15:5000/api/attendant/send-otp', { mobileNumber: formData.mobileNumber });
+      setOtpSent(true);
+      alert('OTP sent successfully!');
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      alert('Failed to send OTP.');
+    }
+  };
+
+  const verifyOtp = async () => {
+    try {
+      const response = await axios.post(
+        'http://192.168.1.15:5000/api/attendant/verify-otp',
+        { mobileNumber: formData.mobileNumber, otp },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        alert('Mobile verified successfully!');
+        const authToken = response.data.token;
+
+        // Store the authToken in AsyncStorage
+        await AsyncStorage.setItem('authToken', authToken);
+        setOtpVerified(true);
+      } else {
+        alert('Invalid OTP');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      alert('Failed to verify OTP.');
+    }
+  };
+
+  const onSubmit = async (data) => {
+    // if (!otpVerified) {
+    //   alert('Please verify your mobile number first.');
+    //   return;
+    // }
+
+    // try {
+    //   // Prepare submission data
+    //   const { mobileNumber, ...filteredData } = data;
+    //   const submissionData = {
+    //     ...filteredData,
+    //     profileImage,
+    //   };
+
+    //   // Get the token (assuming it's stored in local storage or secure storage)
+    //   const token = await AsyncStorage.getItem('authToken'); // Or use SecureStore for sensitive storage
+
+    //   // Store data to backend
+    //   const response = await axios.post(
+    //     'http://192.168.1.15:5000/api/attendant/onboarding',
+    //     submissionData,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Send token in Authorization header
+    //       },
+    //       withCredentials: true,
+    //     }
+    //   );
+
+      // if (response.data.success) {
+      //   alert('Personal Information saved successfully!');
+        navigation.navigate('Document'); // Navigate to next screen
+      // } else {
+      //   alert('Failed to save personal information. Please try again.');
+      // }
+    // } catch (error) {
+    //   console.error('Error submitting personal information:', error);
+    //   alert('Error saving personal information. Please try again.');
+    // }
+  };
+
+  const handleFieldChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+    setValue(field, value); // This will update the react-hook-form value
   };
 
   const renderSection = (section, fields) => (
     <View key={section} style={styles.section}>
       <Text style={styles.sectionTitle}>{section}</Text>
-      {fields.map(field => (
+      {fields.map((field) => (
         <Controller
           key={field.name}
           control={control}
           name={field.name}
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <FormInput
               label={field.label}
-              value={value}
-              onChangeText={onChange}
+              value={formData[field.name] || value} // bind formData state
+              onChangeText={(text) => {
+                handleFieldChange(field.name, text); // Update formData state
+                onChange(text); // Update react-hook-form value
+              }}
               icon={field.icon}
               keyboardType={field.keyboardType}
             />
           )}
         />
       ))}
-      {section === 'Basic Information' && (
+      {section === 'Contact Information' && (
         <>
-          <Text style={styles.labelText}>Gender</Text>
-          <RadioButton.Group
-            onValueChange={value => setGender(value)}
-            value={gender}>
-            <View style={styles.radioGroup}>
-              <RadioButton.Item
-                label="Male"
-                value="male"
-                labelStyle={styles.radioLabel}
-                color={BRAND_COLORS.orange}
+          {otpSent && !otpVerified && (
+            <>
+              <FormInput
+                label="Enter OTP"
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="numeric"
               />
-              <RadioButton.Item
-                label="Female"
-                value="female"
-                labelStyle={styles.radioLabel}
-                color={BRAND_COLORS.orange}
-              />
-              <RadioButton.Item
-                label="Other"
-                value="other"
-                labelStyle={styles.radioLabel}
-                color={BRAND_COLORS.orange}
-              />
-            </View>
-          </RadioButton.Group>
+              <Button
+                mode="outlined"
+                onPress={verifyOtp}
+                style={styles.buttonSmall}
+              >
+                Verify OTP
+              </Button>
+            </>
+          )}
+          {!otpVerified ? (
+            <Button
+              mode="outlined"
+              onPress={sendOtp}
+              style={styles.buttonSmall}
+            >
+              Send OTP
+            </Button>
+          ) : (
+            <Icon
+              icon="check-decagram"
+              color={BRAND_COLORS.green}
+              size={30}
+            />
+          )}
         </>
       )}
     </View>
@@ -149,7 +246,7 @@ export default function PersonalInfoScreen({navigation}) {
       <View style={styles.photoSection}>
         <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
           {profileImage ? (
-            <Image source={{uri: profileImage}} style={styles.profileImage} />
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <>
               <Text style={styles.uploadText}>Upload Photo</Text>
@@ -159,14 +256,17 @@ export default function PersonalInfoScreen({navigation}) {
         </TouchableOpacity>
       </View>
 
-      {inputFields.map(({section, fields}) => renderSection(section, fields))}
+      {inputFields.map(({ section, fields }) =>
+        renderSection(section, fields)
+      )}
 
       <Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
-        labelStyle={styles.buttonText}>
+        labelStyle={styles.buttonText}
+      >
         Continue
       </Button>
     </ScrollView>
@@ -186,7 +286,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: {width: 1, height: 1},
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   section: {

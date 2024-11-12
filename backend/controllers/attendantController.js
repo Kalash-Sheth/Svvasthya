@@ -26,15 +26,9 @@ exports.send_otp = async (req, res) => {
 
     try {
         let attendant = await Attendant.findOne({ mobileNumber });
-        const newuser = "newuser"
         if (!attendant) {
             attendant = new Attendant({
-                firstName: newuser,
-                lastName: newuser,
-                email: newuser,
-                password: newuser,
-                address: newuser,
-                mobileNumber,
+                mobileNumber
             });
         }
         console.log(attendant);

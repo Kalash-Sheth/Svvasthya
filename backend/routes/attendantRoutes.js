@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const attendantController = require('../controllers/attendantController');
+const onboardAttendController = require('../controllers/onboardAttendController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // send otp
@@ -36,5 +37,8 @@ router.post('/rejectAppointment', attendantController.rejectAppointment);
 
 // Route to get profile
 router.get('/profile', attendantController.getProfile);
+
+// Route to Onboard Attendant 
+router.post('/onboarding', onboardAttendController);
 
 module.exports = router;
