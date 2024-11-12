@@ -7,12 +7,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import {Button} from 'react-native-paper';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-};
+import { BRAND_COLORS } from '../../styles/colors';
 
 export default function WelcomeScreen({navigation}) {
   return (
@@ -67,21 +62,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    color: BRAND_COLORS.blue,
+    fontSize: 32,
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 10,
-    fontFamily: 'Poppins-Light',
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
   },
   brandName: {
-    fontSize: 40,
+    fontSize: 48,
     fontFamily: 'Poppins-Bold',
-    color: BRAND_COLORS.orange,
+    color: BRAND_COLORS.primary,
     marginBottom: 5,
+    letterSpacing: 1,
+    fontWeight: '900',
   },
   subtitle: {
-    fontSize: 24,
-    color: BRAND_COLORS.green,
-    fontFamily: 'Poppins-Medium',
+    fontSize: 28,
+    color: BRAND_COLORS.secondary,
+    fontFamily: 'Poppins-Bold',
+    letterSpacing: 0.5,
+    fontWeight: '900',
   },
   bottomContainer: {
     marginBottom: 50,
@@ -90,12 +90,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
+    color: BRAND_COLORS.textSecondary,
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
   button: {
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 25,
     elevation: 4,
     shadowColor: '#000',

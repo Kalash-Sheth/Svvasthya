@@ -96,6 +96,23 @@ export default function FormInput({
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Poppins-SemiBold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    marginTop: 4,
+  },
   input: {
     backgroundColor: '#F8FAFC',
     borderRadius: 12,

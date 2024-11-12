@@ -6,25 +6,23 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StyleSheet,
-  Dimensions,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {BRAND_COLORS} from '../styles/colors';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleSignUp = async () => {
-        Alert.alert('SignUp Successful', `Welcome`);
-        navigation.navigate('Welcome');
-
+    Alert.alert('SignUp Successful', `Welcome`);
+    navigation.navigate('Welcome');
   };
-
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -47,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
       const result = await response.json();
 
       if (response.ok) {
-        const { token } = result;
+        const {token} = result;
 
         if (token) {
           await AsyncStorage.setItem('token', token);
@@ -67,23 +65,23 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-        <LinearGradient
-            colors={[
-                'rgba(255, 91, 42, 0.151)',
-                'rgba(250, 184, 186, 0.171) 33%',
-                'rgba(139, 297, 165, 0.171) 66%',
-                'rgba(13, 197, 71, 0.171)',
-            ]}
-            start={{ x: 0.2, y: 0.2 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.container}
-        >
+      <LinearGradient
+        colors={[
+          `${BRAND_COLORS.primary}05`,
+          `${BRAND_COLORS.secondary}05`,
+          `${BRAND_COLORS.primary}05`,
+          `${BRAND_COLORS.secondary}05`,
+        ]}
+        start={{x: 0.2, y: 0.2}}
+        end={{x: 1, y: 1}}
+        style={styles.container}>
         <View style={styles.content}>
           {/* Logo Section */}
           <View style={styles.logoContainer}>
-            <LinearGradient
-              colors={['#f97316', '#22c55e']}
-              style={styles.logoBox}
+            <Image
+              source={require('../../assets/svvasthya_logo_tran.png')}
+              style={styles.logo}
+              resizeMode="contain"
             />
             <Text style={styles.logoText}>Svvasthya</Text>
           </View>
@@ -105,9 +103,9 @@ const LoginScreen = ({ navigation }) => {
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Enter your email"
+                placeholderTextColor={BRAND_COLORS.textSecondary}
               />
             </View>
-
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Password</Text>
               <TextInput
@@ -115,51 +113,44 @@ const LoginScreen = ({ navigation }) => {
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Enter your password"
+                placeholderTextColor={BRAND_COLORS.textSecondary}
                 secureTextEntry
               />
             </View>
 
             <View style={styles.optionsContainer}>
               <TouchableOpacity>
-                <Text style={styles.forgotPassword}>Forgot password?</Text>
+                <Text style={styles.forgotPassword}>Forgot Password?</Text>
               </TouchableOpacity>
             </View>
 
-
             <TouchableOpacity
+              style={[styles.button, {backgroundColor: BRAND_COLORS.primary}]}
               onPress={handleLogin}
-              disabled={isLoading}
-            >
-              <LinearGradient
-                colors={['#f97316', '#22c55e']}
-                style={styles.button}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
-              </LinearGradient>
+              disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
             </TouchableOpacity>
-
           </View>
 
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
             <TouchableOpacity onPress={handleSignUp}>
-              <Text style={styles.signupLink}>Sign up</Text>
+              <Text style={styles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </LinearGradient >
-    </SafeAreaView >
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  gradient: {
     flex: 1,
   },
   content: {
@@ -173,16 +164,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 32,
   },
-  logoBox: {
+  logo: {
     width: 40,
     height: 40,
-    borderRadius: 8,
     marginRight: 8,
   },
   logoText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#6b7280'
+    fontWeight: '900',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
   },
   welcomeContainer: {
     alignItems: 'center',
@@ -190,13 +181,16 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    fontWeight: '900',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 8,
   },
   welcomeSubtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textSecondary,
   },
   form: {
     backgroundColor: 'white',
@@ -207,7 +201,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
   },
@@ -216,36 +210,40 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
+    fontWeight: '700',
+    fontFamily: 'Poppins-SemiBold',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: BRAND_COLORS.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    color: BRAND_COLORS.textPrimary,
   },
   optionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 20,
   },
   forgotPassword: {
     fontSize: 14,
-    color: '#22c55e',
+    color: BRAND_COLORS.secondary,
+    fontFamily: 'Poppins-Medium',
   },
   button: {
-    borderRadius: 8,
+    borderRadius: 30,
     padding: 14,
     alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
   },
   signupContainer: {
     flexDirection: 'row',
@@ -253,13 +251,16 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   signupText: {
-    fontSize: 18,
-    color: '#4b5563',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textSecondary,
   },
   signupLink: {
-    fontSize: 18,
-    color: '#22c55e',
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.secondary,
   },
 });
 

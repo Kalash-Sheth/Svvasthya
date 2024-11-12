@@ -6,17 +6,7 @@ import FormInput from '../../components/FormInput';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
+import { BRAND_COLORS } from '../../styles/colors';
 
 const predefinedSkills = [
   'Patient Care',
@@ -240,8 +230,9 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 28,
-    fontFamily: 'Poppins-SemiBold',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -263,18 +254,19 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: BRAND_COLORS.border,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
-    marginBottom: 8,
+    fontWeight: '900',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 16,
   },
   sectionSubtitle: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 20,
   },
   chipContainer: {
@@ -284,33 +276,35 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   chip: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: BRAND_COLORS.background,
     marginBottom: 8,
   },
   selectedChip: {
-    backgroundColor: BRAND_COLORS.lightOrange,
+    backgroundColor: BRAND_COLORS.background,
   },
   chipText: {
-    color: '#64748B',
-    fontFamily: 'Poppins-Regular',
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textSecondary,
   },
   selectedChipText: {
-    color: BRAND_COLORS.orange,
-    fontFamily: 'Poppins-Medium',
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.primary,
   },
   certificateContainer: {
     marginBottom: 20,
     padding: 15,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: BRAND_COLORS.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: BRAND_COLORS.border,
   },
   uploadButton: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: BRAND_COLORS.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: BRAND_COLORS.border,
     borderStyle: 'dashed',
     padding: 15,
     marginTop: 10,
@@ -325,21 +319,21 @@ const styles = StyleSheet.create({
   },
   uploadText: {
     fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.blue,
+    color: BRAND_COLORS.textPrimary,
     fontSize: 16,
     marginBottom: 4,
   },
   uploadSubText: {
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     fontSize: 13,
   },
   button: {
     marginVertical: 25,
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 30,
     elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
+    shadowColor: BRAND_COLORS.primary,
     shadowOffset: {
       width: 0,
       height: 4,

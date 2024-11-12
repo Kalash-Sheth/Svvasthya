@@ -1,12 +1,7 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Text} from 'react-native-paper';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-};
+import { BRAND_COLORS } from '../styles/colors';
 
 export default function ProgressBar({step, totalSteps}) {
   const progress = (step / totalSteps) * 100;
@@ -36,7 +31,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 2,
   },
   stepText: {
