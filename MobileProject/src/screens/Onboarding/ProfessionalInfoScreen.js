@@ -3,21 +3,9 @@ import {View, StyleSheet, ScrollView} from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
-import {Briefcase, Star, Clock, Building} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
+import { BRAND_COLORS } from '../../styles/colors';
 
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
-
-// Add these icons to FormInput.js iconMap
 const professionalFields = [
   {
     section: 'Professional Details',
@@ -96,8 +84,8 @@ export default function ProfessionalInfoScreen({navigation}) {
   );
 
   return (
-      <ScrollView style={styles.container}>
-          <ProgressBar step={3} totalSteps={8} />
+    <ScrollView style={styles.container}>
+      <ProgressBar step={3} totalSteps={8} />
       <Text style={styles.headerText}>Professional Information</Text>
 
       {professionalFields.map(({section, fields}) => (
@@ -151,8 +139,9 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 28,
-    fontFamily: 'Poppins-SemiBold',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -174,38 +163,40 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: BRAND_COLORS.border,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.secondary,
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 20,
   },
   employerSection: {
     marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: BRAND_COLORS.border,
   },
   employerTitle: {
     fontSize: 16,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '700',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 15,
   },
   button: {
     marginVertical: 25,
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 30,
     elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
+    shadowColor: BRAND_COLORS.primary,
     shadowOffset: {
       width: 0,
       height: 4,

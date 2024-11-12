@@ -6,17 +6,7 @@ import FormInput from '../../components/FormInput';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
+import { BRAND_COLORS } from '../../styles/colors';
 
 export default function BankingInfoScreen({navigation}) {
   const {control, handleSubmit} = useForm();
@@ -45,7 +35,7 @@ export default function BankingInfoScreen({navigation}) {
           <>
             <FileText
               size={24}
-              color={BRAND_COLORS.orange}
+              color={BRAND_COLORS.primary}
               style={styles.uploadIcon}
             />
             <Text style={styles.uploadedText}>Document Uploaded</Text>
@@ -55,7 +45,7 @@ export default function BankingInfoScreen({navigation}) {
           <>
             <Upload
               size={24}
-              color={BRAND_COLORS.blue}
+              color={BRAND_COLORS.textPrimary}
               style={styles.uploadIcon}
             />
             <Text style={styles.uploadText}>Upload Cancelled Cheque</Text>
@@ -177,8 +167,9 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 28,
-    fontFamily: 'Poppins-SemiBold',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -200,25 +191,26 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: BRAND_COLORS.border,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.secondary,
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 20,
   },
   uploadButton: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: BRAND_COLORS.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: BRAND_COLORS.border,
     borderStyle: 'dashed',
     padding: 15,
     marginTop: 10,
@@ -232,33 +224,35 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   uploadText: {
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '700',
+    color: BRAND_COLORS.textPrimary,
     fontSize: 16,
     marginBottom: 4,
   },
   uploadSubText: {
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     fontSize: 13,
   },
   uploadedText: {
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '700',
+    color: BRAND_COLORS.secondary,
     fontSize: 16,
     marginBottom: 4,
   },
   changeText: {
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.orange,
+    color: BRAND_COLORS.primary,
     fontSize: 13,
   },
   button: {
     marginVertical: 25,
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 30,
     elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
+    shadowColor: BRAND_COLORS.primary,
     shadowOffset: {
       width: 0,
       height: 4,

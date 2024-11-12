@@ -11,17 +11,7 @@ import {useForm, Controller} from 'react-hook-form';
 import {launchImageLibrary} from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
+import {BRAND_COLORS} from '../../styles/colors';
 
 const inputFields = [
   {
@@ -176,18 +166,57 @@ export default function PersonalInfoScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 20,
   },
   headerText: {
     fontSize: 28,
-    fontFamily: 'Poppins-SemiBold',
-    color: BRAND_COLORS.blue,
-    marginBottom: 25,
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 10,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 2,
+    fontWeight: '900',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '900',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textSecondary,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  button: {
+    marginVertical: 25,
+    backgroundColor: BRAND_COLORS.primary,
+    borderRadius: 30,
+    elevation: 8,
+    shadowColor: BRAND_COLORS.primary,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    marginHorizontal: 20,
+  },
+  buttonContent: {
+    height: 56,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: 1,
   },
   section: {
     marginBottom: 25,
@@ -209,31 +238,31 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
+    color: BRAND_COLORS.secondary,
     marginBottom: 15,
     paddingBottom: 8,
     borderBottomWidth: 2,
-    borderBottomColor: BRAND_COLORS.lightGreen,
+    borderBottomColor: BRAND_COLORS.border,
   },
   labelText: {
     fontSize: 16,
     fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 15,
     marginTop: 1,
   },
   radioGroup: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: BRAND_COLORS.background,
     borderRadius: 12,
     overflow: 'hidden',
     marginHorizontal: -10,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: BRAND_COLORS.border,
   },
   radioLabel: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: '#334155',
+    color: BRAND_COLORS.textSecondary,
   },
   photoSection: {
     alignItems: 'center',
@@ -244,11 +273,11 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: BRAND_COLORS.lightBlue,
+    backgroundColor: BRAND_COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: BRAND_COLORS.orange,
+    borderColor: BRAND_COLORS.primary,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
@@ -265,36 +294,13 @@ const styles = StyleSheet.create({
   },
   uploadText: {
     fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.blue,
+    color: BRAND_COLORS.primary,
     fontSize: 16,
     marginBottom: 4,
   },
   uploadSubText: {
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     fontSize: 13,
-  },
-  button: {
-    marginVertical: 25,
-    backgroundColor: BRAND_COLORS.orange,
-    borderRadius: 30,
-    elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    marginHorizontal: 20,
-  },
-  buttonContent: {
-    height: 56,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontFamily: 'Poppins-SemiBold',
-    color: 'white',
-    letterSpacing: 1,
   },
 });

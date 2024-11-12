@@ -3,17 +3,7 @@ import {View, StyleSheet, ScrollView} from 'react-native';
 import {Button, Switch, Text, Chip} from 'react-native-paper';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
+import { BRAND_COLORS } from '../../styles/colors';
 
 const shifts = ['Morning', 'Afternoon', 'Night'];
 const days = [
@@ -69,7 +59,6 @@ export default function AvailabilityScreen({navigation}) {
         <Text style={styles.sectionTitle}>Work Type</Text>
         <View style={styles.chipContainer}>
           <Chip
-            // selected={availability === 'fulltime'}
             onPress={() => setAvailability('fulltime')}
             style={[
               styles.chip,
@@ -82,7 +71,6 @@ export default function AvailabilityScreen({navigation}) {
             Full Time
           </Chip>
           <Chip
-            // selected={availability === 'parttime'}
             onPress={() => setAvailability('parttime')}
             style={[
               styles.chip,
@@ -104,7 +92,6 @@ export default function AvailabilityScreen({navigation}) {
           {days.map(day => (
             <Chip
               key={day}
-              // selected={selectedDays.includes(day)}
               onPress={() => handleDaySelect(day)}
               style={[
                 styles.chip,
@@ -127,7 +114,6 @@ export default function AvailabilityScreen({navigation}) {
           {shifts.map(shift => (
             <Chip
               key={shift}
-              // selected={selectedShifts.includes(shift)}
               onPress={() => handleShiftSelect(shift)}
               style={[
                 styles.chip,
@@ -160,7 +146,7 @@ export default function AvailabilityScreen({navigation}) {
           <Switch
             value={isWillingToTravel}
             onValueChange={setIsWillingToTravel}
-            color={BRAND_COLORS.orange}
+            color={BRAND_COLORS.primary}
           />
         </View>
       </View>
@@ -185,8 +171,9 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 28,
-    fontFamily: 'Poppins-SemiBold',
-    color: BRAND_COLORS.blue,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -208,18 +195,19 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: BRAND_COLORS.border,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.green,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '900',
+    color: BRAND_COLORS.secondary,
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 20,
   },
   chipContainer: {
@@ -229,17 +217,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   chip: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: BRAND_COLORS.background,
   },
   selectedChip: {
-    backgroundColor: BRAND_COLORS.lightOrange,
+    backgroundColor: `${BRAND_COLORS.primary}20`,
   },
   chipText: {
-    color: '#64748B',
+    color: BRAND_COLORS.textSecondary,
     fontFamily: 'Poppins-Regular',
   },
   selectedChipText: {
-    color: BRAND_COLORS.orange,
+    color: BRAND_COLORS.primary,
     fontFamily: 'Poppins-Medium',
   },
   switchContainer: {
@@ -249,19 +237,19 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: BRAND_COLORS.border,
   },
   switchLabel: {
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
-    color: '#334155',
+    color: BRAND_COLORS.textPrimary,
   },
   button: {
     marginVertical: 25,
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 30,
     elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
+    shadowColor: BRAND_COLORS.primary,
     shadowOffset: {
       width: 0,
       height: 4,

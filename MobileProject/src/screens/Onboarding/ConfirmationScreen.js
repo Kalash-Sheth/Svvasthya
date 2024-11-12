@@ -1,18 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect} from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
 import {Text, Button} from 'react-native-paper';
 import {Check} from 'lucide-react-native';
-
-const BRAND_COLORS = {
-  orange: '#FF7F50',
-  green: '#4CAF50',
-  blue: '#2196F3',
-  lightBlue: '#E3F2FD',
-  lightOrange: '#FFF3E0',
-  lightGreen: '#E8F5E9',
-  gray: '#666666',
-  lightGray: '#F5F5F5',
-};
+import {BRAND_COLORS} from '../../styles/colors';
 
 export default function ConfirmationScreen({navigation}) {
   const scaleValue = new Animated.Value(0);
@@ -64,8 +55,8 @@ export default function ConfirmationScreen({navigation}) {
           ]}>
           <Text style={styles.title}>Registration Complete!</Text>
           <Text style={styles.subtitle}>
-            Thank you for joining Svvasthya. Our team will review your application
-            and contact you shortly.
+            Thank you for joining Svvasthya. Our team will review your
+            application and contact you shortly.
           </Text>
           <Text style={styles.info}>
             Meanwhile, you can explore the app and familiarize yourself with our
@@ -101,11 +92,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: BRAND_COLORS.green,
+    backgroundColor: BRAND_COLORS.secondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 30,
-    shadowColor: BRAND_COLORS.green,
+    shadowColor: BRAND_COLORS.secondary,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -121,14 +112,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'Poppins-Bold',
-    color: BRAND_COLORS.blue,
+    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 15,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
-    color: '#475569',
+    color: BRAND_COLORS.textSecondary,
     textAlign: 'center',
     marginBottom: 15,
     lineHeight: 24,
@@ -136,16 +128,16 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: BRAND_COLORS.gray,
+    color: BRAND_COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   button: {
     marginTop: 20,
-    backgroundColor: BRAND_COLORS.orange,
+    backgroundColor: BRAND_COLORS.primary,
     borderRadius: 30,
     elevation: 8,
-    shadowColor: BRAND_COLORS.orange,
+    shadowColor: BRAND_COLORS.primary,
     shadowOffset: {
       width: 0,
       height: 4,
