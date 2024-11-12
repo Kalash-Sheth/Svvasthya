@@ -23,39 +23,61 @@ import BankingInfoScreen from './src/screens/Onboarding/BankingInfoScreen';
 import AgreementScreen from './src/screens/Onboarding/AgreementScreen';
 import ConfirmationScreen from './src/screens/Onboarding/ConfirmationScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
-import { Icon } from 'react-native-elements';
 import ProfessionalInfoScreen from './src/screens/Onboarding/ProfessionalInfoScreen';
+import {Home, Clock, DollarSign, User} from 'lucide-react-native';
+import {BRAND_COLORS} from './src/styles/colors';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          height: 65,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: '#fff',
+          borderTopWidth: 1,
+          borderTopColor: BRAND_COLORS.border,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -4,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarActiveTintColor: BRAND_COLORS.primary,
+        tabBarInactiveTintColor: BRAND_COLORS.textSecondary,
+        tabBarLabelStyle: {
+          fontFamily: 'Poppins-Medium',
+          fontSize: 12,
+        },
+        headerShown: false,
+      }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
-          ),
+          tabBarIcon: ({color, size}) => <Home size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Tasks"
         component={TaskScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
-          ),
+          tabBarIcon: ({color, size}) => <Clock size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Earnings"
         component={EarningsScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="settings" color={color} size={size} />
+          tabBarIcon: ({color, size}) => (
+            <DollarSign size={size} color={color} />
           ),
         }}
       />
@@ -63,12 +85,9 @@ const TabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="person" color={color} size={size} />
-          ),
+          tabBarIcon: ({color, size}) => <User size={size} color={color} />,
         }}
       />
-
     </Tab.Navigator>
   );
 };

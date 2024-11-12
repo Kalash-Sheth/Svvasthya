@@ -1,36 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  ActivityIndicator, 
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
   Alert,
   TouchableOpacity,
   SafeAreaView,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Settings, Clock, Edit2, LogOut } from 'lucide-react-native';
+import {Settings, Clock, Edit2, LogOut, Phone, Mail} from 'lucide-react-native';
+import {BRAND_COLORS} from '../styles/colors';
 
-// Brand Colors
-const COLORS = {
-  primary: '#FF6B35',    // Orange from logo
-  secondary: '#4CAF50',  // Green from logo
-  darkBlue: '#1E3A8A',  // Dark blue from logo
-  accent: '#FF9F1C',     // Warm accent
-  background: '#FFF9F5', // Warm light background
-  cardBg: '#FFFFFF',
-  error: '#FF3B30',
-  text: {
-    primary: '#333333',
-    secondary: '#666666',
-    light: '#FFFFFF'
-  },
-  border: '#E5E5E5'
-};
-
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen({navigation}) {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,20 +58,35 @@ export default function ProfileScreen({ navigation }) {
     fetchProfileData();
   }, []);
 
-  const ActionButton = ({ icon: Icon, title, onPress, color = COLORS.primary }) => (
-    <TouchableOpacity 
-      style={[styles.actionButton, { borderColor: color }]} 
-      onPress={onPress}
-    >
-      <Icon size={20} color={color} />
-      <Text style={[styles.actionButtonText, { color }]}>{title}</Text>
-    </TouchableOpacity>
-  );
+  const ActionButton = ({
+    icon: Icon,
+    title,
+    onPress,
+    color = BRAND_COLORS.primary,
+  }) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    return (
+      <TouchableOpacity
+        style={[styles.actionButton, isPressed && styles.actionButtonPressed]}
+        onPress={onPress}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        activeOpacity={0.7}>
+        <View style={[styles.iconContainer, {backgroundColor: `${color}10`}]}>
+          <Icon size={22} color={color} />
+        </View>
+        <View style={styles.buttonTextContainer}>
+          <Text style={[styles.actionButtonText, {color}]}>{title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={BRAND_COLORS.primary} />
       </View>
     );
   }
@@ -104,11 +105,11 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={{ uri: 'https://via.placeholder.com/150' }}
+              source={{uri: 'https://via.placeholder.com/150'}}
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editImageButton}>
-              <Edit2 size={20} color={COLORS.text.light} />
+              <Edit2 size={20} color={BRAND_COLORS.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -120,44 +121,57 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={styles.infoSection}>
           <View style={styles.infoCard}>
-            <Text style={styles.infoLabel}>Personal Information</Text>
+            <Text style={styles.sectionTitle}>Personal Information</Text>
             <View style={styles.infoItem}>
-              <Text style={styles.infoTitle}>Mobile</Text>
-              <Text style={styles.infoValue}>{profileData.mobileNumber}</Text>
+              <View style={styles.infoRow}>
+                <Phone size={20} color={BRAND_COLORS.textSecondary} />
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Mobile</Text>
+                  <Text style={styles.infoValue}>
+                    {profileData.mobileNumber}
+                  </Text>
+                </View>
+              </View>
             </View>
             <View style={styles.infoItem}>
-              <Text style={styles.infoTitle}>Email</Text>
-              <Text style={styles.infoValue}>{profileData.email}</Text>
+              <View style={styles.infoRow}>
+                <Mail size={20} color={BRAND_COLORS.textSecondary} />
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Email</Text>
+                  <Text style={styles.infoValue}>{profileData.email}</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
 
         <View style={styles.actionsContainer}>
-          <ActionButton 
-            icon={Edit2} 
-            title="Edit Profile" 
-            onPress={() => {}} 
-          />
-          <ActionButton 
-            icon={Clock} 
-            title="Work History" 
+          <ActionButton
+            icon={Edit2}
+            title="Edit Profile"
             onPress={() => {}}
-            color={COLORS.secondary}
+            color={BRAND_COLORS.primary}
           />
-          <ActionButton 
-            icon={Settings} 
-            title="Settings" 
+          <ActionButton
+            icon={Clock}
+            title="Work History"
             onPress={() => {}}
-            color={COLORS.accent}
+            color={BRAND_COLORS.secondary}
           />
-          <ActionButton 
-            icon={LogOut} 
-            title="Logout" 
+          <ActionButton
+            icon={Settings}
+            title="Settings"
+            onPress={() => {}}
+            color={BRAND_COLORS.textPrimary}
+          />
+          <ActionButton
+            icon={LogOut}
+            title="Logout"
             onPress={async () => {
               await AsyncStorage.removeItem('token');
               navigation.navigate('Login');
             }}
-            color={COLORS.error}
+            color={BRAND_COLORS.primary}
           />
         </View>
       </ScrollView>
@@ -168,38 +182,31 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: '#fff',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: '#fff',
   },
   errorText: {
-    color: COLORS.error,
+    color: BRAND_COLORS.primary,
     fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
   header: {
     alignItems: 'center',
     paddingVertical: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    backgroundColor: COLORS.cardBg,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: BRAND_COLORS.border,
   },
   profileImageContainer: {
     position: 'relative',
@@ -210,40 +217,43 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: COLORS.primary,
+    borderColor: BRAND_COLORS.primary,
   },
   editImageButton: {
     position: 'absolute',
     right: 0,
     bottom: 0,
-    backgroundColor: COLORS.primary,
+    backgroundColor: BRAND_COLORS.background,
     padding: 8,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: BRAND_COLORS.border,
   },
   profileName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
     marginBottom: 5,
+    fontWeight: '900',
   },
   designation: {
     fontSize: 16,
-    color: COLORS.text.secondary,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
     marginBottom: 10,
   },
   infoSection: {
     padding: 20,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.secondary,
+    marginBottom: 20,
+    fontWeight: '900',
+  },
   infoCard: {
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: '#fff',
     borderRadius: 15,
     padding: 20,
     shadowColor: '#000',
@@ -251,27 +261,33 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  infoLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text.primary,
-    marginBottom: 15,
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: BRAND_COLORS.border,
   },
   infoItem: {
     marginBottom: 15,
   },
-  infoTitle: {
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoContent: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  infoLabel: {
     fontSize: 14,
-    color: COLORS.text.secondary,
-    marginBottom: 5,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
+    marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
-    color: COLORS.text.primary,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textPrimary,
   },
   actionsContainer: {
     padding: 20,
@@ -280,23 +296,48 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
+    padding: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: '#fff',
     borderWidth: 1,
-    gap: 10,
+    borderColor: BRAND_COLORS.border,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 2.84,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
     elevation: 2,
+  },
+  actionButtonPressed: {
+    transform: [{scale: 0.98}],
+    backgroundColor: BRAND_COLORS.background,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonTextContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   actionButtonText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  arrowContainer: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrowIcon: {
+    fontSize: 24,
+    fontWeight: '600',
+    opacity: 0.5,
   },
 });
