@@ -1,12 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useEffect } from 'react';
 import { View, Image, Animated, Dimensions, StyleSheet } from 'react-native';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
+const LOGO_SIZE = Math.min(width * 0.6, 250); // Responsive logo size
+const FINAL_POSITION = height * 0.5 - LOGO_SIZE * 1.1; // Reduced from 1.2 to 1.1
 
 export default function LogoAnimation({ onAnimationComplete }) {
     const middleLogoOpacity = useRef(new Animated.Value(0)).current;
-    const upperFlowerAnim = useRef(new Animated.Value(-height / 2)).current;
-    const lowerFlowerAnim = useRef(new Animated.Value(height / 2)).current;
+    const upperFlowerAnim = useRef(new Animated.Value(-height)).current;
+    const lowerFlowerAnim = useRef(new Animated.Value(height)).current;
 
     useEffect(() => {
         // Fade in middle logo
@@ -15,15 +18,15 @@ export default function LogoAnimation({ onAnimationComplete }) {
             duration: 1000,
             useNativeDriver: true,
         }).start(() => {
-            // Animate flowers
+            // Animate flowers to join perfectly with the middle logo
             Animated.parallel([
                 Animated.timing(upperFlowerAnim, {
-                    toValue: 135,
+                    toValue: FINAL_POSITION,
                     duration: 1500,
                     useNativeDriver: true,
                 }),
                 Animated.timing(lowerFlowerAnim, {
-                    toValue: -135,
+                    toValue: FINAL_POSITION + LOGO_SIZE * 0.85, // Reduced from 0.95 to 0.85
                     duration: 1500,
                     useNativeDriver: true,
                 }),
@@ -32,57 +35,69 @@ export default function LogoAnimation({ onAnimationComplete }) {
     }, [onAnimationComplete]);
 
     return (
-        <>
-            <Animated.View style={[styles.logoContainer, { opacity: middleLogoOpacity }]}>
+        <View style={styles.container}>
+            <Animated.View
+                style={[
+                    styles.logoContainer,
+                    {
+                        opacity: middleLogoOpacity,
+                        transform: [{ translateY: FINAL_POSITION + LOGO_SIZE * 0.425 }], // Adjusted from 0.475 to 0.425
+                    },
+                ]}>
                 <Image
                     source={require('../../assets/svvasthya_logo_letter_tran.png')}
-                    style={styles.middleLogo}
+                    style={[ styles.logo, styles.middleLogo ]}
                 />
             </Animated.View>
 
             <Animated.View
-                style={[styles.upperFlower, { transform: [{ translateY: upperFlowerAnim }] }]}
-            >
+                style={[
+                    styles.logoContainer,
+                    { transform: [{ translateY: upperFlowerAnim }] },
+                ]}>
                 <Image
                     source={require('../../assets/svvasthya_logo_upper_tran.png')}
-                    style={styles.flowerLogo}
+                    style={[ styles.logo, styles.flowerLogo ]}
                 />
             </Animated.View>
 
             <Animated.View
-                style={[styles.lowerFlower, { transform: [{ translateY: lowerFlowerAnim }] }]}
-            >
+                style={[
+                    styles.logoContainer,
+                    { transform: [{ translateY: lowerFlowerAnim }] },
+                ]}>
                 <Image
                     source={require('../../assets/svvasthya_logo_lower_tran.png')}
-                    style={styles.flowerLogo}
+                    style={[ styles.logo, styles.flowerLogo ]}
                 />
             </Animated.View>
-        </>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+    },
     logoContainer: {
         position: 'absolute',
+        width: LOGO_SIZE,
+        height: LOGO_SIZE,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    middleLogo: {
-        width: 250,
-        height: 250,
+    logo: {
+        width: '100%',
+        height: '100%',
         resizeMode: 'contain',
+    },
+    middleLogo: {
+        zIndex: 2,
     },
     flowerLogo: {
-        width: 250,
-        height: 250,
-        resizeMode: 'contain',
-    },
-    upperFlower: {
-        position: 'absolute',
-        top: 0,
-    },
-    lowerFlower: {
-        position: 'absolute',
-        bottom: 0,
+        zIndex: 1,
     },
 });

@@ -67,10 +67,10 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={[
-          `${BRAND_COLORS.primary}05`,
-          `${BRAND_COLORS.secondary}05`,
-          `${BRAND_COLORS.primary}05`,
-          `${BRAND_COLORS.secondary}05`,
+          `${BRAND_COLORS.primary}15`,
+          `${BRAND_COLORS.secondary}15`,
+          `${BRAND_COLORS.primary}15`,
+          `${BRAND_COLORS.secondary}15`,
         ]}
         start={{x: 0.2, y: 0.2}}
         end={{x: 1, y: 1}}
@@ -83,7 +83,6 @@ const LoginScreen = ({navigation}) => {
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.logoText}>Svvasthya</Text>
           </View>
 
           {/* Welcome Text */}
@@ -162,12 +161,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
   },
   logo: {
-    width: 40,
-    height: 40,
-    marginRight: 8,
+    width: 120,
+    height: 120,
   },
   logoText: {
     fontSize: 24,
