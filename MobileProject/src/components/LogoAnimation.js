@@ -26,7 +26,7 @@ export default function LogoAnimation({ onAnimationComplete }) {
                     useNativeDriver: true,
                 }),
                 Animated.timing(lowerFlowerAnim, {
-                    toValue: FINAL_POSITION + LOGO_SIZE * 0.85, // Reduced from 0.95 to 0.85
+                    toValue: FINAL_POSITION + LOGO_SIZE * 0.85, 
                     duration: 1500,
                     useNativeDriver: true,
                 }),
