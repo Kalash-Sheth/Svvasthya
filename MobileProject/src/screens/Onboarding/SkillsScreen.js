@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import {TextInput, Button, Chip, Text} from 'react-native-paper';
-import {useForm, Controller} from 'react-hook-form';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { TextInput, Button, Chip, Text } from 'react-native-paper';
+import { useForm, Controller } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {FileText, Upload} from 'lucide-react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { FileText, Upload } from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
 
@@ -29,18 +29,11 @@ const predefinedSkills = [
 const languages = [
   'English',
   'Hindi',
-  'Bengali',
-  'Telugu',
-  'Marathi',
-  'Tamil',
-  'Urdu',
   'Gujarati',
-  'Kannada',
-  'Malayalam',
 ];
 
-export default function SkillsScreen({navigation}) {
-  const {control, handleSubmit, setValue} = useForm();
+export default function SkillsScreen({ navigation }) {
+  const { control, handleSubmit, setValue } = useForm();
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [certificates, setCertificates] = useState([]);
@@ -65,19 +58,23 @@ export default function SkillsScreen({navigation}) {
     const result = await launchImageLibrary({
       mediaType: 'mixed',
       quality: 0.8,
-      selectionLimit: 1,
+      selectionLimit: 5, // Allow multiple files
     });
-    if (!result.didCancel && result.assets?.[0]?.uri) {
-      setCertificates(prev => [
-        ...prev,
-        {
-          uri: result.assets[0].uri,
-          name: '',
-          authority: '',
-        },
-      ]);
+
+    if (!result.didCancel && result.assets) {
+      const newCertificates = result.assets.map(asset => ({
+        uri: asset.uri,
+        name: '',
+        authority: '',
+      }));
+      setCertificates(prev => [...prev, ...newCertificates]);
     }
   };
+
+  const removeCertificate = index => {
+    setCertificates(prev => prev.filter((_, i) => i !== index));
+  };
+
 
   const onSubmit = data => {
     console.log({
@@ -113,7 +110,7 @@ export default function SkillsScreen({navigation}) {
         <Controller
           control={control}
           name="customSkills"
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <FormInput
               label="Add Custom Skills"
               value={value}
@@ -146,9 +143,7 @@ export default function SkillsScreen({navigation}) {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Certifications</Text>
-        <Text style={styles.sectionSubtitle}>
-          Add your professional certificates
-        </Text>
+        <Text style={styles.sectionSubtitle}>Add your professional certificates</Text>
 
         {certificates.map((cert, index) => (
           <View key={index} style={styles.certificateContainer}>
@@ -156,12 +151,12 @@ export default function SkillsScreen({navigation}) {
             <Controller
               control={control}
               name={`certificates[${index}].name`}
-              render={({field: {onChange, value}}) => (
+              defaultValue={cert.name}
+              render={({ field: { onChange, value } }) => (
                 <FormInput
                   label="Certificate Name"
                   value={value}
                   onChangeText={onChange}
-                  icon="award"
                   placeholder="e.g., BLS Certification"
                 />
               )}
@@ -169,19 +164,22 @@ export default function SkillsScreen({navigation}) {
             <Controller
               control={control}
               name={`certificates[${index}].authority`}
-              render={({field: {onChange, value}}) => (
+              defaultValue={cert.authority}
+              render={({ field: { onChange, value } }) => (
                 <FormInput
                   label="Issuing Authority"
                   value={value}
                   onChangeText={onChange}
-                  icon="building"
                   placeholder="e.g., Red Cross"
                 />
               )}
             />
+            <Button onPress={() => removeCertificate(index)} mode="text" compact>
+              Remove
+            </Button>
           </View>
         ))}
-        {renderUploadButton('Add Certificate', pickCertificate)}
+        {renderUploadButton('Add More Certificates', pickCertificate)}
       </View>
 
       <View style={styles.section}>
@@ -236,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: {width: 1, height: 1},
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   section: {

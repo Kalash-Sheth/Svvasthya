@@ -13,6 +13,7 @@ import FormInput from '../../components/FormInput';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import DocumentPicker from 'react-native-document-picker';
 
 const documents = [
   {
@@ -47,16 +48,25 @@ export default function DocumentScreen({navigation}) {
     photo: null,
   });
 
-  const pickDocument = async type => {
-    const result = await launchImageLibrary({
-      mediaType: 'mixed',
-      quality: 0.8,
-      selectionLimit: 1,
-    });
-    if (!result.didCancel && result.assets?.[0]?.uri) {
-      setDocuments(prev => ({...prev, [type]: result.assets[0]}));
+  const pickDocument = async (type) => {
+    try {
+      // Prompt user to select a file
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
+      });
+  
+      if (result) {
+        setDocuments((prev) => ({ ...prev, [type]: result[0] }));
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled document picker');
+      } else {
+        console.error(err);
+      }
     }
   };
+
 
   const onSubmit = data => {
     console.log({...data, documents});
@@ -75,7 +85,9 @@ export default function DocumentScreen({navigation}) {
               color={BRAND_COLORS.primary}
               style={styles.uploadIcon}
             />
-            <Text style={styles.uploadedText}>Document Uploaded</Text>
+            <Text style={styles.uploadedText}>
+              {documents[type]?.type.includes('image') ? 'Image Uploaded' : 'PDF Uploaded'}
+            </Text>
             <Text style={styles.changeText}>Tap to change</Text>
           </>
         ) : (
@@ -92,6 +104,7 @@ export default function DocumentScreen({navigation}) {
       </View>
     </TouchableOpacity>
   );
+  
 
   return (
     <ScrollView style={styles.container}>

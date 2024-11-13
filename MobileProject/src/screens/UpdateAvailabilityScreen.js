@@ -66,7 +66,7 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
           }
 
           const response = await axios.get(
-            'http://192.168.0.107:5000/api/attendant/fetchavailability',
+            'http://192.168.1.7:5000/api/attendant/fetchavailability',
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -220,7 +220,7 @@ const UpdateAvailabilityScreen = ({ navigation }) => {
         );
 
         await axios.post(
-          'http://192.168.0.107:5000/api/attendant/updateavailability',
+          'http://192.168.1.7:5000/api/attendant/updateavailability',
           {
             startTime: finalStartTime.toISOString(),
             endTime: finalEndTime.toISOString(),
