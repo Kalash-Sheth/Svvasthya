@@ -17,7 +17,7 @@ const UpcomingTasks = () => {
           return;
         }
         const response = await axios.get(
-          'http://192.168.0.107:5000/api/attendant/assignedAppointments',
+          `${API_URL}/api/attendant/assignedAppointments`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ const UpcomingTasks = () => {
     const acceptAppointment = async appointmentId => {
       try {
         await axios.post(
-          'http://192.168.0.107:5000/api/attendant/acceptAppointment',
+          `${API_URL}/api/attendant/acceptAppointment`,
           {appointmentId},
         );
         Alert.alert('Success', 'Appointment accepted successfully');
@@ -60,7 +60,7 @@ const UpcomingTasks = () => {
     const rejectAppointment = async appointmentId => {
       try {
         await axios.post(
-          'http://192.168.0.107:5000/api/attendant/rejectAppointment',
+          `${API_URL}/api/attendant/rejectAppointment`,
           {appointmentId},
         );
         Alert.alert('Success', 'Appointment rejected successfully');

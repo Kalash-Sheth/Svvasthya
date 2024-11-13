@@ -18,7 +18,7 @@ export default function TaskScreen() {
       }
 
       const response = await axios.get(
-        'http://192.168.0.107:5000/api/attendant/acceptedAppointments',
+        `${API_URL}/api/attendant/acceptedAppointments`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

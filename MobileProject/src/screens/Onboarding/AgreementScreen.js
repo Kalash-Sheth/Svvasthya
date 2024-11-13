@@ -1,9 +1,12 @@
 import React, {useState} from 'react';
-import {View, ScrollView, StyleSheet} from 'react-native';
+import {View, ScrollView, StyleSheet, Alert} from 'react-native';
 import {Button, Checkbox, Text} from 'react-native-paper';
 import {FileText, Shield, Search} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
+import { ATTENDANT_ID } from '../../config/attendant';
 
 export default function AgreementScreen({navigation}) {
   const [agreements, setAgreements] = useState({
@@ -12,11 +15,30 @@ export default function AgreementScreen({navigation}) {
     background: false,
   });
 
-  const handleNext = () => {
-    if (Object.values(agreements).every(value => value)) {
-      navigation.navigate('Confirmation');
-    } else {
-      alert('Please accept all agreements to proceed.');
+  const handleNext = async () => {
+    if (!Object.values(agreements).every(value => value)) {
+      Alert.alert('Error', 'Please accept all agreements to proceed.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/agreements/${ATTENDANT_ID}`,
+        {
+          termsAndConditions: agreements.terms,
+          privacyPolicy: agreements.privacy,
+          backgroundCheckAuthorization: agreements.background
+        }
+      );
+
+      if (response.data.success) {
+        navigation.navigate('Confirmation');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save agreements');
+      }
+    } catch (error) {
+      console.error('Error saving agreements:', error);
+      Alert.alert('Error', 'Failed to save agreements');
     }
   };
 

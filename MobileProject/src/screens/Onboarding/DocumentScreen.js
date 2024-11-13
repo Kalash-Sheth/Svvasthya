@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import {Button, Text} from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
@@ -12,8 +13,9 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-import { BRAND_COLORS } from '../../styles/colors';
-import DocumentPicker from 'react-native-document-picker';
+import {BRAND_COLORS} from '../../styles/colors';
+import axios from 'axios';
+import {API_URL} from '../../config/api';
 
 const documents = [
   {
@@ -48,29 +50,52 @@ export default function DocumentScreen({navigation}) {
     photo: null,
   });
 
-  const pickDocument = async (type) => {
+  const pickDocument = async type => {
     try {
-      // Prompt user to select a file
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
       });
-  
-      if (result) {
-        setDocuments((prev) => ({ ...prev, [type]: result[0] }));
+
+      if (!result.didCancel && result.assets?.[0]) {
+        setDocuments(prev => ({
+          ...prev,
+          [type]: {
+            uri: result.assets[0].uri,
+            type: 'image/jpeg',
+            name: result.assets[0].fileName || `${type}.jpg`,
+          },
+        }));
       }
     } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled document picker');
-      } else {
-        console.error(err);
-      }
+      console.error('Error picking image:', err);
     }
   };
 
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/document-info/${attendantId}`,
+        {
+          aadhaarNumber: data.aadharNumber,
+          aadhaarPhoto: documents.aadhar?.uri,
+          panNumber: data.panNumber,
+          panPhoto: documents.pan?.uri,
+          drivingLicenseNumber: data.drivingLicense,
+          drivingLicensePhoto: documents.license?.uri,
+          passportPhoto: documents.photo?.uri
+        }
+      );
 
-  const onSubmit = data => {
-    console.log({...data, documents});
-    navigation.navigate('ProfessionalInfo');
+      if (response.data.success) {
+        navigation.navigate('ProfessionalInfo');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save documents');
+      }
+    } catch (error) {
+      console.error('Error saving documents:', error);
+      Alert.alert('Error', 'Failed to save document information');
+    }
   };
 
   const renderUploadButton = (type, title) => (
@@ -85,9 +110,7 @@ export default function DocumentScreen({navigation}) {
               color={BRAND_COLORS.primary}
               style={styles.uploadIcon}
             />
-            <Text style={styles.uploadedText}>
-              {documents[type]?.type.includes('image') ? 'Image Uploaded' : 'PDF Uploaded'}
-            </Text>
+            <Text style={styles.uploadedText}>Image Uploaded</Text>
             <Text style={styles.changeText}>Tap to change</Text>
           </>
         ) : (
@@ -104,7 +127,6 @@ export default function DocumentScreen({navigation}) {
       </View>
     </TouchableOpacity>
   );
-  
 
   return (
     <ScrollView style={styles.container}>

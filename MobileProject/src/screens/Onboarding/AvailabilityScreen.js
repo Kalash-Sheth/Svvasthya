@@ -4,6 +4,9 @@ import {Button, Switch, Text, Chip} from 'react-native-paper';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
+import { Alert } from 'react-native';
 
 const shifts = ['Morning', 'Afternoon', 'Night'];
 const days = [
@@ -39,15 +42,27 @@ export default function AvailabilityScreen({navigation}) {
     }
   };
 
-  const handleNext = () => {
-    console.log({
-      availability,
-      isWillingToTravel,
-      selectedShifts,
-      selectedDays,
-      locationPreference,
-    });
-    navigation.navigate('MedicalInfo');
+  const handleNext = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/work-preferences/${attendantId}`,
+        {
+          workType: availability,
+          preferredDays: selectedDays,
+          shiftPreferences: selectedShifts,
+          locationPreferences: locationPreference
+        }
+      );
+
+      if (response.data.success) {
+        navigation.navigate('MedicalInfo');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save preferences');
+      }
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      Alert.alert('Error', 'Failed to save availability preferences');
+    }
   };
 
   return (

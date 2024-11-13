@@ -5,13 +5,38 @@ import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
+import { Alert } from 'react-native';
 
 export default function MedicalInfoScreen({navigation}) {
   const {control, handleSubmit} = useForm();
 
-  const onSubmit = data => {
-    console.log(data);
-    navigation.navigate('BankingInfo');
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/health-info/${attendantId}`,
+        {
+          medicalConditions: data.medicalConditions,
+          allergies: data.allergies,
+          emergencyContact: {
+            contactName: data.emergencyContactName,
+            relationship: data.emergencyContactRelation,
+            mobileNumber: data.emergencyContactMobile,
+            alternativeNumber: data.emergencyContactAlternate
+          }
+        }
+      );
+
+      if (response.data.success) {
+        navigation.navigate('BankingInfo');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save medical information');
+      }
+    } catch (error) {
+      console.error('Error saving medical info:', error);
+      Alert.alert('Error', 'Failed to save medical information');
+    }
   };
 
   return (

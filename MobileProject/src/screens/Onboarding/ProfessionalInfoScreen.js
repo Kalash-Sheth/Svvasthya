@@ -5,6 +5,9 @@ import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
+import { Alert } from 'react-native';
 
 const professionalFields = [
   {
@@ -55,9 +58,30 @@ const employerFields = [
 export default function ProfessionalInfoScreen({navigation}) {
   const {control, handleSubmit} = useForm();
 
-  const onSubmit = data => {
-    console.log(data);
-    navigation.navigate('Skills');
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/professional-info/${attendantId}`,
+        {
+          title: data.title,
+          specialization: data.specialization,
+          yearsOfExperience: data.experience,
+          previousEmployment: data.employers,
+          skills: [], // Add skills array if needed
+          certifications: [], // Add certifications array if needed
+          languagesKnown: [] // Add languages array if needed
+        }
+      );
+
+      if (response.data.success) {
+        navigation.navigate('Skills');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save professional information');
+      }
+    } catch (error) {
+      console.error('Error saving professional info:', error);
+      Alert.alert('Error', 'Failed to save professional information');
+    }
   };
 
   const renderEmployerSection = (index) => (

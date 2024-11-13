@@ -3,6 +3,7 @@ import { View, Text, TextInput, Image, ScrollView, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config';
 
 // Styled components
 const Container = styled.View`
@@ -53,7 +54,7 @@ const Onboarding = () => {
 
     const sendOtp = async () => {
       try {
-        await axios.post('http://192.168.0.107:5000/api/attendant/send-otp', {
+        await axios.post(`${API_URL}/api/attendant/send-otp`, {
           mobileNumber,
         });
         Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
@@ -66,7 +67,7 @@ const Onboarding = () => {
     const verifyOtp = async () => {
       try {
         const response = await axios.post(
-          'http://192.168.0.107:5000/api/attendant/verify-otp',
+          `${API_URL}/api/attendant/verify-otp`,
           {mobileNumber, otp},
         );
         if (response.data.success) {
@@ -83,7 +84,7 @@ const Onboarding = () => {
     const completeOnboarding = async () => {
       try {
         await axios.post(
-          'http://192.168.0.107:5000/api/attendant/complete-onboarding',
+          `${API_URL}/api/attendant/complete-onboarding`,
           {mobileNumber, email, password},
         );
         Alert.alert('Success', 'Onboarding Complete.');

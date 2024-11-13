@@ -29,16 +29,13 @@ export default function ProfileScreen({navigation}) {
         return;
       }
 
-      const response = await fetch(
-        'http://192.168.0.107:5000/api/attendant/profile',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      const response = await fetch(`${API_URL}/api/attendant/profile`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-      );
+      });
 
       const data = await response.json();
 

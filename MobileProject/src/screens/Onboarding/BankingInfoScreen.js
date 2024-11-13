@@ -7,6 +7,9 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import { BRAND_COLORS } from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config/api';
+import { Alert } from 'react-native';
 
 export default function BankingInfoScreen({navigation}) {
   const {control, handleSubmit} = useForm();
@@ -23,9 +26,29 @@ export default function BankingInfoScreen({navigation}) {
     }
   };
 
-  const onSubmit = data => {
-    console.log({...data, cancelledCheque});
-    navigation.navigate('Agreements');
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/banking-info/${attendantId}`,
+        {
+          accountHolderName: data.accountHolderName,
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
+          ifscCode: data.ifscCode,
+          upiId: data.upiId,
+          cancelledChequePhoto: cancelledCheque?.uri
+        }
+      );
+
+      if (response.data.success) {
+        navigation.navigate('Agreements');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save banking information');
+      }
+    } catch (error) {
+      console.error('Error saving banking info:', error);
+      Alert.alert('Error', 'Failed to save banking information');
+    }
   };
 
   const renderUploadButton = () => (

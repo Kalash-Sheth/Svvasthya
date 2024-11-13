@@ -16,6 +16,7 @@ import BackgroundLocationService from '../components/BackgroundLocationService';
 import {BRAND_COLORS} from '../styles/colors';
 import {MapPin, Power} from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { API_URL } from '../config';
 
 export default function RealTimeModel() {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -105,7 +106,7 @@ export default function RealTimeModel() {
 
             try {
               const response = await axios.put(
-                'http://192.168.0.107:5000/api/realtime/updateAvailability',
+                `${API_URL}/api/realtime/updateAvailability`,
                 {
                   currentAvailability: true,
                   currentLocation,
@@ -135,7 +136,7 @@ export default function RealTimeModel() {
       } else {
         try {
           const response = await axios.put(
-            'http://192.168.0.107:5000/api/realtime/updateAvailability',
+            `${API_URL}/api/realtime/updateAvailability`,
             {
               currentAvailability: false,
               currentLocation: null,

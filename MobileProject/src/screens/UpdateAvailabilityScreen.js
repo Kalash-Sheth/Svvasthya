@@ -18,6 +18,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Geolocation from 'react-native-geolocation-service';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import {BRAND_COLORS} from '../styles/colors';
+import {API_URL} from '../config';
 
 const {width} = Dimensions.get('window');
 
@@ -69,7 +70,7 @@ const UpdateAvailabilityScreen = ({navigation}) => {
         }
 
         const response = await axios.get(
-          'http://192.168.0.107:5000/api/attendant/fetchavailability',
+          `${API_URL}/api/attendant/fetchavailability`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -219,7 +220,7 @@ const UpdateAvailabilityScreen = ({navigation}) => {
       );
 
       await axios.post(
-        'http://192.168.0.107:5000/api/attendant/updateavailability',
+        `${API_URL}/api/attendant/updateavailability`,
         {
           startTime: finalStartTime.toISOString(),
           endTime: finalEndTime.toISOString(),

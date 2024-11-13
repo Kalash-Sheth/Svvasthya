@@ -41,4 +41,14 @@ router.get('/profile', attendantController.getProfile);
 // Route to Onboard Attendant 
 router.post('/onboarding', onboardAttendController);
 
+// Onboarding routes - Protected with auth middleware
+router.post('/onboarding/personal-info/:attendantId', attendantController.savePersonalInfo);
+router.post('/onboarding/document-info/:attendantId', attendantController.saveDocumentInfo);
+router.post('/onboarding/professional-info/:attendantId', attendantController.saveProfessionalInfo);
+router.post('/onboarding/work-preferences/:attendantId', attendantController.saveWorkPreferences);
+router.post('/onboarding/health-info/:attendantId', attendantController.saveHealthInfo);
+router.post('/onboarding/banking-info/:attendantId', attendantController.saveBankingInfo);
+router.post('/onboarding/agreements/:attendantId', attendantController.saveAgreements);
+
+
 module.exports = router;
