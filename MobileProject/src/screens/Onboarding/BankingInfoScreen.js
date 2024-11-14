@@ -8,7 +8,7 @@ import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
-import { API_URL } from '../../config/api';
+import {API_URL} from '../../config';
 import { Alert } from 'react-native';
 
 export default function BankingInfoScreen({navigation}) {
