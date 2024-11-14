@@ -3,7 +3,7 @@ import {View, ScrollView, StyleSheet, Alert} from 'react-native';
 import {Button, Checkbox, Text} from 'react-native-paper';
 import {FileText, Shield, Search} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-import { BRAND_COLORS } from '../../styles/colors';
+import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
 import { ATTENDANT_ID } from '../../config/attendant';

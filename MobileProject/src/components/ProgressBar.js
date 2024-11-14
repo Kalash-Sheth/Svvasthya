@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Text} from 'react-native-paper';
-import { BRAND_COLORS } from '../styles/colors';
+import  BRAND_COLORS  from '../styles/colors';
 
 export default function ProgressBar({step, totalSteps}) {
   const progress = (step / totalSteps) * 100;

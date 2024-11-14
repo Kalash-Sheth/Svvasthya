@@ -4,7 +4,7 @@ import {Button, Text} from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-import { BRAND_COLORS } from '../../styles/colors';
+import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
 import { Alert } from 'react-native';

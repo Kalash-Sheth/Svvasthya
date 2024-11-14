@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BRAND_COLORS} from '../styles/colors';
+import BRAND_COLORS from '../styles/colors';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');

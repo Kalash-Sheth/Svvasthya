@@ -22,7 +22,7 @@ import {
   LogOut,
   X,
 } from 'lucide-react-native';
-import {BRAND_COLORS} from '../styles/colors';
+import BRAND_COLORS from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width} = Dimensions.get('window');

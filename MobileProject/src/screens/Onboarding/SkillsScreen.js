@@ -6,7 +6,7 @@ import FormInput from '../../components/FormInput';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { FileText, Upload } from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-import { BRAND_COLORS } from '../../styles/colors';
+import  BRAND_COLORS  from '../../styles/colors';
 
 const predefinedSkills = [
   'Patient Care',

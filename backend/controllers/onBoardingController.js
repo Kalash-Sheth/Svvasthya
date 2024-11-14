@@ -1,10 +1,30 @@
-const jwt = require('jsonwebtoken');
 const Attendant = require('../models/Attendant');
-
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require("dotenv").config({ path: "backend/config/config.env" });
 // Personal Information Screen
 exports.savePersonalInfo = async (req, res) => {
     try {
-        const { attendantId } = req.params;
+        // Extract token from Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+        const attendantId = decoded.id;
+        console.log(attendantId)
+        if (!attendantId) {
+            return res.status(400).json({ success: false, message: 'Invalid token' });
+        }
+
+        // Fetch attendant from database
+        const attendant = await Attendant.findById(attendantId);
+        if (!attendant) {
+            return res.status(404).json({ success: false, message: 'Attendant not found' });
+        }
+
         const {
             profilePhoto,
             firstName,
@@ -15,12 +35,7 @@ exports.savePersonalInfo = async (req, res) => {
             email,
             permanentAddress
         } = req.body;
-
-        const attendant = await Attendant.findById(attendantId);
-        if (!attendant) {
-            return res.status(404).json({ success: false, message: 'Attendant not found' });
-        }
-
+          console.log(profilePhoto);
         // Update personal information
         attendant.personalInfo = {
             profilePhoto,
@@ -28,6 +43,7 @@ exports.savePersonalInfo = async (req, res) => {
             middleName,
             lastName,
             dob: new Date(dob),
+            gender,
             email,
             permanentAddress
         };

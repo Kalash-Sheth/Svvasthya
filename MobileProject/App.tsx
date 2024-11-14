@@ -26,7 +26,7 @@ import ConfirmationScreen from './src/screens/Onboarding/ConfirmationScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
 import ProfessionalInfoScreen from './src/screens/Onboarding/ProfessionalInfoScreen';
 import {Home, Clock, DollarSign, User} from 'lucide-react-native';
-import {BRAND_COLORS} from './src/styles/colors';
+import BRAND_COLORS from './src/styles/colors';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();

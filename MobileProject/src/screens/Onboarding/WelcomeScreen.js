@@ -7,7 +7,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import {Button} from 'react-native-paper';
-import { BRAND_COLORS } from '../../styles/colors';
+import BRAND_COLORS  from '../../styles/colors';
 
 export default function WelcomeScreen({navigation}) {
   return (

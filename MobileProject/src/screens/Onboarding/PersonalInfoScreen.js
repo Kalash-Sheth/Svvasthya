@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,29 +7,30 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Button, Text, RadioButton, TextInput} from 'react-native-paper';
-import {useForm, Controller} from 'react-hook-form';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { Button, Text, RadioButton, TextInput } from 'react-native-paper';
+import { useForm, Controller } from 'react-hook-form';
+import { launchImageLibrary } from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-import {BRAND_COLORS} from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-import {API_URL} from '../../config';
+import { API_URL } from '../../config';
 import * as yup from 'yup';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const inputFields = [
   {
     section: 'Name',
     fields: [
-      {name: 'firstName', label: 'First Name', icon: 'account'},
-      {name: 'middleName', label: 'Middle Name', icon: 'account'},
-      {name: 'lastName', label: 'Last Name', icon: 'account'},
+      { name: 'firstName', label: 'First Name', icon: 'account' },
+      { name: 'middleName', label: 'Middle Name', icon: 'account' },
+      { name: 'lastName', label: 'Last Name', icon: 'account' },
     ],
   },
   {
     section: 'Basic Information',
-    fields: [{name: 'dob', label: 'Date of Birth', icon: 'calendar'}],
+    fields: [{ name: 'dob', label: 'Date of Birth', icon: 'calendar' }],
   },
   {
     section: 'Contact Information',
@@ -51,10 +52,10 @@ const inputFields = [
   {
     section: 'Permanent Address',
     fields: [
-      {name: 'houseNumber', label: 'House Number', icon: 'home'},
-      {name: 'street', label: 'Street', icon: 'road'},
-      {name: 'city', label: 'City', icon: 'city'},
-      {name: 'state', label: 'State', icon: 'map-marker'},
+      { name: 'houseNumber', label: 'House Number', icon: 'home' },
+      { name: 'street', label: 'Street', icon: 'road' },
+      { name: 'city', label: 'City', icon: 'city' },
+      { name: 'state', label: 'State', icon: 'map-marker' },
       {
         name: 'zipCode',
         label: 'ZIP Code',
@@ -129,12 +130,12 @@ const validationSchema = yup.object().shape({
     .matches(/^\d{6}$/, 'Please enter a valid 6-digit ZIP code'),
 });
 
-export default function PersonalInfoScreen({navigation}) {
+export default function PersonalInfoScreen({ navigation }) {
   const {
     control,
     handleSubmit,
     watch,
-    formState: {errors},
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
@@ -181,7 +182,7 @@ export default function PersonalInfoScreen({navigation}) {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-          'Failed to send OTP. Please try again.',
+        'Failed to send OTP. Please try again.',
       );
     }
   };
@@ -204,6 +205,13 @@ export default function PersonalInfoScreen({navigation}) {
       if (response.data.success) {
         setIsVerified(true);
         Alert.alert('Success', 'Mobile number verified successfully');
+
+        // Store the token in AsyncStorage
+        const { token } = response.data;
+        console.log(token);
+        await AsyncStorage.setItem('authToken', token);
+
+        console.log('Token stored successfully');
       } else {
         Alert.alert('Error', 'Invalid OTP. Please try again.');
       }
@@ -215,56 +223,64 @@ export default function PersonalInfoScreen({navigation}) {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-          'Failed to verify OTP. Please try again.',
+        'Failed to verify OTP. Please try again.',
       );
     }
   };
 
   const onSubmit = async data => {
     try {
-      if (!profileImage) {
-        Alert.alert('Error', 'Please upload a profile photo');
-        return;
-      }
+      // if (!profileImage) {
+      //   Alert.alert('Error', 'Please upload a profile photo');
+      //   return;
+      // }
 
-      if (!gender) {
-        Alert.alert('Error', 'Please select your gender');
-        return;
-      }
+      // if (!gender) {
+      //   Alert.alert('Error', 'Please select your gender');
+      //   return;
+      // }
 
-      if (!isVerified) {
-        Alert.alert('Error', 'Please verify your mobile number');
-        return;
-      }
+      // if (!isVerified) {
+      //   Alert.alert('Error', 'Please verify your mobile number');
+      //   return;
+      // }
 
-      const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/personal-info/${attendantId}`,
-        {
-          profilePhoto: profileImage,
-          firstName: data.firstName,
-          middleName: data.middleName,
-          lastName: data.lastName,
-          dob: data.dob,
-          gender,
-          email: data.email,
-          permanentAddress: {
-            houseNumber: data.houseNumber,
-            street: data.street,
-            city: data.city,
-            state: data.state,
-            zipCode: data.zipCode,
-          },
-        },
-      );
+      // Retrieve the token from AsyncStorage
+      const token = await AsyncStorage.getItem('authToken');
 
-      if (response.data.success) {
-        navigation.navigate('Document');
-      } else {
-        Alert.alert(
-          'Error',
-          response.data.message || 'Failed to save information',
-        );
-      }
+      // const response = await axios.post(
+      //   `${API_URL}/api/attendant/onboarding/personal-info`,
+      //   {
+      //     profilePhoto: profileImage,
+      //     firstName: data.firstName,
+      //     middleName: data.middleName,
+      //     lastName: data.lastName,
+      //     dob: data.dob,
+      //     gender,
+      //     email: data.email,
+      //     permanentAddress: {
+      //       houseNumber: data.houseNumber,
+      //       street: data.street,
+      //       city: data.city,
+      //       state: data.state,
+      //       zipCode: data.zipCode,
+      //     },
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,  // Send token in the header
+      //     },
+      //   }
+      // );
+
+      // if (response.data.success) {
+      navigation.navigate('Document');
+      //   } else {
+      //     Alert.alert(
+      //       'Error',
+      //       response.data.message || 'Failed to save information',
+      //     );
+      //   }
     } catch (error) {
       console.error('Error saving personal info:', error);
       Alert.alert('Error', 'Failed to save personal information');
@@ -279,7 +295,7 @@ export default function PersonalInfoScreen({navigation}) {
           key={field.name}
           control={control}
           name={field.name}
-          render={({field: {onChange, value}}) => (
+          render={({ field: { onChange, value } }) => (
             <View>
               {field.name === 'mobile' ? (
                 <View>
@@ -362,19 +378,19 @@ export default function PersonalInfoScreen({navigation}) {
             <View style={styles.radioGroup}>
               <RadioButton.Item
                 label="Male"
-                value="male"
+                value="Male"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
               <RadioButton.Item
                 label="Female"
-                value="female"
+                value="Female"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
               <RadioButton.Item
                 label="Other"
-                value="other"
+                value="Other"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
@@ -393,7 +409,7 @@ export default function PersonalInfoScreen({navigation}) {
       <View style={styles.photoSection}>
         <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
           {profileImage ? (
-            <Image source={{uri: profileImage}} style={styles.profileImage} />
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <>
               <Text style={styles.uploadText}>Upload Photo</Text>
@@ -403,7 +419,7 @@ export default function PersonalInfoScreen({navigation}) {
         </TouchableOpacity>
       </View>
 
-      {inputFields.map(({section, fields}) => renderSection(section, fields))}
+      {inputFields.map(({ section, fields }) => renderSection(section, fields))}
 
       <Button
         mode="contained"
@@ -566,7 +582,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     top: '50%',
-    transform: [{translateY: -20}],
+    transform: [{ translateY: -20 }],
     backgroundColor: BRAND_COLORS.secondary,
     width: 24,
     height: 24,

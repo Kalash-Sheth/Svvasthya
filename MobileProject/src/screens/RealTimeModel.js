@@ -13,7 +13,7 @@ import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BackgroundLocationService from '../components/BackgroundLocationService';
-import {BRAND_COLORS} from '../styles/colors';
+import BRAND_COLORS from '../styles/colors';
 import {MapPin, Power} from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { API_URL } from '../config';

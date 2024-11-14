@@ -6,7 +6,7 @@ import FormInput from '../../components/FormInput';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-import { BRAND_COLORS } from '../../styles/colors';
+import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
 import { Alert } from 'react-native';

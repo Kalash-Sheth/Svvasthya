@@ -12,7 +12,7 @@ const attendantSchema = new mongoose.Schema({
         middleName: { type: String },
         lastName: { type: String},
         dob: { type: Date},
-       // gender: { type: String, enum: ['Male', 'Female', 'Other']},
+        gender: { type: String, enum: ['Male', 'Female', 'Other']},
         email: { type: String, unique: true },
         permanentAddress: {
             houseNumberName: { type: String },

@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
 import {Text, Button} from 'react-native-paper';
 import {Check} from 'lucide-react-native';
-import {BRAND_COLORS} from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
 
 export default function ConfirmationScreen({navigation}) {
   const scaleValue = new Animated.Value(0);

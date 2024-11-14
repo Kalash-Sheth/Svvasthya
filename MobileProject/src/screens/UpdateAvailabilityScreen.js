@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Geolocation from 'react-native-geolocation-service';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import {BRAND_COLORS} from '../styles/colors';
+import BRAND_COLORS from '../styles/colors';
 import {API_URL} from '../config';
 
 const {width} = Dimensions.get('window');

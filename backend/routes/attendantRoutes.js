@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const attendantController = require('../controllers/attendantController');
-const onboardAttendController = require('../controllers/onboardAttendController');
+const onBoardingController = require('../controllers/onBoardingController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // send otp
@@ -38,17 +38,13 @@ router.post('/rejectAppointment', attendantController.rejectAppointment);
 // Route to get profile
 router.get('/profile', attendantController.getProfile);
 
-// Route to Onboard Attendant 
-router.post('/onboarding', onboardAttendController);
-
-// Onboarding routes - Protected with auth middleware
-router.post('/onboarding/personal-info/:attendantId', attendantController.savePersonalInfo);
-router.post('/onboarding/document-info/:attendantId', attendantController.saveDocumentInfo);
-router.post('/onboarding/professional-info/:attendantId', attendantController.saveProfessionalInfo);
-router.post('/onboarding/work-preferences/:attendantId', attendantController.saveWorkPreferences);
-router.post('/onboarding/health-info/:attendantId', attendantController.saveHealthInfo);
-router.post('/onboarding/banking-info/:attendantId', attendantController.saveBankingInfo);
-router.post('/onboarding/agreements/:attendantId', attendantController.saveAgreements);
-
+// Onboarding routes 
+router.post('/onboarding/personal-info', onBoardingController.savePersonalInfo);
+router.post('/onboarding/document-info/:attendantId', onBoardingController.saveDocumentInfo);
+router.post('/onboarding/professional-info/:attendantId', onBoardingController.saveProfessionalInfo);
+router.post('/onboarding/work-preferences/:attendantId', onBoardingController.saveWorkPreferences);
+router.post('/onboarding/health-info/:attendantId', onBoardingController.saveHealthInfo);
+router.post('/onboarding/banking-info/:attendantId', onBoardingController.saveBankingInfo);
+router.post('/onboarding/agreements/:attendantId', onBoardingController.saveAgreements);
 
 module.exports = router;
