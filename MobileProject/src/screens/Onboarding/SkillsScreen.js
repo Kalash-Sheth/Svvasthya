@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Chip, Text } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import * as Paper from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { FileText, Upload } from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
-import  BRAND_COLORS  from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
+import axios from 'axios';
+import { API_URL } from '../../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DocumentPicker from 'react-native-document-picker';
 
 const predefinedSkills = [
   'Patient Care',
@@ -33,10 +37,11 @@ const languages = [
 ];
 
 export default function SkillsScreen({ navigation }) {
-  const { control, handleSubmit, setValue } = useForm();
+  const { control, handleSubmit } = useForm();
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [certificates, setCertificates] = useState([]);
+  const [customSkills, setCustomSkills] = useState('');
 
   const handleSkillSelect = skill => {
     if (selectedSkills.includes(skill)) {
@@ -55,43 +60,160 @@ export default function SkillsScreen({ navigation }) {
   };
 
   const pickCertificate = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'mixed',
-      quality: 0.8,
-      selectionLimit: 5, // Allow multiple files
-    });
-
-    if (!result.didCancel && result.assets) {
-      const newCertificates = result.assets.map(asset => ({
-        uri: asset.uri,
-        name: '',
-        authority: '',
-      }));
-      setCertificates(prev => [...prev, ...newCertificates]);
+    try {
+      Alert.alert(
+        'Choose Upload Type',
+        'Select how you want to upload your certificate',
+        [
+          {
+            text: 'Take Photo',
+            onPress: () => pickImage(),
+          },
+          {
+            text: 'Choose PDF',
+            onPress: () => pickPDF(),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+        ],
+      );
+    } catch (error) {
+      console.error('Error picking certificate:', error);
+      Alert.alert('Error', 'Failed to pick certificate');
     }
   };
 
-  const removeCertificate = index => {
-    setCertificates(prev => prev.filter((_, i) => i !== index));
+  const pickImage = async () => {
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+      });
+
+      if (!result.didCancel && result.assets?.[0]) {
+        const newCertificate = {
+          uri: result.assets[0].uri,
+          type: 'image/jpeg',
+          name: result.assets[0].fileName || 'certificate.jpg',
+        };
+        setCertificates(prev => [...prev, newCertificate]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
   };
 
+  const pickPDF = async () => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf],
+      });
 
-  const onSubmit = data => {
-    console.log({
-      ...data,
-      selectedSkills,
-      selectedLanguages,
-      certificates,
-    });
-    navigation.navigate('Availability');
+      const newCertificate = {
+        uri: result[0].uri,
+        type: result[0].type,
+        name: result[0].name,
+      };
+      setCertificates(prev => [...prev, newCertificate]);
+    } catch (error) {
+      if (DocumentPicker.isCancel(error)) {
+        return;
+      }
+      console.error('Error picking PDF:', error);
+      Alert.alert('Error', 'Failed to pick PDF');
+    }
+  };
+
+  const onSubmit = async data => {
+    try {
+      if (selectedSkills.length === 0 && !customSkills) {
+        Alert.alert('Error', 'Please select at least one skill');
+        return;
+      }
+
+      if (selectedLanguages.length === 0) {
+        Alert.alert('Error', 'Please select at least one language');
+        return;
+      }
+
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
+      // Create FormData for file uploads
+      const formData = new FormData();
+
+      // Add skills and languages
+      formData.append('selectedSkills', JSON.stringify(selectedSkills));
+      formData.append('customSkills', customSkills || '');
+      formData.append('selectedLanguages', JSON.stringify(selectedLanguages));
+
+      // Add certificates with their details
+      certificates.forEach((cert, index) => {
+        formData.append(`certificate[${index}]`, {
+          uri: cert.uri,
+          type: cert.type || 'application/pdf',
+          name: cert.name || `certificate-${index}.${cert.type.includes('pdf') ? 'pdf' : 'jpg'}`
+        });
+      });
+
+      // Add certificate details separately
+      const certificateDetails = certificates.map((cert, index) => ({
+        name: data[`certificates[${index}].name`] || cert.name || 'Untitled Certificate',
+        authority: data[`certificates[${index}].authority`] || 'Unknown Authority'
+      }));
+      
+      formData.append('certificateDetails', JSON.stringify(certificateDetails));
+
+      console.log('Sending data:', {
+        selectedSkills,
+        customSkills,
+        selectedLanguages,
+        certificates: certificates.map(c => ({
+          type: c.type,
+          name: c.name
+        }))
+      });
+
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/skills`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      if (response.data.success) {
+        navigation.navigate('Availability');
+      } else {
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save skills information',
+        );
+      }
+    } catch (error) {
+      console.error('Error saving skills:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save skills information',
+      );
+    }
   };
 
   const renderUploadButton = (title, onPress) => (
     <TouchableOpacity style={styles.uploadButton} onPress={onPress}>
       <View style={styles.uploadContent}>
         <Upload size={24} color={BRAND_COLORS.blue} style={styles.uploadIcon} />
-        <Text style={styles.uploadText}>{title}</Text>
-        <Text style={styles.uploadSubText}>Tap to upload</Text>
+        <Paper.Text style={styles.uploadText}>{title}</Paper.Text>
+        <Paper.Text style={styles.uploadSubText}>Tap to upload</Paper.Text>
       </View>
     </TouchableOpacity>
   );
@@ -99,13 +221,13 @@ export default function SkillsScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={4} totalSteps={8} />
-      <Text style={styles.headerText}>Professional Skills</Text>
+      <Paper.Text style={styles.headerText}>Professional Skills</Paper.Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Skills</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Skills</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Select all relevant skills or add custom ones
-        </Text>
+        </Paper.Text>
 
         <Controller
           control={control}
@@ -123,7 +245,7 @@ export default function SkillsScreen({ navigation }) {
 
         <View style={styles.chipContainer}>
           {predefinedSkills.map(skill => (
-            <Chip
+            <Paper.Chip
               key={skill}
               // selected={selectedSkills.includes(skill)}
               onPress={() => handleSkillSelect(skill)}
@@ -136,23 +258,32 @@ export default function SkillsScreen({ navigation }) {
                 selectedSkills.includes(skill) && styles.selectedChipText,
               ]}>
               {skill}
-            </Chip>
+            </Paper.Chip>
           ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Certifications</Text>
-        <Text style={styles.sectionSubtitle}>Add your professional certificates</Text>
+        <Paper.Text style={styles.sectionTitle}>Certifications</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
+          Add your professional certificates
+        </Paper.Text>
 
         {certificates.map((cert, index) => (
           <View key={index} style={styles.certificateContainer}>
-            <FileText size={24} color={BRAND_COLORS.green} />
+            <FileText 
+              size={24} 
+              color={cert.type.includes('pdf') ? BRAND_COLORS.primary : BRAND_COLORS.green} 
+            />
+            <Paper.Text style={styles.certificateType}>
+              {cert.type.includes('pdf') ? 'PDF Document' : 'Image'}
+            </Paper.Text>
+            <Paper.Text style={styles.certificateName}>{cert.name}</Paper.Text>
             <Controller
               control={control}
               name={`certificates[${index}].name`}
               defaultValue={cert.name}
-              render={({ field: { onChange, value } }) => (
+              render={({field: {onChange, value}}) => (
                 <FormInput
                   label="Certificate Name"
                   value={value}
@@ -165,7 +296,7 @@ export default function SkillsScreen({ navigation }) {
               control={control}
               name={`certificates[${index}].authority`}
               defaultValue={cert.authority}
-              render={({ field: { onChange, value } }) => (
+              render={({field: {onChange, value}}) => (
                 <FormInput
                   label="Issuing Authority"
                   value={value}
@@ -174,23 +305,29 @@ export default function SkillsScreen({ navigation }) {
                 />
               )}
             />
-            <Button onPress={() => removeCertificate(index)} mode="text" compact>
+            <Paper.Button 
+              onPress={() => {
+                setCertificates(prev => prev.filter((_, i) => i !== index));
+              }} 
+              mode="text" 
+              compact
+            >
               Remove
-            </Button>
+            </Paper.Button>
           </View>
         ))}
         {renderUploadButton('Add More Certificates', pickCertificate)}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Languages</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Languages</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Select languages you can communicate in
-        </Text>
+        </Paper.Text>
 
         <View style={styles.chipContainer}>
           {languages.map(language => (
-            <Chip
+            <Paper.Chip
               key={language}
               // selected={selectedLanguages.includes(language)}
               onPress={() => handleLanguageSelect(language)}
@@ -203,19 +340,19 @@ export default function SkillsScreen({ navigation }) {
                 selectedLanguages.includes(language) && styles.selectedChipText,
               ]}>
               {language}
-            </Chip>
+            </Paper.Chip>
           ))}
         </View>
       </View>
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }

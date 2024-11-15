@@ -1,16 +1,13 @@
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Alert} from 'react-native';
-import {Button, Checkbox, Text} from 'react-native-paper';
-import {FileText, Shield, Search} from 'lucide-react-native';
+import * as Paper from 'react-native-paper';
+// import {FileText, Shield, Search} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
-<<<<<<< HEAD
 import { API_URL } from '../../config';
-=======
-import {API_URL} from '../../config';
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
 import { ATTENDANT_ID } from '../../config/attendant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AgreementScreen({navigation}) {
   const [agreements, setAgreements] = useState({
@@ -26,13 +23,25 @@ export default function AgreementScreen({navigation}) {
     }
 
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
       const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/agreements/${ATTENDANT_ID}`,
+        `${API_URL}/api/attendant/onboarding/agreements`,
         {
           termsAndConditions: agreements.terms,
           privacyPolicy: agreements.privacy,
-          backgroundCheckAuthorization: agreements.background
-        }
+          backgroundCheckAuthorization: agreements.background,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       if (response.data.success) {
@@ -42,7 +51,10 @@ export default function AgreementScreen({navigation}) {
       }
     } catch (error) {
       console.error('Error saving agreements:', error);
-      Alert.alert('Error', 'Failed to save agreements');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save agreements',
+      );
     }
   };
 
@@ -50,33 +62,33 @@ export default function AgreementScreen({navigation}) {
     setAgreements(prev => ({...prev, [type]: !prev[type]}));
   };
 
-  const renderAgreementSection = (title, subtitle, type, icon) => (
+  const renderAgreementSection = (title, subtitle, type, ) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        {icon}
+        {/* {icon} */}
         <View style={styles.sectionTitleContainer}>
-          <Text style={styles.sectionTitle}>{title}</Text>
-          <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          <Paper.Text style={styles.sectionTitle}>{title}</Paper.Text>
+          <Paper.Text style={styles.sectionSubtitle}>{subtitle}</Paper.Text>
         </View>
       </View>
 
       <View style={styles.agreementContent}>
-        <Text style={styles.agreementText}>
+        <Paper.Text style={styles.agreementText}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
           minim veniam, quis nostrud exercitation ullamco laboris.
-        </Text>
+        </Paper.Text>
 
         <View style={styles.checkboxContainer}>
           <View style={styles.checkboxWrapper}>
-            <Checkbox.Android
+            <Paper.Checkbox
               status={agreements[type] ? 'checked' : 'unchecked'}
               onPress={() => toggleAgreement(type)}
               color={BRAND_COLORS.primary}
               uncheckedColor="#94A3B8"
             />
           </View>
-          <Text style={styles.checkboxLabel}>I agree to the {title}</Text>
+          <Paper.Text style={styles.checkboxLabel}>I agree to the {title}</Paper.Text>
         </View>
       </View>
     </View>
@@ -85,30 +97,30 @@ export default function AgreementScreen({navigation}) {
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={8} totalSteps={8} />
-      <Text style={styles.headerText}>Agreements & Consent</Text>
+      <Paper.Text style={styles.headerText}>Agreements & Consent</Paper.Text>
 
       {renderAgreementSection(
         'Terms and Conditions',
         'Please read and accept our terms of service',
         'terms',
-        <FileText size={24} color={BRAND_COLORS.textPrimary} />,
+        // <FileText size={24} color={BRAND_COLORS.textPrimary} />,
       )}
 
       {renderAgreementSection(
         'Privacy Policy',
         'How we handle your personal information',
         'privacy',
-        <Shield size={24} color={BRAND_COLORS.secondary} />,
+        // <Shield size={24} color={BRAND_COLORS.secondary} />,
       )}
 
       {renderAgreementSection(
         'Background Check Authorization',
         'Consent for verification process',
         'background',
-        <Search size={24} color={BRAND_COLORS.primary} />,
+        // <Search size={24} color={BRAND_COLORS.primary} />,
       )}
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleNext}
         style={styles.button}
@@ -116,7 +128,7 @@ export default function AgreementScreen({navigation}) {
         labelStyle={styles.buttonText}
         disabled={!Object.values(agreements).every(value => value)}>
         Complete Registration
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }

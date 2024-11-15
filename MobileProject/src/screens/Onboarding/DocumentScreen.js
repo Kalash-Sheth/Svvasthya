@@ -10,12 +10,13 @@ import {
 import * as Paper from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import {launchImageLibrary} from 'react-native-image-picker';
+import DocumentPicker from 'react-native-document-picker';
 import FormInput from '../../components/FormInput';
-// import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-import { API_URL } from '../../config';
+import {API_URL} from '../../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const documents = [
   {
@@ -52,6 +53,32 @@ export default function DocumentScreen({navigation}) {
 
   const pickDocument = async type => {
     try {
+      Alert.alert(
+        'Choose Upload Type',
+        'Select how you want to upload your document',
+        [
+          {
+            text: 'Take Photo',
+            onPress: () => pickImage(type),
+          },
+          {
+            text: 'Choose PDF',
+            onPress: () => pickPDF(type),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+        ],
+      );
+    } catch (err) {
+      console.error('Error picking document:', err);
+      Alert.alert('Error', 'Failed to pick document');
+    }
+  };
+
+  const pickImage = async type => {
+    try {
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
@@ -69,21 +96,90 @@ export default function DocumentScreen({navigation}) {
       }
     } catch (err) {
       console.error('Error picking image:', err);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const pickPDF = async type => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf],
+      });
+
+      setDocuments(prev => ({
+        ...prev,
+        [type]: {
+          uri: result[0].uri,
+          type: result[0].type,
+          name: result[0].name,
+        },
+      }));
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        return;
+      }
+      console.error('Error picking PDF:', err);
+      Alert.alert('Error', 'Failed to pick PDF');
     }
   };
 
   const onSubmit = async data => {
     try {
+      // Validate required documents
+      if (!documents.aadhar || !documents.pan || !documents.license) {
+        Alert.alert('Error', 'Please upload all required documents');
+        return;
+      }
+
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
+      // Create FormData object
+      const formData = new FormData();
+
+      // Helper function to append document with correct type
+      const appendDocument = (fieldName, document) => {
+        if (document) {
+          formData.append(fieldName, {
+            uri: document.uri,
+            type: document.type,
+            name:
+              document.name ||
+              `${fieldName}.${document.type.includes('pdf') ? 'pdf' : 'jpg'}`,
+          });
+        }
+      };
+
+      // Append documents with proper type checking
+      appendDocument('aadhaarPhoto', documents.aadhar);
+      appendDocument('panPhoto', documents.pan);
+      appendDocument('drivingLicensePhoto', documents.license);
+      appendDocument('passportPhoto', documents.photo);
+
+      // Append document numbers
+      formData.append('aadhaarNumber', data.aadharNumber);
+      formData.append('panNumber', data.panNumber);
+      formData.append('drivingLicenseNumber', data.drivingLicense);
+
+      console.log('Sending documents:', {
+        aadhaar: documents.aadhar?.type,
+        pan: documents.pan?.type,
+        license: documents.license?.type,
+        photo: documents.photo?.type,
+      });
+
+
       const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/document-info/${attendantId}`,
+        `${API_URL}/api/attendant/onboarding/document-info`,
+        formData,
         {
-          aadhaarNumber: data.aadharNumber,
-          aadhaarPhoto: documents.aadhar?.uri,
-          panNumber: data.panNumber,
-          panPhoto: documents.pan?.uri,
-          drivingLicenseNumber: data.drivingLicense,
-          drivingLicensePhoto: documents.license?.uri,
-          passportPhoto: documents.photo?.uri,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
         },
       );
 
@@ -97,7 +193,10 @@ export default function DocumentScreen({navigation}) {
       }
     } catch (error) {
       console.error('Error saving documents:', error);
-      Alert.alert('Error', 'Failed to save document information');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save document information',
+      );
     }
   };
 
@@ -108,23 +207,20 @@ export default function DocumentScreen({navigation}) {
       <View style={styles.uploadContent}>
         {documents[type] ? (
           <>
-            {/* <FileText
-              size={24}
-              color={BRAND_COLORS.primary}
-              style={styles.uploadIcon}
-            /> */}
-            <Paper.Text style={styles.uploadedText}>Image Uploaded</Paper.Text>
+            <Paper.Text style={styles.uploadedText}>
+              {documents[type].type.includes('pdf') ? 'PDF' : 'Image'} Uploaded
+            </Paper.Text>
+            <Paper.Text style={styles.uploadedSubText}>
+              {documents[type].name}
+            </Paper.Text>
             <Paper.Text style={styles.changeText}>Tap to change</Paper.Text>
           </>
         ) : (
           <>
-            {/* <Upload
-              size={24}
-              color={BRAND_COLORS.textPrimary}
-              style={styles.uploadIcon}
-            /> */}
             <Paper.Text style={styles.uploadText}>{title}</Paper.Text>
-            <Paper.Text style={styles.uploadSubText}>Tap to upload</Paper.Text>
+            <Paper.Text style={styles.uploadSubText}>
+              Tap to upload Image/PDF
+            </Paper.Text>
           </>
         )}
       </View>
@@ -316,5 +412,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: 'white',
     letterSpacing: 1,
+  },
+  uploadedSubText: {
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
+    fontSize: 12,
+    marginBottom: 4,
+    textAlign: 'center',
   },
 });

@@ -1,71 +1,122 @@
 import React from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
-import {Button, Text} from 'react-native-paper';
+import {View, StyleSheet, ScrollView, Alert} from 'react-native';
+import * as Paper from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-import BRAND_COLORS  from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-<<<<<<< HEAD
-import { API_URL } from '../../config';
-=======
 import {API_URL} from '../../config';
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
-import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+
+const validationSchema = yup.object().shape({
+  medicalConditions: yup.string(),
+  allergies: yup.string(),
+  emergencyContactName: yup
+    .string()
+    .required('Emergency contact name is required')
+    .min(2, 'Name must be at least 2 characters'),
+  emergencyContactRelation: yup
+    .string()
+    .required('Relationship is required')
+    .min(2, 'Relationship must be at least 2 characters'),
+  emergencyContactMobile: yup
+    .string()
+    .required('Mobile number is required')
+    .matches(/^[6-9]\d{9}$/, 'Please enter a valid 10-digit mobile number'),
+  emergencyContactAlternate: yup
+    .string()
+    .matches(/^[6-9]\d{9}$/, 'Please enter a valid 10-digit mobile number')
+    .nullable(),
+});
 
 export default function MedicalInfoScreen({navigation}) {
-  const {control, handleSubmit} = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
       const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/health-info/${attendantId}`,
+        `${API_URL}/api/attendant/onboarding/health-info`,
         {
-          medicalConditions: data.medicalConditions,
-          allergies: data.allergies,
+          medicalConditions: data.medicalConditions || 'None',
+          allergies: data.allergies || 'None',
           emergencyContact: {
             contactName: data.emergencyContactName,
             relationship: data.emergencyContactRelation,
             mobileNumber: data.emergencyContactMobile,
-            alternativeNumber: data.emergencyContactAlternate
-          }
-        }
+            alternativeNumber: data.emergencyContactAlternate || '',
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       if (response.data.success) {
         navigation.navigate('BankingInfo');
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to save medical information');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save medical information',
+        );
       }
     } catch (error) {
       console.error('Error saving medical info:', error);
-      Alert.alert('Error', 'Failed to save medical information');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save medical information',
+      );
     }
   };
 
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={6} totalSteps={8} />
-      <Text style={styles.headerText}>Medical Information</Text>
+      <Paper.Text style={styles.headerText}>Medical Information</Paper.Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Medical Conditions</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Medical Conditions</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Please provide information about any medical conditions or allergies
-        </Text>
+        </Paper.Text>
 
         <Controller
           control={control}
           name="medicalConditions"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Medical Conditions"
-              value={value}
-              onChangeText={onChange}
-              icon="stethoscope"
-              placeholder="e.g., Asthma, Diabetes, None"
-              multiline
-            />
+            <View>
+              <FormInput
+                label="Medical Conditions"
+                value={value}
+                onChangeText={onChange}
+                icon="stethoscope"
+                placeholder="e.g., Asthma, Diabetes, None"
+                multiline
+                error={errors.medicalConditions?.message}
+              />
+              {errors.medicalConditions && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.medicalConditions.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
 
@@ -73,35 +124,51 @@ export default function MedicalInfoScreen({navigation}) {
           control={control}
           name="allergies"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Allergies"
-              value={value}
-              onChangeText={onChange}
-              icon="alert-circle"
-              placeholder="e.g., Penicillin, Peanuts, None"
-              multiline
-            />
+            <View>
+              <FormInput
+                label="Allergies"
+                value={value}
+                onChangeText={onChange}
+                icon="alert-circle"
+                placeholder="e.g., Penicillin, Peanuts, None"
+                multiline
+                error={errors.allergies?.message}
+              />
+              {errors.allergies && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.allergies.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Emergency Contact</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Emergency Contact</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Person to contact in case of emergency
-        </Text>
+        </Paper.Text>
 
         <Controller
           control={control}
           name="emergencyContactName"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Contact Name"
-              value={value}
-              onChangeText={onChange}
-              icon="user"
-              placeholder="Full Name"
-            />
+            <View>
+              <FormInput
+                label="Contact Name"
+                value={value}
+                onChangeText={onChange}
+                icon="user"
+                placeholder="Full Name"
+                error={errors.emergencyContactName?.message}
+              />
+              {errors.emergencyContactName && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.emergencyContactName.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
 
@@ -109,13 +176,21 @@ export default function MedicalInfoScreen({navigation}) {
           control={control}
           name="emergencyContactRelation"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Relationship"
-              value={value}
-              onChangeText={onChange}
-              icon="users"
-              placeholder="e.g., Spouse, Parent, Sibling"
-            />
+            <View>
+              <FormInput
+                label="Relationship"
+                value={value}
+                onChangeText={onChange}
+                icon="users"
+                placeholder="e.g., Spouse, Parent, Sibling"
+                error={errors.emergencyContactRelation?.message}
+              />
+              {errors.emergencyContactRelation && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.emergencyContactRelation.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
 
@@ -123,14 +198,22 @@ export default function MedicalInfoScreen({navigation}) {
           control={control}
           name="emergencyContactMobile"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Mobile Number"
-              value={value}
-              onChangeText={onChange}
-              icon="phone"
-              keyboardType="phone-pad"
-              placeholder="Emergency Contact Number"
-            />
+            <View>
+              <FormInput
+                label="Mobile Number"
+                value={value}
+                onChangeText={onChange}
+                icon="phone"
+                keyboardType="phone-pad"
+                placeholder="Emergency Contact Number"
+                error={errors.emergencyContactMobile?.message}
+              />
+              {errors.emergencyContactMobile && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.emergencyContactMobile.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
 
@@ -138,26 +221,34 @@ export default function MedicalInfoScreen({navigation}) {
           control={control}
           name="emergencyContactAlternate"
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label="Alternate Number (Optional)"
-              value={value}
-              onChangeText={onChange}
-              icon="phone"
-              keyboardType="phone-pad"
-              placeholder="Alternate Contact Number"
-            />
+            <View>
+              <FormInput
+                label="Alternate Number (Optional)"
+                value={value}
+                onChangeText={onChange}
+                icon="phone"
+                keyboardType="phone-pad"
+                placeholder="Alternate Contact Number"
+                error={errors.emergencyContactAlternate?.message}
+              />
+              {errors.emergencyContactAlternate && (
+                <Paper.Text style={styles.errorText}>
+                  {errors.emergencyContactAlternate.message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
       </View>
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }
@@ -208,6 +299,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
     marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.error,
+    marginTop: 4,
+    marginLeft: 8,
   },
   button: {
     marginVertical: 25,

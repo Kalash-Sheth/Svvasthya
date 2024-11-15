@@ -29,7 +29,6 @@ import ProfessionalInfoScreen from './src/screens/Onboarding/ProfessionalInfoScr
 import { Home, Clock, DollarSign, User } from 'lucide-react-native';
 import BRAND_COLORS from './src/styles/colors';
 
-import {Provider as PaperProvider} from 'react-native-paper';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -102,28 +101,17 @@ const App = () => {
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Splash">
-<<<<<<< HEAD
-            <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-=======
             <Stack.Screen
               name="Splash"
               component={SplashScreen}
               options={{headerShown: false}}
             />
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Onboarding" component={Onboarding} />
             <Stack.Screen name="UpcomingTasks" component={UpcomingTasks} />
             <Stack.Screen name="Tasks" component={TaskScreen} />
             <Stack.Screen name="Earnings" component={EarningsScreen} />
             <Stack.Screen name="RealTimeModel" component={RealTimeModel} />
-<<<<<<< HEAD
-            <Stack.Screen name="UpdateAvailability" component={UpdateAvailabilityScreen} />
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
-            <Stack.Screen name="Document" component={DocumentScreen} />
-            <Stack.Screen name="ProfessionalInfo" component={ProfessionalInfoScreen} />
-=======
             <Stack.Screen
               name="UpdateAvailability"
               component={UpdateAvailabilityScreen}
@@ -135,19 +123,12 @@ const App = () => {
               name="ProfessionalInfo"
               component={ProfessionalInfoScreen}
             />
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
             <Stack.Screen name="Skills" component={SkillsScreen} />
             <Stack.Screen name="Availability" component={AvailabilityScreen} />
             <Stack.Screen name="MedicalInfo" component={MedicalInfoScreen} />
             <Stack.Screen name="BankingInfo" component={BankingInfoScreen} />
             <Stack.Screen name="Agreements" component={AgreementScreen} />
             <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
-<<<<<<< HEAD
-            <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider >
-=======
             <Stack.Screen
               name="Main"
               component={TabNavigator}
@@ -156,7 +137,6 @@ const App = () => {
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
     </PaperProvider>
   );
 };

@@ -1,16 +1,12 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
-import {Button, Switch, Text, Chip} from 'react-native-paper';
+import {View, StyleSheet, ScrollView, Alert} from 'react-native';
+import * as Paper from 'react-native-paper';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-import BRAND_COLORS  from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-<<<<<<< HEAD
-import { API_URL } from '../../config';
-=======
 import {API_URL} from '../../config';
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
-import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const shifts = ['Morning', 'Afternoon', 'Night'];
 const days = [
@@ -24,7 +20,7 @@ const days = [
 ];
 
 export default function AvailabilityScreen({navigation}) {
-  const [availability, setAvailability] = useState('fulltime');
+  const [availability, setAvailability] = useState('Full Time');
   const [isWillingToTravel, setIsWillingToTravel] = useState(false);
   const [selectedShifts, setSelectedShifts] = useState([]);
   const [selectedDays, setSelectedDays] = useState([]);
@@ -48,70 +44,110 @@ export default function AvailabilityScreen({navigation}) {
 
   const handleNext = async () => {
     try {
+      // Validate required fields
+      if (selectedDays.length === 0) {
+        Alert.alert('Error', 'Please select at least one working day');
+        return;
+      }
+
+      if (selectedShifts.length === 0) {
+        Alert.alert('Error', 'Please select at least one shift preference');
+        return;
+      }
+
+      if (!locationPreference) {
+        Alert.alert('Error', 'Please enter your location preferences');
+        return;
+      }
+
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
       const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/work-preferences/${attendantId}`,
+        `${API_URL}/api/attendant/onboarding/work-preferences`,
         {
           workType: availability,
           preferredDays: selectedDays,
           shiftPreferences: selectedShifts,
-          locationPreferences: locationPreference
-        }
+          locationPreferences: locationPreference,
+          willingToTravel: isWillingToTravel,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       if (response.data.success) {
         navigation.navigate('MedicalInfo');
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to save preferences');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save preferences',
+        );
       }
     } catch (error) {
       console.error('Error saving preferences:', error);
-      Alert.alert('Error', 'Failed to save availability preferences');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save availability preferences',
+      );
     }
   };
 
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={5} totalSteps={8} />
-      <Text style={styles.headerText}>Availability Preferences</Text>
+      <Paper.Text style={styles.headerText}>Availability Preferences</Paper.Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Work Type</Text>
+        <Paper.Text style={styles.sectionTitle}>Work Type</Paper.Text>
         <View style={styles.chipContainer}>
-          <Chip
-            onPress={() => setAvailability('fulltime')}
+          <Paper.Chip
+            onPress={() => setAvailability('Full Time')}
+            selected={availability === 'Full Time'}
             style={[
               styles.chip,
-              availability === 'fulltime' && styles.selectedChip,
+              availability === 'Full Time' && styles.selectedChip,
             ]}
             textStyle={[
               styles.chipText,
-              availability === 'fulltime' && styles.selectedChipText,
+              availability === 'Full Time' && styles.selectedChipText,
             ]}>
             Full Time
-          </Chip>
-          <Chip
-            onPress={() => setAvailability('parttime')}
+          </Paper.Chip>
+          <Paper.Chip
+            onPress={() => setAvailability('Part Time')}
+            selected={availability === 'Part Time'}
             style={[
               styles.chip,
-              availability === 'parttime' && styles.selectedChip,
+              availability === 'Part Time' && styles.selectedChip,
             ]}
             textStyle={[
               styles.chipText,
-              availability === 'parttime' && styles.selectedChipText,
+              availability === 'Part Time' && styles.selectedChipText,
             ]}>
             Part Time
-          </Chip>
+          </Paper.Chip>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferred Days</Text>
-        <Text style={styles.sectionSubtitle}>Select your available days</Text>
+        <Paper.Text style={styles.sectionTitle}>Preferred Days</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
+          Select your available days
+        </Paper.Text>
         <View style={styles.chipContainer}>
           {days.map(day => (
-            <Chip
+            <Paper.Chip
               key={day}
               onPress={() => handleDaySelect(day)}
+              selected={selectedDays.includes(day)}
               style={[
                 styles.chip,
                 selectedDays.includes(day) && styles.selectedChip,
@@ -121,19 +157,22 @@ export default function AvailabilityScreen({navigation}) {
                 selectedDays.includes(day) && styles.selectedChipText,
               ]}>
               {day}
-            </Chip>
+            </Paper.Chip>
           ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Shift Preferences</Text>
-        <Text style={styles.sectionSubtitle}>Select your preferred shifts</Text>
+        <Paper.Text style={styles.sectionTitle}>Shift Preferences</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
+          Select your preferred shifts
+        </Paper.Text>
         <View style={styles.chipContainer}>
           {shifts.map(shift => (
-            <Chip
+            <Paper.Chip
               key={shift}
               onPress={() => handleShiftSelect(shift)}
+              selected={selectedShifts.includes(shift)}
               style={[
                 styles.chip,
                 selectedShifts.includes(shift) && styles.selectedChip,
@@ -143,16 +182,16 @@ export default function AvailabilityScreen({navigation}) {
                 selectedShifts.includes(shift) && styles.selectedChipText,
               ]}>
               {shift}
-            </Chip>
+            </Paper.Chip>
           ))}
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Location Preferences</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Location Preferences</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Specify your preferred work areas
-        </Text>
+        </Paper.Text>
         <FormInput
           label="Preferred Locations"
           value={locationPreference}
@@ -161,8 +200,8 @@ export default function AvailabilityScreen({navigation}) {
           placeholder="e.g., South Delhi, Noida"
         />
         <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Willing to Travel?</Text>
-          <Switch
+          <Paper.Text style={styles.switchLabel}>Willing to Travel?</Paper.Text>
+          <Paper.Switch
             value={isWillingToTravel}
             onValueChange={setIsWillingToTravel}
             color={BRAND_COLORS.primary}
@@ -170,14 +209,14 @@ export default function AvailabilityScreen({navigation}) {
         </View>
       </View>
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleNext}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }
