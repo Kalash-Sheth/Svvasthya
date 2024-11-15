@@ -54,9 +54,4 @@ dependencies {
     }
 }
 
-<<<<<<< HEAD
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
-=======
-
-apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
->>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e

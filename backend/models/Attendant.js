@@ -128,6 +128,10 @@ const attendantSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Appointment'
     }],
+    pastVisits: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment'
+    }],
     rating: {
         type: Number,
         default: 0

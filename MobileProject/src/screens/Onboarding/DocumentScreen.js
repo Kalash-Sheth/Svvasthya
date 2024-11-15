@@ -108,21 +108,11 @@ export default function DocumentScreen({navigation}) {
       <View style={styles.uploadContent}>
         {documents[type] ? (
           <>
-            {/* <FileText
-              size={24}
-              color={BRAND_COLORS.primary}
-              style={styles.uploadIcon}
-            /> */}
             <Paper.Text style={styles.uploadedText}>Image Uploaded</Paper.Text>
             <Paper.Text style={styles.changeText}>Tap to change</Paper.Text>
           </>
         ) : (
           <>
-            {/* <Upload
-              size={24}
-              color={BRAND_COLORS.textPrimary}
-              style={styles.uploadIcon}
-            /> */}
             <Paper.Text style={styles.uploadText}>{title}</Paper.Text>
             <Paper.Text style={styles.uploadSubText}>Tap to upload</Paper.Text>
           </>

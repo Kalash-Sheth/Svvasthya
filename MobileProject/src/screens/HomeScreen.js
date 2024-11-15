@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,16 +24,19 @@ import {
 } from 'lucide-react-native';
 import BRAND_COLORS from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config';
+import axios from 'axios';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.75;
 
-export default function HomeScreen({navigation, userName = 'Attendant'}) {
+export default function HomeScreen({ navigation, userName = 'Attendant' }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const slideAnim = React.useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const [appointments, setAppointments] = useState({ upcoming: [], ongoing: [] });
 
-  const toggleMenu = show => {
+  const toggleMenu = (show) => {
     if (show) {
       slideAnim.setValue(-SIDEBAR_WIDTH);
       fadeAnim.setValue(0);
@@ -91,24 +94,31 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
     },
   ];
 
-  const upcomingAppointments = [
-    {
-      id: '1',
-      patientName: 'John Doe',
-      service: 'Nursing',
-      date: '2024-11-12',
-      time: '10:00 AM',
-      address: '123 Main Street, Cityville',
-    },
-    {
-      id: '2',
-      patientName: 'Jane Smith',
-      service: 'Physiotherapy',
-      date: '2024-11-13',
-      time: '2:00 PM',
-      address: '456 Park Avenue, Townsville',
-    },
-  ];
+  // Fetch assigned appointments for the logged-in attendant
+  const fetchAppointments = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/api/attendant/assignedAppointments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      const { upcomingAppointments = [], ongoingAppointments = [] } = response.data;
+
+      setAppointments({
+        upcoming: upcomingAppointments,
+        ongoing: ongoingAppointments,
+      });
+    } catch (error) {
+      console.error('Error fetching appointments', error);
+    }
+  };
+
+  // Call fetchAppointments on component mount
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   const renderSidebar = () => (
     <Modal
@@ -118,14 +128,14 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
       animationType="none">
       <View style={styles.modalContainer}>
         <TouchableWithoutFeedback onPress={() => toggleMenu(false)}>
-          <Animated.View style={[styles.modalOverlay, {opacity: fadeAnim}]} />
+          <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]} />
         </TouchableWithoutFeedback>
 
         <Animated.View
           style={[
             styles.sidebar,
             {
-              transform: [{translateX: slideAnim}],
+              transform: [{ translateX: slideAnim }],
             },
           ]}>
           <View style={styles.sidebarHeader}>
@@ -186,54 +196,70 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
             <Text style={styles.welcomeText}>Welcome back,</Text>
             <Text style={styles.nameText}>{userName}</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => toggleMenu(true)}
-            style={styles.menuButton}>
+          <TouchableOpacity onPress={() => toggleMenu(true)} style={styles.menuButton}>
             <Menu size={24} color={BRAND_COLORS.textPrimary} />
           </TouchableOpacity>
         </View>
 
-        {/* Quick Actions Menu */}
-        {/* <View style={styles.menuGrid}>
-          {menuItems.map(item => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.menuCard}
-              onPress={() => navigation.navigate(item.id)}>
-              <item.icon size={24} color={BRAND_COLORS.primary} />
-              <Text style={styles.menuItemText}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View> */}
-
-        {/* Upcoming Appointments Section */}
+        {/* Upcoming and Ongoing Appointments Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-          {upcomingAppointments.map(appointment => (
-            <View key={appointment.id} style={styles.appointmentCard}>
-              <View style={styles.appointmentHeader}>
-                <Text style={styles.patientName}>
-                  {appointment.patientName}
-                </Text>
-                <Text style={styles.serviceType}>{appointment.service}</Text>
-              </View>
+          {appointments.upcoming.length < 1 ? (
+            <Text style={styles.noAppointmentsText}>No upcoming appointments</Text>
+          ) : (
+            appointments.upcoming.map((appointment) => (
+              <View key={appointment.id} style={styles.appointmentCard}>
+                <View style={styles.appointmentHeader}>
+                  <Text style={styles.patientName}>{appointment.patientName}</Text>
+                  <Text style={styles.serviceType}>{appointment.service}</Text>
+                </View>
 
-              <View style={styles.appointmentDetail}>
-                <Calendar size={16} color={BRAND_COLORS.textSecondary} />
-                <Text style={styles.detailText}>{appointment.date}</Text>
-              </View>
+                <View style={styles.appointmentDetail}>
+                  <Calendar size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.date}</Text>
+                </View>
 
-              <View style={styles.appointmentDetail}>
-                <Clock size={16} color={BRAND_COLORS.textSecondary} />
-                <Text style={styles.detailText}>{appointment.time}</Text>
-              </View>
+                <View style={styles.appointmentDetail}>
+                  <Clock size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.time}</Text>
+                </View>
 
-              <View style={styles.appointmentDetail}>
-                <MapPin size={16} color={BRAND_COLORS.textSecondary} />
-                <Text style={styles.detailText}>{appointment.address}</Text>
+                <View style={styles.appointmentDetail}>
+                  <MapPin size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.address}</Text>
+                </View>
               </View>
-            </View>
-          ))}
+            ))
+          )}
+
+          <Text style={styles.sectionTitle}>Ongoing Appointments</Text>
+          {appointments.ongoing.length < 1 ? (
+            <Text style={styles.noAppointmentsText}>No ongoing appointments</Text>
+          ) : (
+            appointments.ongoing.map((appointment) => (
+              <View key={appointment.id} style={styles.appointmentCard}>
+                <View style={styles.appointmentHeader}>
+                  <Text style={styles.patientName}>{appointment.patientName}</Text>
+                  <Text style={styles.serviceType}>{appointment.service}</Text>
+                </View>
+
+                <View style={styles.appointmentDetail}>
+                  <Calendar size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.date}</Text>
+                </View>
+
+                <View style={styles.appointmentDetail}>
+                  <Clock size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.time}</Text>
+                </View>
+
+                <View style={styles.appointmentDetail}>
+                  <MapPin size={16} color={BRAND_COLORS.textSecondary} />
+                  <Text style={styles.detailText}>{appointment.address}</Text>
+                </View>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -269,32 +295,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: BRAND_COLORS.background,
   },
-  menuGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 15,
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-    marginBottom: 25,
-  },
-  menuCard: {
-    width: '48%',
-    backgroundColor: BRAND_COLORS.background,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: BRAND_COLORS.border,
-    minHeight: 100,
-  },
-  menuItemText: {
-    marginLeft: 15,
-    fontSize: 16,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.textPrimary,
-  },
   section: {
     padding: 20,
     paddingTop: 10,
@@ -325,68 +325,66 @@ const styles = StyleSheet.create({
   appointmentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
   },
   patientName: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
+    fontSize: 18,
     color: BRAND_COLORS.textPrimary,
+    fontWeight: '600',
   },
   serviceType: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.primary,
-    backgroundColor: `${BRAND_COLORS.primary}10`,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    fontSize: 16,
+    color: BRAND_COLORS.textSecondary,
+    fontWeight: '500',
   },
   appointmentDetail: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingVertical: 2,
+    marginTop: 8,
   },
   detailText: {
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 14,
-    fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
   },
-  modalContainer: {
-    flex: 1,
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: '#000',
+  menuItemText: {
+    marginLeft: 16,
+    fontSize: 16,
+    color: BRAND_COLORS.textPrimary,
+    fontFamily: 'Poppins-Regular',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: BRAND_COLORS.border,
+    marginTop: 'auto',
+  },
+  logoutText: {
+    fontSize: 16,
+    color: BRAND_COLORS.textPrimary,
+    marginLeft: 12,
   },
   sidebar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     width: SIDEBAR_WIDTH,
     height: '100%',
     backgroundColor: '#fff',
-    paddingTop: 60,
-    paddingHorizontal: 25,
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 2,
-      height: 0,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    borderRightWidth: 1,
+    borderRightColor: BRAND_COLORS.border,
   },
   sidebarHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 30,
-    paddingBottom: 20,
+    alignItems: 'center',
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: BRAND_COLORS.border,
   },
@@ -395,43 +393,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userTextContainer: {
-    marginLeft: 12,
+    marginLeft: 10,
   },
   userName: {
     fontSize: 18,
-    fontFamily: 'Poppins-Bold',
     color: BRAND_COLORS.textPrimary,
+    fontWeight: '700',
   },
   userRole: {
     fontSize: 14,
-    fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
   },
   closeButton: {
     padding: 8,
   },
-  menuItems: {
+  modalContainer: {
     flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: BRAND_COLORS.border,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 25,
-    marginTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: BRAND_COLORS.border,
-  },
-  logoutText: {
-    marginLeft: 15,
-    fontSize: 16,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.primary,
+  modalOverlay: {
+    flex: 1,
   },
 });

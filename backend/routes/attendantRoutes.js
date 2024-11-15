@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const attendantController = require('../controllers/attendantController');
 const onBoardingController = require('../controllers/onBoardingController');
-const authMiddleware = require('../middlewares/authMiddleware');
 
 // send otp
 router.post('/send-otp', attendantController.send_otp);

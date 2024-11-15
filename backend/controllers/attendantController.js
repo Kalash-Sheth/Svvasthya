@@ -16,7 +16,6 @@ const generateToken = (attendantId) => {
     return jwt.sign({ _id: attendantId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-
 // function to send otp
 exports.send_otp = async (req, res) => {
     const { mobileNumber } = req.body;
@@ -89,24 +88,6 @@ exports.verify_otp = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error verifying OTP and logging in', error });
-    }
-};
-
-
-//function for onboarding
-exports.completeOnboarding = async (req, res) => {
-    const { mobileNumber, email, password } = req.body;
-
-    try {
-        const attendant = await Attendant.findOne({ mobileNumber });
-
-        attendant.email = email;
-        attendant.password = password;
-
-        await attendant.save();
-        res.status(201).json({ success: true, message: 'Onboarding complete'});
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to complete onboarding', error });
     }
 };
 
@@ -249,28 +230,41 @@ exports.getAcceptedAppointments = async (req, res) => {
 
 // Function to get assigned appointments for the logged-in attendant
 exports.getAssignedAppointments = async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
-
-    if (!token) {
-        return res.status(401).json({ message: 'Authorization token missing' });
-    }
-
     try {
-        // Verify the token and extract the payload
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const attendantId = decoded._id; // Assuming _id is part of the token payload
+        // Validate token and get attendantId
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'No authorization token provided'
+            });
+        }
 
-        // Fetch the attendant's record
-        let attendant = await Attendant.findById(attendantId).populate('assignedAppointments');;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded.id;
+
+        // Fetch the attendant document by ID
+        const attendant = await Attendant.findById(attendantId).populate('assignedAppointments');
+
         if (!attendant) {
             return res.status(404).json({ message: 'Attendant not found' });
         }
 
-        // Return the assigned appointments
+        // Filter the assigned appointments into two arrays
+        const upcomingAppointments = attendant.assignedAppointments.filter(appointment =>
+            appointment.status === 'accepted'
+        );
+
+        const ongoingAppointments = attendant.assignedAppointments.filter(appointment =>
+            appointment.status === 'ongoing'
+        );
+
+        // Respond with the filtered arrays
         res.status(200).json({
-            message: 'Assigned appointments fetched successfully',
-            assignedAppointments: attendant.assignedAppointments,
+            upcomingAppointments,
+            ongoingAppointments
         });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
