@@ -7,7 +7,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { Button, Text, RadioButton, TextInput } from 'react-native-paper';
+import * as Paper from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { launchImageLibrary } from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
@@ -230,57 +230,54 @@ export default function PersonalInfoScreen({ navigation }) {
 
   const onSubmit = async data => {
     try {
-      // if (!profileImage) {
-      //   Alert.alert('Error', 'Please upload a profile photo');
-      //   return;
-      // }
-
-      // if (!gender) {
-      //   Alert.alert('Error', 'Please select your gender');
-      //   return;
-      // }
-
-      // if (!isVerified) {
-      //   Alert.alert('Error', 'Please verify your mobile number');
-      //   return;
-      // }
-
-      // Retrieve the token from AsyncStorage
+      if (!profileImage || !gender || !isVerified) {
+        Alert.alert('Error', 'Please complete all required fields');
+        return;
+      }
+  
       const token = await AsyncStorage.getItem('authToken');
-
-      // const response = await axios.post(
-      //   `${API_URL}/api/attendant/onboarding/personal-info`,
-      //   {
-      //     profilePhoto: profileImage,
-      //     firstName: data.firstName,
-      //     middleName: data.middleName,
-      //     lastName: data.lastName,
-      //     dob: data.dob,
-      //     gender,
-      //     email: data.email,
-      //     permanentAddress: {
-      //       houseNumber: data.houseNumber,
-      //       street: data.street,
-      //       city: data.city,
-      //       state: data.state,
-      //       zipCode: data.zipCode,
-      //     },
-      //   },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,  // Send token in the header
-      //     },
-      //   }
-      // );
-
-      // if (response.data.success) {
-      navigation.navigate('Document');
-      //   } else {
-      //     Alert.alert(
-      //       'Error',
-      //       response.data.message || 'Failed to save information',
-      //     );
-      //   }
+      
+      // Create FormData object
+      const formData = new FormData();
+      
+      // Append the profile photo
+      formData.append('profilePhoto', {
+        uri: profileImage,
+        type: 'image/jpeg', // Modify based on image type
+        name: 'profile-photo.jpg'
+      });
+  
+      // Append other form data
+      formData.append('firstName', data.firstName);
+      formData.append('middleName', data.middleName);
+      formData.append('lastName', data.lastName);
+      formData.append('dob', data.dob.toISOString());
+      formData.append('gender', gender);
+      formData.append('email', data.email);
+      formData.append('permanentAddress', JSON.stringify({
+        houseNumber: data.houseNumber,
+        street: data.street,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+      }));
+  
+      const response = await axios.post(
+        `${API_URL}/api/attendant/onboarding/personal-info`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+  
+      if (response.data.success) {
+        navigation.navigate('Document');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to save information');
+      }
     } catch (error) {
       console.error('Error saving personal info:', error);
       Alert.alert('Error', 'Failed to save personal information');
@@ -289,7 +286,7 @@ export default function PersonalInfoScreen({ navigation }) {
 
   const renderSection = (section, fields) => (
     <View key={section} style={styles.section}>
-      <Text style={styles.sectionTitle}>{section}</Text>
+      <Paper.Text style={styles.sectionTitle}>{section}</Paper.Text>
       {fields.map(field => (
         <Controller
           key={field.name}
@@ -310,26 +307,26 @@ export default function PersonalInfoScreen({ navigation }) {
                     />
                     {isVerified && (
                       <View style={styles.verifiedBadge}>
-                        <Text style={styles.verifiedText}>✓</Text>
+                        <Paper.Text style={styles.verifiedText}>✓</Paper.Text>
                       </View>
                     )}
                   </View>
                   {errors[field.name] && (
-                    <Text style={styles.errorText}>
+                    <Paper.Text style={styles.errorText}>
                       {errors[field.name].message}
-                    </Text>
+                    </Paper.Text>
                   )}
                   {!isVerified && (
                     <View style={styles.otpContainer}>
-                      <Button
+                      <Paper.Button
                         mode="contained"
                         onPress={sendOtp}
                         style={styles.otpButton}>
                         Send OTP
-                      </Button>
+                      </Paper.Button>
                       {showOtpInput && (
                         <View style={styles.otpInputContainer}>
-                          <TextInput
+                          <Paper.TextInput
                             label="Enter OTP"
                             value={otp}
                             onChangeText={setOtp}
@@ -337,12 +334,12 @@ export default function PersonalInfoScreen({ navigation }) {
                             maxLength={6}
                             style={styles.otpInput}
                           />
-                          <Button
+                          <Paper.Button
                             mode="contained"
                             onPress={verifyOtp}
                             style={styles.verifyButton}>
                             Submit
-                          </Button>
+                          </Paper.Button>
                         </View>
                       )}
                     </View>
@@ -359,9 +356,9 @@ export default function PersonalInfoScreen({ navigation }) {
                     error={errors[field.name]?.message}
                   />
                   {errors[field.name] && (
-                    <Text style={styles.errorText}>
+                    <Paper.Text style={styles.errorText}>
                       {errors[field.name].message}
-                    </Text>
+                    </Paper.Text>
                   )}
                 </View>
               )}
@@ -371,31 +368,31 @@ export default function PersonalInfoScreen({ navigation }) {
       ))}
       {section === 'Basic Information' && (
         <>
-          <Text style={styles.labelText}>Gender</Text>
-          <RadioButton.Group
+          <Paper.Text style={styles.labelText}>Gender</Paper.Text>
+          <Paper.RadioButton.Group
             onValueChange={value => setGender(value)}
             value={gender}>
             <View style={styles.radioGroup}>
-              <RadioButton.Item
+              <Paper.RadioButton.Item
                 label="Male"
                 value="Male"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
-              <RadioButton.Item
+              <Paper.RadioButton.Item
                 label="Female"
                 value="Female"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
-              <RadioButton.Item
+              <Paper.RadioButton.Item
                 label="Other"
                 value="Other"
                 labelStyle={styles.radioLabel}
                 color={BRAND_COLORS.orange}
               />
             </View>
-          </RadioButton.Group>
+          </Paper.RadioButton.Group>
         </>
       )}
     </View>
@@ -404,7 +401,7 @@ export default function PersonalInfoScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={1} totalSteps={8} />
-      <Text style={styles.headerText}>Personal Information</Text>
+      <Paper.Text style={styles.headerText}>Personal Information</Paper.Text>
 
       <View style={styles.photoSection}>
         <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
@@ -412,8 +409,8 @@ export default function PersonalInfoScreen({ navigation }) {
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <>
-              <Text style={styles.uploadText}>Upload Photo</Text>
-              <Text style={styles.uploadSubText}>Tap to choose</Text>
+              <Paper.Text style={styles.uploadText}>Upload Photo</Paper.Text>
+              <Paper.Text style={styles.uploadSubText}>Tap to choose</Paper.Text>
             </>
           )}
         </TouchableOpacity>
@@ -421,14 +418,14 @@ export default function PersonalInfoScreen({ navigation }) {
 
       {inputFields.map(({ section, fields }) => renderSection(section, fields))}
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }

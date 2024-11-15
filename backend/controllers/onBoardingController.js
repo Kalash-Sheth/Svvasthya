@@ -1,65 +1,89 @@
 const Attendant = require('../models/Attendant');
+const upload = require('../middlewares/upload');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require("dotenv").config({ path: "backend/config/config.env" });
+const fs = require('fs').promises;
 // Personal Information Screen
+
 exports.savePersonalInfo = async (req, res) => {
-    try {
-        // Extract token from Authorization header
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ success: false, message: 'Unauthorized' });
-        }
+  const uploadMiddleware = upload.single('profilePhoto');
 
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-        const attendantId = decoded.id;
-        console.log(attendantId)
-        if (!attendantId) {
-            return res.status(400).json({ success: false, message: 'Invalid token' });
-        }
-
-        // Fetch attendant from database
-        const attendant = await Attendant.findById(attendantId);
-        if (!attendant) {
-            return res.status(404).json({ success: false, message: 'Attendant not found' });
-        }
-
-        const {
-            profilePhoto,
-            firstName,
-            middleName,
-            lastName,
-            dob,
-            gender,
-            email,
-            permanentAddress
-        } = req.body;
-          console.log(profilePhoto);
-        // Update personal information
-        attendant.personalInfo = {
-            profilePhoto,
-            firstName,
-            middleName,
-            lastName,
-            dob: new Date(dob),
-            gender,
-            email,
-            permanentAddress
-        };
-        attendant.currentStep = 'documentInfo';
-
-        await attendant.save();
-
-        res.status(200).json({
-            success: true,
-            message: 'Personal information saved successfully',
-            currentStep: attendant.currentStep
+  uploadMiddleware(req, res, async (err) => {
+    if (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({
+          success: false,
+          message: 'File upload error: ' + err.message
         });
-    } catch (error) {
-        console.error('Error saving personal info:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+      }
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
     }
+
+    try {
+      // Validate token and get attendantId
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: 'No authorization token provided'
+        });
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const attendantId = decoded.id;
+
+      const attendant = await Attendant.findById(attendantId);
+      if (!attendant) {
+        // Clean up uploaded file if attendant not found
+        if (req.file) {
+          await fs.unlink(req.file.path);
+        }
+        return res.status(404).json({
+          success: false,
+          message: 'Attendant not found'
+        });
+      }
+
+      // Parse permanent address from form data
+      const permanentAddress = JSON.parse(req.body.permanentAddress);
+
+      // Update attendant information
+      attendant.personalInfo = {
+        profilePhoto: req.file ? req.file.path : null,
+        firstName: req.body.firstName,
+        middleName: req.body.middleName,
+        lastName: req.body.lastName,
+        dob: new Date(req.body.dob),
+        gender: req.body.gender,
+        email: req.body.email,
+        permanentAddress
+      };
+
+      attendant.currentStep = 'documentInfo';
+      await attendant.save();
+
+      res.status(200).json({
+        success: true,
+        message: 'Personal information saved successfully',
+        currentStep: attendant.currentStep
+      });
+    } catch (error) {
+      // Clean up uploaded file in case of error
+      if (req.file) {
+        await fs.unlink(req.file.path).catch(console.error);
+      }
+      
+      console.error('Error saving personal info:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error: ' + error.message
+      });
+    }
+  });
 };
 
 // Document Information Screen

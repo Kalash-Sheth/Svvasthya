@@ -7,15 +7,15 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Button, Text} from 'react-native-paper';
+import * as Paper from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import {launchImageLibrary} from 'react-native-image-picker';
 import FormInput from '../../components/FormInput';
-import {FileText, Upload} from 'lucide-react-native';
+// import {FileText, Upload} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-import {API_URL} from '../../config/api';
+import { API_URL } from '../../config';
 
 const documents = [
   {
@@ -72,7 +72,7 @@ export default function DocumentScreen({navigation}) {
     }
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     try {
       const response = await axios.post(
         `${API_URL}/api/attendant/onboarding/document-info/${attendantId}`,
@@ -83,14 +83,17 @@ export default function DocumentScreen({navigation}) {
           panPhoto: documents.pan?.uri,
           drivingLicenseNumber: data.drivingLicense,
           drivingLicensePhoto: documents.license?.uri,
-          passportPhoto: documents.photo?.uri
-        }
+          passportPhoto: documents.photo?.uri,
+        },
       );
 
       if (response.data.success) {
         navigation.navigate('ProfessionalInfo');
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to save documents');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save documents',
+        );
       }
     } catch (error) {
       console.error('Error saving documents:', error);
@@ -105,23 +108,23 @@ export default function DocumentScreen({navigation}) {
       <View style={styles.uploadContent}>
         {documents[type] ? (
           <>
-            <FileText
+            {/* <FileText
               size={24}
               color={BRAND_COLORS.primary}
               style={styles.uploadIcon}
-            />
-            <Text style={styles.uploadedText}>Image Uploaded</Text>
-            <Text style={styles.changeText}>Tap to change</Text>
+            /> */}
+            <Paper.Text style={styles.uploadedText}>Image Uploaded</Paper.Text>
+            <Paper.Text style={styles.changeText}>Tap to change</Paper.Text>
           </>
         ) : (
           <>
-            <Upload
+            {/* <Upload
               size={24}
               color={BRAND_COLORS.textPrimary}
               style={styles.uploadIcon}
-            />
-            <Text style={styles.uploadText}>{title}</Text>
-            <Text style={styles.uploadSubText}>Tap to upload</Text>
+            /> */}
+            <Paper.Text style={styles.uploadText}>{title}</Paper.Text>
+            <Paper.Text style={styles.uploadSubText}>Tap to upload</Paper.Text>
           </>
         )}
       </View>
@@ -131,13 +134,13 @@ export default function DocumentScreen({navigation}) {
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={2} totalSteps={8} />
-      <Text style={styles.headerText}>Document Verification</Text>
+      <Paper.Text style={styles.headerText}>Document Verification</Paper.Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Government ID Proof</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Government ID Proof</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Please provide all three documents to proceed
-        </Text>
+        </Paper.Text>
 
         <Controller
           control={control}
@@ -184,21 +187,21 @@ export default function DocumentScreen({navigation}) {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Passport Size Photo</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Passport Size Photo</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Upload a recent passport size photograph
-        </Text>
+        </Paper.Text>
         {renderUploadButton('photo', 'Upload Passport Photo')}
       </View>
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }
