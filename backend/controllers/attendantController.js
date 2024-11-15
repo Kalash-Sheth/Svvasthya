@@ -244,15 +244,19 @@ exports.getAssignedAppointments = async (req, res) => {
         const attendantId = decoded.id;
 
         // Fetch the attendant document by ID
-        const attendant = await Attendant.findById(attendantId).populate('assignedAppointments');
+        const attendant = await Attendant.findById(attendantId).populate(
+          "assignedAppointments"
+        );
 
         if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
+          return res.status(404).json({ message: "Attendant not found" });
         }
 
+        console.log("attendant: " + attendant.assignedAppointments);
+
         // Filter the assigned appointments into two arrays
-        const upcomingAppointments = attendant.assignedAppointments.filter(appointment =>
-            appointment.status === 'accepted'
+        const upcomingAppointments = attendant.assignedAppointments.filter(
+          (appointment) => appointment.status === "requested"
         );
 
         const ongoingAppointments = attendant.assignedAppointments.filter(appointment =>

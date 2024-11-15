@@ -15,7 +15,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Settings, Clock, Edit2, LogOut, Phone, Mail} from 'lucide-react-native';
 import BRAND_COLORS from '../styles/colors';
-import {API_URL} from '../../src/config';
+import {API_URL} from '../config';
 
 export default function ProfileScreen({navigation}) {
   const [profileData, setProfileData] = useState(null);

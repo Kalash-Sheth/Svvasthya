@@ -85,13 +85,24 @@ const validationSchema = yup.object().shape({
     .matches(/^[a-zA-Z\s]+$/, 'Last name can only contain letters'),
 
   dob: yup
-    .date()
+    .string()
     .required('Date of birth is required')
-    .max(
-      new Date(Date.now() - 18 * 365 * 24 * 60 * 60 * 1000),
-      'Must be at least 18 years old',
-    )
-    .min(new Date(1900, 0, 1), 'Invalid date of birth'),
+    .test('age', 'Must be at least 18 years old', value => {
+      if (!value) return false;
+      const dob = new Date(value);
+      const today = new Date();
+      const age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age >= 18;
+    })
+    .test('valid-date', 'Invalid date of birth', value => {
+      if (!value) return false;
+      const date = new Date(value);
+      return date.toString() !== 'Invalid Date';
+    }),
 
   mobile: yup
     .string()
@@ -235,34 +246,52 @@ export default function PersonalInfoScreen({ navigation }) {
         Alert.alert('Error', 'Please complete all required fields');
         return;
       }
-  
+
+      // Format the date properly
+      const dobDate = new Date(data.dob);
+      if (isNaN(dobDate.getTime())) {
+        Alert.alert('Error', 'Please enter a valid date of birth');
+        return;
+      }
+
+      // Format date as YYYY-MM-DD
+      const formattedDob = dobDate.toISOString().split('T')[0];
+
       const token = await AsyncStorage.getItem('authToken');
-      
+
       // Create FormData object
       const formData = new FormData();
-      
+
       // Append the profile photo
       formData.append('profilePhoto', {
         uri: profileImage,
-        type: 'image/jpeg', // Modify based on image type
-        name: 'profile-photo.jpg'
+        type: 'image/jpeg',
+        name: 'profile-photo.jpg',
       });
-  
+
       // Append other form data
       formData.append('firstName', data.firstName);
-      formData.append('middleName', data.middleName);
+      formData.append('middleName', data.middleName || '');
       formData.append('lastName', data.lastName);
-      formData.append('dob', data.dob.toISOString());
+      formData.append('dob', formattedDob); // Send formatted date string
       formData.append('gender', gender);
       formData.append('email', data.email);
-      formData.append('permanentAddress', JSON.stringify({
-        houseNumber: data.houseNumber,
-        street: data.street,
-        city: data.city,
-        state: data.state,
-        zipCode: data.zipCode,
-      }));
-  
+      formData.append(
+        'permanentAddress',
+        JSON.stringify({
+          houseNumber: data.houseNumber,
+          street: data.street,
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
+        }),
+      );
+
+      console.log('Sending data:', {
+        dob: formattedDob,
+        // ... log other fields for debugging
+      });
+
       const response = await axios.post(
         `${API_URL}/api/attendant/onboarding/personal-info`,
         formData,
@@ -271,9 +300,9 @@ export default function PersonalInfoScreen({ navigation }) {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
-        }
+        },
       );
-  
+
       if (response.data.success) {
         navigation.navigate('Document');
       } else {
@@ -281,7 +310,10 @@ export default function PersonalInfoScreen({ navigation }) {
       }
     } catch (error) {
       console.error('Error saving personal info:', error);
-      Alert.alert('Error', 'Failed to save personal information');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save personal information',
+      );
     }
   };
 
@@ -348,14 +380,40 @@ export default function PersonalInfoScreen({ navigation }) {
                 </View>
               ) : (
                 <View>
-                  <FormInput
-                    label={field.label}
-                    value={value}
-                    onChangeText={onChange}
-                    icon={field.icon}
-                    keyboardType={field.keyboardType}
-                    error={errors[field.name]?.message}
-                  />
+                  {field.name === 'dob' && (
+                    <View>
+                      <FormInput
+                        label={field.label}
+                        value={value}
+                        onChangeText={text => {
+                          // Basic date validation
+                          const date = new Date(text);
+                          if (!isNaN(date.getTime())) {
+                            onChange(text);
+                          }
+                        }}
+                        icon={field.icon}
+                        placeholder="YYYY-MM-DD"
+                        keyboardType="numeric"
+                        error={errors[field.name]?.message}
+                      />
+                      {errors[field.name] && (
+                        <Paper.Text style={styles.errorText}>
+                          {errors[field.name].message}
+                        </Paper.Text>
+                      )}
+                    </View>
+                  )}
+                  {field.name !== 'dob' && (
+                    <FormInput
+                      label={field.label}
+                      value={value}
+                      onChangeText={onChange}
+                      icon={field.icon}
+                      keyboardType={field.keyboardType}
+                      error={errors[field.name]?.message}
+                    />
+                  )}
                   {errors[field.name] && (
                     <Paper.Text style={styles.errorText}>
                       {errors[field.name].message}

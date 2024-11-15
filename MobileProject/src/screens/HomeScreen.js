@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
@@ -22,21 +21,22 @@ import {
   LogOut,
   X,
 } from 'lucide-react-native';
+import * as Paper from 'react-native-paper';
 import BRAND_COLORS from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '../config';
+import {API_URL} from '../config';
 import axios from 'axios';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.75;
 
-export default function HomeScreen({ navigation, userName = 'Attendant' }) {
+export default function HomeScreen({navigation, userName = 'Attendant'}) {
   const [menuVisible, setMenuVisible] = useState(false);
   const slideAnim = React.useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const [appointments, setAppointments] = useState({ upcoming: [], ongoing: [] });
+  const [appointments, setAppointments] = useState({upcoming: [], ongoing: []});
 
-  const toggleMenu = (show) => {
+  const toggleMenu = show => {
     if (show) {
       slideAnim.setValue(-SIDEBAR_WIDTH);
       fadeAnim.setValue(0);
@@ -94,31 +94,100 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
     },
   ];
 
-  // Fetch assigned appointments for the logged-in attendant
   const fetchAppointments = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/api/attendant/assignedAppointments`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(response.data);
-      const { upcomingAppointments = [], ongoingAppointments = [] } = response.data;
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        console.error('No auth token found');
+        return;
+      }
 
+      const response = await axios.get(
+        `${API_URL}/api/attendant/appointments/assigned`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const {upcomingAppointments = [], ongoingAppointments = []} = response.data;
       setAppointments({
         upcoming: upcomingAppointments,
         ongoing: ongoingAppointments,
       });
     } catch (error) {
-      console.error('Error fetching appointments', error);
+      console.error('Error fetching appointments:', error);
     }
   };
 
-  // Call fetchAppointments on component mount
   useEffect(() => {
     fetchAppointments();
   }, []);
+
+  const renderAppointmentCard = appointment => (
+    <View key={appointment._id} style={styles.appointmentCard}>
+      <View style={styles.appointmentHeader}>
+        <View>
+          <Paper.Text style={styles.serviceType}>
+            {appointment.mainService} - {appointment.subService}
+          </Paper.Text>
+          <Paper.Text style={styles.appointmentId}>
+            ID: {appointment.appointmentID.slice(0, 8)}...
+          </Paper.Text>
+        </View>
+        <Paper.Text
+          style={[
+            styles.statusBadge,
+            {backgroundColor: getStatusColor(appointment.status)},
+          ]}>
+          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+        </Paper.Text>
+      </View>
+
+      <View style={styles.appointmentDetail}>
+        <Calendar size={16} color={BRAND_COLORS.textSecondary} />
+        <Paper.Text style={styles.detailText}>
+          {new Date(appointment.startTime).toLocaleDateString()}
+        </Paper.Text>
+      </View>
+
+      <View style={styles.appointmentDetail}>
+        <Clock size={16} color={BRAND_COLORS.textSecondary} />
+        <Paper.Text style={styles.detailText}>
+          {`${new Date(appointment.startTime).toLocaleTimeString()} - ${new Date(
+            appointment.endTime,
+          ).toLocaleTimeString()}`}
+        </Paper.Text>
+      </View>
+
+      <View style={styles.appointmentDetail}>
+        <MapPin size={16} color={BRAND_COLORS.textSecondary} />
+        <Paper.Text style={styles.detailText}>
+          {appointment.address.fullAddress}
+        </Paper.Text>
+      </View>
+
+      <View style={styles.durationContainer}>
+        <Paper.Text style={styles.durationText}>
+          Duration: {appointment.duration} hours
+        </Paper.Text>
+      </View>
+    </View>
+  );
+
+  const getStatusColor = status => {
+    switch (status) {
+      case 'requested':
+        return '#FEF3C7'; // Light yellow
+      case 'accepted':
+        return '#DCFCE7'; // Light green
+      case 'ongoing':
+        return '#DBEAFE'; // Light blue
+      default:
+        return '#F3F4F6'; // Light gray
+    }
+  };
 
   const renderSidebar = () => (
     <Modal
@@ -128,22 +197,22 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
       animationType="none">
       <View style={styles.modalContainer}>
         <TouchableWithoutFeedback onPress={() => toggleMenu(false)}>
-          <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]} />
+          <Animated.View style={[styles.modalOverlay, {opacity: fadeAnim}]} />
         </TouchableWithoutFeedback>
 
         <Animated.View
           style={[
             styles.sidebar,
             {
-              transform: [{ translateX: slideAnim }],
+              transform: [{translateX: slideAnim}],
             },
           ]}>
           <View style={styles.sidebarHeader}>
             <View style={styles.userInfo}>
               <UserCircle size={50} color={BRAND_COLORS.primary} />
               <View style={styles.userTextContainer}>
-                <Text style={styles.userName}>{userName}</Text>
-                <Text style={styles.userRole}>Healthcare Attendant</Text>
+                <Paper.Text style={styles.userName}>{userName}</Paper.Text>
+                <Paper.Text style={styles.userRole}>Healthcare Attendant</Paper.Text>
               </View>
             </View>
             <TouchableOpacity
@@ -165,7 +234,7 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
                     navigation.navigate(item.screen);
                   }}>
                   <Icon size={24} color={BRAND_COLORS.textPrimary} />
-                  <Text style={styles.menuItemText}>{item.title}</Text>
+                  <Paper.Text style={styles.menuItemText}>{item.title}</Paper.Text>
                 </TouchableOpacity>
               );
             })}
@@ -174,12 +243,12 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={async () => {
-              await AsyncStorage.removeItem('token');
+              await AsyncStorage.removeItem('authToken');
               navigation.navigate('Login');
               toggleMenu(false);
             }}>
             <LogOut size={24} color={BRAND_COLORS.primary} />
-            <Text style={styles.logoutText}>Logout</Text>
+            <Paper.Text style={styles.logoutText}>Logout</Paper.Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -193,72 +262,42 @@ export default function HomeScreen({ navigation, userName = 'Attendant' }) {
         {/* Header Section */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.nameText}>{userName}</Text>
+            <Paper.Text style={styles.welcomeText}>Welcome back,</Paper.Text>
+            <Paper.Text style={styles.nameText}>{userName}</Paper.Text>
           </View>
           <TouchableOpacity onPress={() => toggleMenu(true)} style={styles.menuButton}>
             <Menu size={24} color={BRAND_COLORS.textPrimary} />
           </TouchableOpacity>
         </View>
 
-        {/* Upcoming and Ongoing Appointments Section */}
+        {/* Appointments Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-          {appointments.upcoming.length < 1 ? (
-            <Text style={styles.noAppointmentsText}>No upcoming appointments</Text>
+          <Paper.Text style={styles.sectionTitle}>Upcoming Appointments</Paper.Text>
+          {appointments.upcoming.length === 0 ? (
+            <View style={styles.emptyStateContainer}>
+              <Paper.Text style={styles.emptyStateText}>
+                No upcoming appointments
+              </Paper.Text>
+              <Paper.Text style={styles.emptyStateSubText}>
+                Your upcoming appointments will appear here
+              </Paper.Text>
+            </View>
           ) : (
-            appointments.upcoming.map((appointment) => (
-              <View key={appointment.id} style={styles.appointmentCard}>
-                <View style={styles.appointmentHeader}>
-                  <Text style={styles.patientName}>{appointment.patientName}</Text>
-                  <Text style={styles.serviceType}>{appointment.service}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <Calendar size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.date}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <Clock size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.time}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <MapPin size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.address}</Text>
-                </View>
-              </View>
-            ))
+            appointments.upcoming.map(appointment => renderAppointmentCard(appointment))
           )}
 
-          <Text style={styles.sectionTitle}>Ongoing Appointments</Text>
-          {appointments.ongoing.length < 1 ? (
-            <Text style={styles.noAppointmentsText}>No ongoing appointments</Text>
+          <Paper.Text style={styles.sectionTitle}>Ongoing Appointments</Paper.Text>
+          {appointments.ongoing.length === 0 ? (
+            <View style={styles.emptyStateContainer}>
+              <Paper.Text style={styles.emptyStateText}>
+                No ongoing appointments
+              </Paper.Text>
+              <Paper.Text style={styles.emptyStateSubText}>
+                Your active appointments will appear here
+              </Paper.Text>
+            </View>
           ) : (
-            appointments.ongoing.map((appointment) => (
-              <View key={appointment.id} style={styles.appointmentCard}>
-                <View style={styles.appointmentHeader}>
-                  <Text style={styles.patientName}>{appointment.patientName}</Text>
-                  <Text style={styles.serviceType}>{appointment.service}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <Calendar size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.date}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <Clock size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.time}</Text>
-                </View>
-
-                <View style={styles.appointmentDetail}>
-                  <MapPin size={16} color={BRAND_COLORS.textSecondary} />
-                  <Text style={styles.detailText}>{appointment.address}</Text>
-                </View>
-              </View>
-            ))
+            appointments.ongoing.map(appointment => renderAppointmentCard(appointment))
           )}
         </View>
       </ScrollView>
@@ -325,16 +364,26 @@ const styles = StyleSheet.create({
   appointmentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  patientName: {
-    fontSize: 18,
-    color: BRAND_COLORS.textPrimary,
-    fontWeight: '600',
+    alignItems: 'flex-start',
+    marginBottom: 15,
   },
   serviceType: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  appointmentId: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
-    fontWeight: '500',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
   },
   appointmentDetail: {
     flexDirection: 'row',
@@ -345,38 +394,54 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     color: BRAND_COLORS.textSecondary,
+    flex: 1,
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-  },
-  menuItemText: {
-    marginLeft: 16,
-    fontSize: 16,
-    color: BRAND_COLORS.textPrimary,
-    fontFamily: 'Poppins-Regular',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
+  durationContainer: {
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: BRAND_COLORS.border,
-    marginTop: 'auto',
   },
-  logoutText: {
-    fontSize: 16,
+  durationText: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Medium',
     color: BRAND_COLORS.textPrimary,
-    marginLeft: 12,
+  },
+  emptyStateContainer: {
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.background,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  emptyStateSubText: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  // Sidebar styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'black',
   },
   sidebar: {
-    width: SIDEBAR_WIDTH,
-    height: '100%',
-    backgroundColor: '#fff',
     position: 'absolute',
     top: 0,
     left: 0,
+    width: SIDEBAR_WIDTH,
+    height: '100%',
+    backgroundColor: '#fff',
     borderRightWidth: 1,
     borderRightColor: BRAND_COLORS.border,
   },
@@ -397,22 +462,44 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
+    fontFamily: 'Poppins-Bold',
     color: BRAND_COLORS.textPrimary,
-    fontWeight: '700',
   },
   userRole: {
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
   },
   closeButton: {
     padding: 8,
   },
-  modalContainer: {
+  menuItems: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalOverlay: {
-    flex: 1,
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: BRAND_COLORS.border,
+  },
+  menuItemText: {
+    marginLeft: 16,
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textPrimary,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: BRAND_COLORS.border,
+  },
+  logoutText: {
+    marginLeft: 16,
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textPrimary,
   },
 });

@@ -171,7 +171,6 @@ export default function DocumentScreen({navigation}) {
         photo: documents.photo?.type,
       });
 
-
       const response = await axios.post(
         `${API_URL}/api/attendant/onboarding/document-info`,
         formData,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config';
 
 export default function TaskScreen() {
   const [acceptedJobs, setAcceptedJobs] = useState([]);

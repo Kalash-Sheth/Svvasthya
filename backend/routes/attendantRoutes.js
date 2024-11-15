@@ -23,7 +23,7 @@ router.post('/updateavailability', attendantController.updateAvailability);
 router.get('/acceptedAppointments', attendantController.getAcceptedAppointments);
 
 // get assigned appointments
-router.get('/assignedAppointments', attendantController.getAssignedAppointments);
+// router.get('/assignedAppointments', attendantController.getAssignedAppointments);
 
 // Route to accept an appointment
 router.post('/acceptAppointment', attendantController.acceptAppointment);
@@ -49,5 +49,11 @@ router.post("/onboarding/health-info", onBoardingController.saveHealthInfo);
 router.post("/onboarding/banking-info", onBoardingController.saveBankingInfo);
 router.post("/onboarding/agreements", onBoardingController.saveAgreements);
 router.post("/onboarding/skills", onBoardingController.saveSkills);
+
+// Add this route
+router.get(
+  '/appointments/assigned',
+  attendantController.getAssignedAppointments
+);
 
 module.exports = router;
