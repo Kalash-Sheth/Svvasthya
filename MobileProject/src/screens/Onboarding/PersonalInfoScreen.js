@@ -247,16 +247,6 @@ export default function PersonalInfoScreen({ navigation }) {
         return;
       }
 
-      // Format the date properly
-      const dobDate = new Date(data.dob);
-      if (isNaN(dobDate.getTime())) {
-        Alert.alert('Error', 'Please enter a valid date of birth');
-        return;
-      }
-
-      // Format date as YYYY-MM-DD
-      const formattedDob = dobDate.toISOString().split('T')[0];
-
       const token = await AsyncStorage.getItem('authToken');
 
       // Create FormData object

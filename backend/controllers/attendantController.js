@@ -256,7 +256,7 @@ exports.getAssignedAppointments = async (req, res) => {
 
         // Filter the assigned appointments into two arrays
         const upcomingAppointments = attendant.assignedAppointments.filter(
-          (appointment) => appointment.status === "requested"
+          (appointment) => appointment.status === "accepted"
         );
 
         const ongoingAppointments = attendant.assignedAppointments.filter(appointment =>
