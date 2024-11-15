@@ -99,7 +99,11 @@ const App = () => {
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Splash">
-            <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Splash"
+              component={SplashScreen}
+              options={{headerShown: false}}
+            />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Onboarding" component={Onboarding} />
@@ -107,21 +111,31 @@ const App = () => {
             <Stack.Screen name="Tasks" component={TaskScreen} />
             <Stack.Screen name="Earnings" component={EarningsScreen} />
             <Stack.Screen name="RealTimeModel" component={RealTimeModel} />
-            <Stack.Screen name="UpdateAvailability" component={UpdateAvailabilityScreen} />
+            <Stack.Screen
+              name="UpdateAvailability"
+              component={UpdateAvailabilityScreen}
+            />
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
             <Stack.Screen name="Document" component={DocumentScreen} />
-            <Stack.Screen name="ProfessionalInfo" component={ProfessionalInfoScreen} />
+            <Stack.Screen
+              name="ProfessionalInfo"
+              component={ProfessionalInfoScreen}
+            />
             <Stack.Screen name="Skills" component={SkillsScreen} />
             <Stack.Screen name="Availability" component={AvailabilityScreen} />
             <Stack.Screen name="MedicalInfo" component={MedicalInfoScreen} />
             <Stack.Screen name="BankingInfo" component={BankingInfoScreen} />
             <Stack.Screen name="Agreements" component={AgreementScreen} />
             <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
-            <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Main"
+              component={TabNavigator}
+              options={{headerShown: false}}
+            />
           </Stack.Navigator>
         </NavigationContainer>
-      </SafeAreaProvider >
+      </SafeAreaProvider>
     </PaperProvider>
   );
 };

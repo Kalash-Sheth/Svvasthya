@@ -10,9 +10,6 @@ router.post('/send-otp', attendantController.send_otp);
 // verify otp
 router.post('/verify-otp', attendantController.verify_otp);
 
-// onboarding
-router.post('/complete-onboarding', attendantController.completeOnboarding);
-
 // Login Attendant
 router.post('/login', attendantController.loginAttendant);
 
@@ -39,11 +36,18 @@ router.get('/profile', attendantController.getProfile);
 
 // Onboarding routes 
 router.post('/onboarding/personal-info', onBoardingController.savePersonalInfo);
-router.post('/onboarding/document-info/:attendantId', onBoardingController.saveDocumentInfo);
-router.post('/onboarding/professional-info/:attendantId', onBoardingController.saveProfessionalInfo);
-router.post('/onboarding/work-preferences/:attendantId', onBoardingController.saveWorkPreferences);
-router.post('/onboarding/health-info/:attendantId', onBoardingController.saveHealthInfo);
-router.post('/onboarding/banking-info/:attendantId', onBoardingController.saveBankingInfo);
-router.post('/onboarding/agreements/:attendantId', onBoardingController.saveAgreements);
+router.post("/onboarding/document-info", onBoardingController.saveDocumentInfo);
+router.post(
+  "/onboarding/professional-info",
+  onBoardingController.saveProfessionalInfo
+);
+router.post(
+  "/onboarding/work-preferences",
+  onBoardingController.saveWorkPreferences
+);
+router.post("/onboarding/health-info", onBoardingController.saveHealthInfo);
+router.post("/onboarding/banking-info", onBoardingController.saveBankingInfo);
+router.post("/onboarding/agreements", onBoardingController.saveAgreements);
+router.post("/onboarding/skills", onBoardingController.saveSkills);
 
 module.exports = router;

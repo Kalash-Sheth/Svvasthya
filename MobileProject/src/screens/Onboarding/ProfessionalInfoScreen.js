@@ -1,13 +1,31 @@
 import React from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
-import {Button, Text} from 'react-native-paper';
+import {View, StyleSheet, ScrollView, Alert} from 'react-native';
+import * as Paper from 'react-native-paper';
 import {useForm, Controller} from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import ProgressBar from '../../components/ProgressBar';
-import  BRAND_COLORS  from '../../styles/colors';
+import BRAND_COLORS from '../../styles/colors';
 import axios from 'axios';
-import { API_URL } from '../../config';
-import { Alert } from 'react-native';
+import {API_URL} from '../../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+
+const validationSchema = yup.object().shape({
+  title: yup.string().required('Professional title is required'),
+  specialization: yup.string().required('Specialization is required'),
+  experience: yup
+    .number()
+    .required('Years of experience is required')
+    .min(0, 'Experience cannot be negative')
+    .max(50, 'Please enter valid years of experience'),
+  employerName: yup.string().required('Employer name is required'),
+  duration: yup.string().required('Duration is required'),
+  referenceContact: yup
+    .string()
+    .matches(/^[6-9]\d{9}$/, 'Please enter a valid 10-digit mobile number')
+    .required('Reference contact is required'),
+});
 
 const professionalFields = [
   {
@@ -56,51 +74,87 @@ const employerFields = [
 ];
 
 export default function ProfessionalInfoScreen({navigation}) {
-  const {control, handleSubmit} = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async data => {
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Authentication token not found');
+        return;
+      }
+
       const response = await axios.post(
-        `${API_URL}/api/attendant/onboarding/professional-info/${attendantId}`,
+        `${API_URL}/api/attendant/onboarding/professional-info`,
         {
           title: data.title,
           specialization: data.specialization,
           yearsOfExperience: data.experience,
-          previousEmployment: data.employers,
-          skills: [], // Add skills array if needed
-          certifications: [], // Add certifications array if needed
-          languagesKnown: [] // Add languages array if needed
-        }
+          previousEmployment: {
+            employerName: data.employerName,
+            duration: data.duration,
+            referenceContact: data.referenceContact,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       if (response.data.success) {
         navigation.navigate('Skills');
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to save professional information');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save professional information',
+        );
       }
     } catch (error) {
       console.error('Error saving professional info:', error);
-      Alert.alert('Error', 'Failed to save professional information');
+      Alert.alert(
+        'Error',
+        error.response?.data?.message ||
+          'Failed to save professional information',
+      );
     }
   };
 
-  const renderEmployerSection = (index) => (
+  const renderEmployerSection = index => (
     <View key={index} style={styles.employerSection}>
-      <Text style={styles.employerTitle}>Previous Employer {index + 1}</Text>
+      <Paper.Text style={styles.employerTitle}>
+        Previous Employer {index + 1}
+      </Paper.Text>
       {employerFields.map(field => (
         <Controller
-          key={`employer${index}-${field.name}`}
+          key={field.name}
           control={control}
-          name={`employers[${index}].${field.name}`}
+          name={field.name}
           render={({field: {onChange, value}}) => (
-            <FormInput
-              label={field.label}
-              value={value}
-              onChangeText={onChange}
-              icon={field.icon}
-              keyboardType={field.keyboardType}
-              placeholder={field.placeholder}
-            />
+            <View>
+              <FormInput
+                label={field.label}
+                value={value}
+                onChangeText={onChange}
+                icon={field.icon}
+                keyboardType={field.keyboardType}
+                placeholder={field.placeholder}
+                error={errors[field.name]?.message}
+              />
+              {errors[field.name] && (
+                <Paper.Text style={styles.errorText}>
+                  {errors[field.name].message}
+                </Paper.Text>
+              )}
+            </View>
           )}
         />
       ))}
@@ -110,25 +164,33 @@ export default function ProfessionalInfoScreen({navigation}) {
   return (
     <ScrollView style={styles.container}>
       <ProgressBar step={3} totalSteps={8} />
-      <Text style={styles.headerText}>Professional Information</Text>
+      <Paper.Text style={styles.headerText}>Professional Information</Paper.Text>
 
       {professionalFields.map(({section, fields}) => (
         <View key={section} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section}</Text>
+          <Paper.Text style={styles.sectionTitle}>{section}</Paper.Text>
           {fields.map(field => (
             <Controller
               key={field.name}
               control={control}
               name={field.name}
               render={({field: {onChange, value}}) => (
-                <FormInput
-                  label={field.label}
-                  value={value}
-                  onChangeText={onChange}
-                  icon={field.icon}
-                  keyboardType={field.keyboardType}
-                  placeholder={field.placeholder}
-                />
+                <View>
+                  <FormInput
+                    label={field.label}
+                    value={value}
+                    onChangeText={onChange}
+                    icon={field.icon}
+                    keyboardType={field.keyboardType}
+                    placeholder={field.placeholder}
+                    error={errors[field.name]?.message}
+                  />
+                  {errors[field.name] && (
+                    <Paper.Text style={styles.errorText}>
+                      {errors[field.name].message}
+                    </Paper.Text>
+                  )}
+                </View>
               )}
             />
           ))}
@@ -136,21 +198,21 @@ export default function ProfessionalInfoScreen({navigation}) {
       ))}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Previous Employment</Text>
-        <Text style={styles.sectionSubtitle}>
+        <Paper.Text style={styles.sectionTitle}>Previous Employment</Paper.Text>
+        <Paper.Text style={styles.sectionSubtitle}>
           Add your previous work experience and references
-        </Text>
-        {[0, 1].map(index => renderEmployerSection(index))}
+        </Paper.Text>
+        {[0].map(index => renderEmployerSection(index))}
       </View>
 
-      <Button
+      <Paper.Button
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         style={styles.button}
         contentStyle={styles.buttonContent}
         labelStyle={styles.buttonText}>
         Continue
-      </Button>
+      </Paper.Button>
     </ScrollView>
   );
 }
@@ -237,5 +299,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     color: 'white',
     letterSpacing: 1,
+  },
+  errorText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+    color: 'red',
+    marginTop: 5,
   },
 }); 

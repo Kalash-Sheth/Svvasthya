@@ -262,7 +262,7 @@ exports.getAssignedAppointments = async (req, res) => {
         // Respond with the filtered arrays
         res.status(200).json({
             upcomingAppointments,
-            ongoingAppointments
+            ongoingAppointments,
         });
 
     } catch (error) {
