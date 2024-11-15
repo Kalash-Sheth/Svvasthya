@@ -5,7 +5,11 @@ import {FileText, Shield, Search} from 'lucide-react-native';
 import ProgressBar from '../../components/ProgressBar';
 import BRAND_COLORS  from '../../styles/colors';
 import axios from 'axios';
+<<<<<<< HEAD
 import { API_URL } from '../../config';
+=======
+import {API_URL} from '../../config';
+>>>>>>> 806250063ab972ba6b5cae55e95ff130e3958d6e
 import { ATTENDANT_ID } from '../../config/attendant';
 
 export default function AgreementScreen({navigation}) {
