@@ -11,11 +11,6 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = new twilio(accountSid, authToken);
 
-// Helper function to generate JWT
-const generateToken = (attendantId) => {
-    return jwt.sign({ _id: attendantId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
-
 // function to send otp
 exports.send_otp = async (req, res) => {
     const { mobileNumber } = req.body;
@@ -93,143 +88,259 @@ exports.verify_otp = async (req, res) => {
 
 // Function to log in an attendant
 exports.loginAttendant = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        console.log(email);
-        // Check if attendant exists
-        const attendant = await Attendant.findOne({ email });
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
-
-        // Check password
-        // const isMatch = await bcrypt.compare(password, attendant.password);
-        const isMatch = (password === attendant.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate and return token
-        const token = generateToken(attendant._id);
-        // Set token in HttpOnly cookie (expires in 7 days)
-        res.cookie('token', token, {
-            httponly: false,  // Prevents client-side JS from accessing the cookie
-            secure: false,
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-        res.status(200).json({ message: 'Login successful', token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const { email, password } = req.body;
+    console.log(email);
+    // Check if attendant exists
+    const attendant = await Attendant.findOne({ email });
+    if (!attendant) {
+      return res.status(404).json({ message: "Attendant not found" });
     }
+
+    // Check password
+    // const isMatch = await bcrypt.compare(password, attendant.password);
+    const isMatch = password === attendant.password;
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ id: attendant._id }, process.env.JWT_SECRET, {
+      expiresIn: "90d",
+    });
+    const options = {
+      expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+
+    return res.status(200).cookie("token", token, options).json({
+      success: true,
+      message: "Login successful",
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // Function to update availability
 exports.getAvailability = async (req, res) => {
-    // Extract token from the Authorization header
-    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+  // Extract token from the Authorization header
+  const token = req.headers.authorization?.split(" ")[1]; // e.g., 'Bearer <token>'
 
-    if (!token) {
-        return res.status(401).json({ message: 'Authorization token missing' });
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token missing" });
+  }
+
+  try {
+    // Verify the token and extract the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+    // Find the attendant by ID
+    const attendant = await Attendant.findById(attendantId);
+    if (!attendant) {
+      return res.status(404).json({ message: "Attendant not found" });
     }
 
-    try {
-
-        // Verify the token and extract the payload
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const attendantId = decoded._id; // Assuming _id is part of the token payload
-
-        // Find the attendant by ID
-        const attendant = await Attendant.findById(attendantId);
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
-
-        // Respond with the attendant's availability data
-        res.status(200).json(attendant.availability);
-
-    } catch (err) {
-        console.error("Error fetching availability: ", err);
-        return res.status(500).json({ message: "Server error" });
-    }
+    // Respond with the attendant's availability data
+    res.status(200).json(attendant.availability);
+  } catch (err) {
+    console.error("Error fetching availability: ", err);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
-
 
 // Function to update availability slots
 exports.updateAvailability = async (req, res) => {
-    const { startTime, endTime, location } = req.body;
-    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+  const { startTime, endTime, location } = req.body;
+  const token = req.headers.authorization?.split(" ")[1]; // e.g., 'Bearer <token>'
 
-    if (!token) {
-        return res.status(401).json({ message: 'Authorization token missing' });
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token missing" });
+  }
+
+  try {
+    // Verify the token and extract the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+    // Fetch the attendant's record
+    let attendant = await Attendant.findById(attendantId);
+    if (!attendant) {
+      return res.status(404).json({ message: "Attendant not found" });
     }
 
-    try {
-        // Verify the token and extract the payload
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const attendantId = decoded._id; // Assuming _id is part of the token payload
+    attendant.availability.push({
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
+      location: location, // Store the attendant's current location (optional)
+    });
 
-        // Fetch the attendant's record
-        let attendant = await Attendant.findById(attendantId);
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
+    // Save the updated attendant data
+    await attendant.save();
 
-        attendant.availability.push({
-            startTime: new Date(startTime),
-            endTime: new Date(endTime),
-            location: location, // Store the attendant's current location (optional)
-        });
-
-        // Save the updated attendant data
-        await attendant.save();
-
-        return res.status(200).json({ message: 'Availability updated successfully', availability: attendant.availability });
-    } catch (error) {
-        console.error('Error updating availability:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
+    return res
+      .status(200)
+      .json({
+        message: "Availability updated successfully",
+        availability: attendant.availability,
+      });
+  } catch (error) {
+    console.error("Error updating availability:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // Function to get accepted appointments for the logged-in attendant
 exports.getAcceptedAppointments = async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+  const token = req.headers.authorization?.split(" ")[1]; // e.g., 'Bearer <token>'
 
-    if (!token) {
-        return res.status(401).json({ message: 'Authorization token missing' });
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token missing" });
+  }
+
+  try {
+    // Verify the token and extract the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+    // Fetch the attendant's record
+    let attendant = await Attendant.findById(attendantId);
+    if (!attendant) {
+      return res.status(404).json({ message: "Attendant not found" });
     }
 
-    try {
-        // Verify the token and extract the payload
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const attendantId = decoded._id; // Assuming _id is part of the token payload
+    // Find all appointments where the attendant is assigned and the status is 'accepted'
+    const acceptedAppointments = await Appointment.find({
+      assignedAttendant: attendantId, // Adjust based on your Appointment model
+      status: "accepted",
+    });
 
-        // Fetch the attendant's record
-        let attendant = await Attendant.findById(attendantId);
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
-
-        // Find all appointments where the attendant is assigned and the status is 'accepted'
-        const acceptedAppointments = await Appointment.find({
-            assignedAttendant: attendantId, // Adjust based on your Appointment model
-            status: 'accepted'
-        });
-
-        // Return the accepted appointments
-        res.status(200).json({
-            message: 'Accepted appointments fetched successfully',
-            acceptedAppointments,
-        });
-    } catch (error) {
-        console.error('Error fetching accepted appointments:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+    // Return the accepted appointments
+    res.status(200).json({
+      message: "Accepted appointments fetched successfully",
+      acceptedAppointments,
+    });
+  } catch (error) {
+    console.error("Error fetching accepted appointments:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
-
 
 // Function to get assigned appointments for the logged-in attendant
 exports.getAssignedAppointments = async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'No authorization token provided'
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const attendantId = decoded.id;
+
+        // Fetch the attendant document by ID and populate assignedAppointments
+        const attendant = await Attendant.findById(attendantId).populate(
+            "assignedAppointments"
+        );
+  
+        if (!attendant) {
+            return res.status(404).json({ message: "Attendant not found" });
+        }
+
+        // Filter appointments that are in 'assigned' status
+        const assignedAppointments = attendant.assignedAppointments.filter(
+            appointment => appointment.status === "assigned"
+        );
+  
+        console.log("Query params:", {
+            attendantId: attendantId,
+            status: 'assigned',
+            appointments: assignedAppointments
+        });
+
+        console.log('Found assigned appointments:', assignedAppointments.length);
+        console.log('Appointments:', assignedAppointments);
+
+        res.status(200).json({
+            success: true,
+            assignedAppointments
+        });
+
+    } catch (error) {
+        console.error('Error fetching assigned appointments:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+};
+
+// Handle accepting an appointment
+exports.acceptAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded.id;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Update appointment status and assign attendant
+    appointment.status = "accepted";
+    appointment.assignedAttendant = attendantId;
+    await appointment.save();
+
+    // Add appointment to attendant's assigned appointments
+    await Attendant.findByIdAndUpdate(attendantId, {
+      $push: { assignedAppointments: appointmentId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment accepted successfully",
+    });
+  } catch (error) {
+    console.error("Error accepting appointment:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Handle rejecting an appointment
+exports.rejectAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded.id;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Keep the appointment in requested status but remove this attendant
+    appointment.assignedAttendant = null;
+    await appointment.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment rejected successfully",
+    });
+  } catch (error) {
+    console.error("Error rejecting appointment:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Function to get upcoming and ongoing appointments
+exports.getActiveAppointments = async (req, res) => {
     try {
         // Validate token and get attendantId
         const token = req.headers.authorization?.split(' ')[1];
@@ -256,7 +367,7 @@ exports.getAssignedAppointments = async (req, res) => {
 
         // Filter the assigned appointments into two arrays
         const upcomingAppointments = attendant.assignedAppointments.filter(
-          (appointment) => appointment.status === "requested"
+          (appointment) => appointment.status === "accepted"
         );
 
         const ongoingAppointments = attendant.assignedAppointments.filter(appointment =>
@@ -267,94 +378,83 @@ exports.getAssignedAppointments = async (req, res) => {
         res.status(200).json({
             upcomingAppointments,
             ongoingAppointments,
-        });
+    });
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// Handle accepting an appointment
-exports.acceptAppointment = async (req, res) => {
-    try {
-
-        const { appointmentId } = req.body;
-
-        const appointment = await Appointment.findById(appointmentId);
-
-        if (!appointment) {
-            return res.status(404).json({ message: 'Appointment not found' });
-        }
-
-        appointment.status = 'accepted';
-        await appointment.save();
-
-        res.status(200).json({ message: 'Appointment accepted successfully', appointment });
-    } catch (error) {
-        console.error('Error accepting appointment:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// Handle rejecting an appointment
-exports.rejectAppointment = async (req, res) => {
-    try {
-
-        const { appointmentId } = req.body;
-        const appointment = await Appointment.findById(appointmentId);
-
-        if (!appointment) {
-            return res.status(404).json({ message: 'Appointment not found' });
-        }
-
-        appointment.status = 'requested';
-        await appointment.save();
-
-        res.status(200).json({ message: 'Appointment rejected successfully', appointment });
-    } catch (error) {
-        console.error('Error rejecting appointment:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+  } catch (error) {
+    console.error("Error fetching active appointments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };
 
 // Controller to get attendant profile based on the token
 exports.getProfile = async (req, res) => {
-    try {
-        // Extract token from the Authorization header
-        const token = req.headers.authorization?.split(' ')[1]; // e.g., 'Bearer <token>'
+  try {
+    // Extract token from the Authorization header
+    const token = req.headers.authorization?.split(" ")[1]; // e.g., 'Bearer <token>'
 
-        if (!token) {
-            return res.status(401).json({ message: 'Authorization token missing' });
-        }
-
-        // Verify the token and extract the payload
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const attendantId = decoded._id; // Assuming _id is part of the token payload
-
-        // Find attendant by ID
-        const attendant = await Attendant.findById(attendantId);
-
-        if (!attendant) {
-            return res.status(404).json({ message: 'Attendant not found' });
-        }
-
-        // Respond with the attendant's profile data
-        res.json({
-            firstName: attendant.firstName,
-            lastName: attendant.lastName,
-            mobileNumber: attendant.mobileNumber,
-            email: attendant.email,
-            address: attendant.address,
-            availability: attendant.availability,
-            rating: attendant.rating,
-            role: attendant.role,
-        });
-    } catch (error) {
-        console.error('Error fetching profile:', error);
-        res.status(500).json({ message: 'Server error. Please try again later.' });
+    if (!token) {
+      return res.status(401).json({ message: "Authorization token missing" });
     }
+
+    // Verify the token and extract the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded._id; // Assuming _id is part of the token payload
+
+    // Find attendant by ID
+    const attendant = await Attendant.findById(attendantId);
+
+    if (!attendant) {
+      return res.status(404).json({ message: "Attendant not found" });
+    }
+
+    // Respond with the attendant's profile data
+    res.json({
+      firstName: attendant.firstName,
+      lastName: attendant.lastName,
+      mobileNumber: attendant.mobileNumber,
+      email: attendant.email,
+      address: attendant.address,
+      availability: attendant.availability,
+      rating: attendant.rating,
+      role: attendant.role,
+    });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
 };
 
+// Add this function to handle finishing appointments
+exports.finishAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const attendantId = decoded.id;
 
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
 
+    // Verify this appointment belongs to the attendant
+    if (appointment.assignedAttendant.toString() !== attendantId) {
+      return res.status(403).json({ message: 'Not authorized to finish this appointment' });
+    }
+
+    // Update appointment status to finished
+    appointment.status = 'finished';
+    await appointment.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment marked as finished successfully'
+    });
+  } catch (error) {
+    console.error('Error finishing appointment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

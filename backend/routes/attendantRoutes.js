@@ -3,36 +3,15 @@ const express = require('express');
 const router = express.Router();
 const attendantController = require('../controllers/attendantController');
 const onBoardingController = require('../controllers/onBoardingController');
-
-// send otp
+// Authentication routes
 router.post('/send-otp', attendantController.send_otp);
-
-// verify otp
 router.post('/verify-otp', attendantController.verify_otp);
-
-// Login Attendant
 router.post('/login', attendantController.loginAttendant);
 
-// Get Availability
-router.get('/fetchavailability', attendantController.getAvailability);
-
-// Update Availability
-router.post('/updateavailability', attendantController.updateAvailability);
-
-//get accepted appointments appointments
-router.get('/acceptedAppointments', attendantController.getAcceptedAppointments);
-
-// get assigned appointments
-// router.get('/assignedAppointments', attendantController.getAssignedAppointments);
-
-// Route to accept an appointment
-router.post('/acceptAppointment', attendantController.acceptAppointment);
-
-// Route to reject an appointment
-router.post('/rejectAppointment', attendantController.rejectAppointment);
-
-// Route to get profile
+// Profile and availability routes
 router.get('/profile', attendantController.getProfile);
+router.get('/availability', attendantController.getAvailability);
+router.post('/availability', attendantController.updateAvailability);
 
 // Onboarding routes 
 router.post('/onboarding/personal-info', onBoardingController.savePersonalInfo);
@@ -50,10 +29,11 @@ router.post("/onboarding/banking-info", onBoardingController.saveBankingInfo);
 router.post("/onboarding/agreements", onBoardingController.saveAgreements);
 router.post("/onboarding/skills", onBoardingController.saveSkills);
 
-// Add this route
-router.get(
-  '/appointments/assigned',
-  attendantController.getAssignedAppointments
-);
+// Appointment routes
+router.get('/appointments/assigned', attendantController.getAssignedAppointments);
+router.get('/appointments/active', attendantController.getActiveAppointments);
+router.post('/appointments/accept', attendantController.acceptAppointment);
+router.post('/appointments/reject', attendantController.rejectAppointment);
+router.post('/appointments/finish', attendantController.finishAppointment);
 
 module.exports = router;

@@ -9,6 +9,7 @@ import {
   Dimensions,
   Modal,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import {
   UserCircle,
@@ -26,6 +27,7 @@ import BRAND_COLORS from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {API_URL} from '../config';
 import axios from 'axios';
+import AppointmentCard from '../components/AppointmentCard';
 
 const {width} = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.75;
@@ -103,7 +105,7 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
       }
 
       const response = await axios.get(
-        `${API_URL}/api/attendant/appointments/assigned`,
+        `${API_URL}/api/attendant/appointments/active`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -125,67 +127,49 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
     fetchAppointments();
   }, []);
 
-  const renderAppointmentCard = appointment => (
-    <View key={appointment._id} style={styles.appointmentCard}>
-      <View style={styles.appointmentHeader}>
-        <View>
-          <Paper.Text style={styles.serviceType}>
-            {appointment.mainService} - {appointment.subService}
-          </Paper.Text>
-          <Paper.Text style={styles.appointmentId}>
-            ID: {appointment.appointmentID.slice(0, 8)}...
-          </Paper.Text>
-        </View>
-        <Paper.Text
-          style={[
-            styles.statusBadge,
-            {backgroundColor: getStatusColor(appointment.status)},
-          ]}>
-          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-        </Paper.Text>
-      </View>
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchAppointments();
+    });
 
-      <View style={styles.appointmentDetail}>
-        <Calendar size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {new Date(appointment.startTime).toLocaleDateString()}
-        </Paper.Text>
-      </View>
+    return unsubscribe;
+  }, [navigation]);
 
-      <View style={styles.appointmentDetail}>
-        <Clock size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {`${new Date(appointment.startTime).toLocaleTimeString()} - ${new Date(
-            appointment.endTime,
-          ).toLocaleTimeString()}`}
-        </Paper.Text>
-      </View>
+  const handleStart = async appointmentId => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      await axios.post(
+        `${API_URL}/api/attendant/appointments/start`,
+        { appointmentId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      fetchAppointments(); // Refresh the appointments list
+      Alert.alert('Success', 'Appointment started successfully');
+    } catch (error) {
+      console.error('Error starting appointment:', error);
+      Alert.alert('Error', 'Failed to start appointment');
+    }
+  };
 
-      <View style={styles.appointmentDetail}>
-        <MapPin size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {appointment.address.fullAddress}
-        </Paper.Text>
-      </View>
-
-      <View style={styles.durationContainer}>
-        <Paper.Text style={styles.durationText}>
-          Duration: {appointment.duration} hours
-        </Paper.Text>
-      </View>
-    </View>
-  );
-
-  const getStatusColor = status => {
-    switch (status) {
-      case 'requested':
-        return '#FEF3C7'; // Light yellow
-      case 'accepted':
-        return '#DCFCE7'; // Light green
-      case 'ongoing':
-        return '#DBEAFE'; // Light blue
-      default:
-        return '#F3F4F6'; // Light gray
+  const handleFinish = async appointmentId => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      await axios.post(
+        `${API_URL}/api/attendant/appointments/finish`,
+        { appointmentId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      fetchAppointments(); // Refresh the appointments list
+      Alert.alert('Success', 'Appointment marked as finished');
+    } catch (error) {
+      console.error('Error finishing appointment:', error);
+      Alert.alert('Error', 'Failed to finish appointment');
     }
   };
 
@@ -283,7 +267,14 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
               </Paper.Text>
             </View>
           ) : (
-            appointments.upcoming.map(appointment => renderAppointmentCard(appointment))
+            appointments.upcoming.map(appointment => (
+              <AppointmentCard
+                key={appointment._id}
+                appointment={appointment}
+                type="upcoming"
+                onStart={handleStart}
+              />
+            ))
           )}
 
           <Paper.Text style={styles.sectionTitle}>Ongoing Appointments</Paper.Text>
@@ -297,7 +288,14 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
               </Paper.Text>
             </View>
           ) : (
-            appointments.ongoing.map(appointment => renderAppointmentCard(appointment))
+            appointments.ongoing.map(appointment => (
+              <AppointmentCard
+                key={appointment._id}
+                appointment={appointment}
+                type="ongoing"
+                onFinish={handleFinish}
+              />
+            ))
           )}
         </View>
       </ScrollView>
@@ -501,5 +499,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textPrimary,
+  },
+  finishButton: {
+    marginTop: 16,
+    backgroundColor: BRAND_COLORS.success,
+  },
+  buttonLabel: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Medium',
+    color: '#fff',
   },
 });

@@ -3,10 +3,8 @@ const express = require('express');
 const router = express.Router();
 const appointmentController = require('../controllers/appointmentController');
 
-// Route to create a new appointment
+// Customer appointment routes
 router.post('/appointments', appointmentController.createAppointment);
-
-// Route to get all appointments for a customer
 router.get('/appointments/:customerId', appointmentController.getAppointments);
 
 module.exports = router;
