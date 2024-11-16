@@ -211,7 +211,7 @@ export default function PersonalInfoScreen({ navigation }) {
         mobileNumber: `+91${mobileNumber}`,
         otp: otp,
       });
-
+ 
       console.log('Verify Response:', response.data);
 
       if (response.data.success) {

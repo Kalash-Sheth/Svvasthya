@@ -11,11 +11,6 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = new twilio(accountSid, authToken);
 
-// Helper function to generate JWT
-const generateToken = (attendantId) => {
-    return jwt.sign({ _id: attendantId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
-
 // function to send otp
 exports.send_otp = async (req, res) => {
     const { mobileNumber } = req.body;
@@ -109,15 +104,17 @@ exports.loginAttendant = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Generate and return token
-        const token = generateToken(attendant._id);
-        // Set token in HttpOnly cookie (expires in 7 days)
-        res.cookie('token', token, {
-            httponly: false,  // Prevents client-side JS from accessing the cookie
-            secure: false,
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        const token = jwt.sign({ id: attendant._id }, process.env.JWT_SECRET, { expiresIn: '90d' });
+        const options = {
+            expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            httpOnly: true,
+        };
+
+        return res.status(200).cookie('token', token, options).json({
+            success: true,
+            message: 'Login successful',
+            token,
         });
-        res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
