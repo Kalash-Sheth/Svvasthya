@@ -12,7 +12,7 @@ export default function SplashScreen({ navigation }) {
         setShowText(true);
         setTimeout(async () => {
             const token = await AsyncStorage.getItem('token');
-            navigation.replace(token ? 'Main' : 'Login');
+            navigation.replace(token ? 'Login' : 'Login');
         }, 9000);
     };
 

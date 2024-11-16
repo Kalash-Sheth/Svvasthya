@@ -1,249 +1,256 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
   Image,
 } from 'react-native';
-import {TextInput, Button} from 'react-native-paper';
-import axios from 'axios';
+import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {API_URL} from '../config';
 import BRAND_COLORS from '../styles/colors';
 
-export default function LoginScreen({navigation}) {
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [showOtpInput, setShowOtpInput] = useState(false);
-  const [otp, setOtp] = useState('');
-
-  const handleSendOtp = async () => {
-    if (!mobileNumber || mobileNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid mobile number');
-      return;
-    }
-
-    try {
-      console.log('Sending OTP to:', `+91${mobileNumber}`);
-      const response = await axios.post(`${API_URL}/api/attendant/send-otp`, {
-        mobileNumber: `+91${mobileNumber}`,
-      });
-
-      console.log('Response:', response.data);
-
-      if (response.data.message === 'OTP sent successfully') {
-        setShowOtpInput(true);
-        Alert.alert('Success', 'OTP sent successfully');
-      } else {
-        Alert.alert('Error', 'Failed to send OTP');
-      }
-    } catch (error) {
-      console.error('Error details:', error.response?.data || error.message);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message ||
-          'Failed to send OTP. Please try again.',
-      );
-    }
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const handleSignUp = async () => {
+    Alert.alert('SignUp Successful', `Welcome`);
+    navigation.navigate('Welcome');
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otp || otp.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit OTP');
-      return;
-    }
+  const handleLogin = async () => {
+    setIsLoading(true);
+
+    const apiUrl = 'http://192.168.1.7:5000/api/attendant/login';
+    const requestBody = {
+      email: email,
+      password: password,
+    };
 
     try {
-      console.log('Verifying OTP:', otp, 'for number:', `+91${mobileNumber}`);
-      const response = await axios.post(`${API_URL}/api/attendant/verify-otp`, {
-        mobileNumber: `+91${mobileNumber}`,
-        otp: otp,
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
       });
 
-      console.log('Verify Response:', response.data);
+      const result = await response.json();
 
-      if (response.data.success) {
-        // Store the token in AsyncStorage
-        const {token} = response.data;
-        console.log(token);
-        await AsyncStorage.setItem('authToken', token);
+      if (response.ok) {
+        const { token } = result;
 
-        console.log('Token stored successfully');
-        navigation.navigate('Welcome');
+        if (token) {
+          await AsyncStorage.setItem('token', token);
+        }
+        Alert.alert('Login Successful', `Welcome`);
+        navigation.navigate('Main');
       } else {
-        Alert.alert('Error', 'Invalid OTP. Please try again.');
+        Alert.alert('Login Failed', result.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error(
-        'Verification Error details:',
-        error.response?.data || error.message,
-      );
-      Alert.alert(
-        'Error',
-        error.response?.data?.message ||
-          'Failed to verify OTP. Please try again.',
-      );
+      Alert.alert('Error', 'Something went wrong. Please try again later.');
     }
+    setIsLoading(false);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/svvasthya_logo_tran.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>Login to continue</Text>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            label="Mobile Number"
-            value={mobileNumber}
-            onChangeText={setMobileNumber}
-            mode="outlined"
-            keyboardType="phone-pad"
-            left={<TextInput.Affix text="+91" />}
-            style={styles.input}
-            outlineColor={BRAND_COLORS.border}
-            activeOutlineColor={BRAND_COLORS.primary}
-            theme={{
-              colors: {
-                placeholder: BRAND_COLORS.textSecondary,
-                text: BRAND_COLORS.textPrimary,
-                primary: BRAND_COLORS.primary,
-                background: '#fff',
-              },
-            }}
-          />
-
-          {showOtpInput && (
-            <TextInput
-              label="Enter OTP"
-              value={otp}
-              onChangeText={setOtp}
-              mode="outlined"
-              keyboardType="number-pad"
-              maxLength={6}
-              style={[styles.input, styles.otpInput]}
-              outlineColor={BRAND_COLORS.border}
-              activeOutlineColor={BRAND_COLORS.primary}
-              theme={{
-                colors: {
-                  placeholder: BRAND_COLORS.textSecondary,
-                  text: BRAND_COLORS.textPrimary,
-                  primary: BRAND_COLORS.primary,
-                  background: '#fff',
-                },
-              }}
+      <LinearGradient
+        colors={[
+          `${BRAND_COLORS.primary}15`,
+          `${BRAND_COLORS.secondary}15`,
+          `${BRAND_COLORS.primary}15`,
+          `${BRAND_COLORS.secondary}15`,
+        ]}
+        start={{ x: 0.2, y: 0.2 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}>
+        <View style={styles.content}>
+          {/* Logo Section */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../assets/svvasthya_logo_tran.png')}
+              style={styles.logo}
+              resizeMode="contain"
             />
-          )}
+          </View>
+          {/* Welcome Text */}
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.welcomeTitle}>Welcome Back!</Text>
+            <Text style={styles.welcomeSubtitle}>
+              Please enter your credentials to continue
+            </Text>
+          </View>
+          {/* Login Form */}
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Email Address</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                placeholderTextColor={BRAND_COLORS.textSecondary}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                placeholderTextColor={BRAND_COLORS.textSecondary}
+                secureTextEntry
+              />
+            </View>
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity>
+                <Text style={styles.forgotPassword}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: BRAND_COLORS.primary }]}
+              onPress={handleLogin}
+              disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          {/* Sign Up Link */}
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={handleSignUp}>
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <Button
-          mode="contained"
-          onPress={showOtpInput ? handleVerifyOtp : handleSendOtp}
-          style={styles.button}
-          contentStyle={styles.buttonContent}
-          labelStyle={styles.buttonText}>
-          {showOtpInput ? 'Verify OTP' : 'Send OTP'}
-        </Button>
-
-        {showOtpInput && (
-          <TouchableOpacity
-            onPress={handleSendOtp}
-            style={styles.resendContainer}>
-            <Text style={styles.resendText}>Didn't receive OTP? </Text>
-            <Text style={styles.resendLink}>Resend</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
+      </LinearGradient>
+    </SafeAreaView >
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
   },
   logoContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 40,
+    justifyContent: 'center',
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 120,
+    height: 120,
   },
-  formContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
+  logoText: {
+    fontSize: 24,
+    fontWeight: '900',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
   },
-  title: {
-    fontSize: 32,
+  welcomeContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: '900',
     fontFamily: 'Poppins-Bold',
     color: BRAND_COLORS.textPrimary,
     marginBottom: 8,
-    fontWeight: '900',
   },
-  subtitle: {
+  welcomeSubtitle: {
     fontSize: 16,
-    fontFamily: 'Poppins-Regular',
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
     color: BRAND_COLORS.textSecondary,
-    marginBottom: 32,
   },
-  inputContainer: {
-    marginBottom: 24,
-  },
-  input: {
-    backgroundColor: '#fff',
-    marginBottom: 16,
-  },
-  otpInput: {
-    marginTop: 8,
-  },
-  button: {
-    backgroundColor: BRAND_COLORS.primary,
-    borderRadius: 30,
-    elevation: 8,
-    shadowColor: BRAND_COLORS.primary,
+  form: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    marginHorizontal: 20,
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  buttonContent: {
-    height: 56,
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Poppins-SemiBold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: BRAND_COLORS.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: BRAND_COLORS.textPrimary,
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  forgotPassword: {
+    fontSize: 14,
+    color: BRAND_COLORS.secondary,
+    fontFamily: 'Poppins-Medium',
+  },
+  button: {
+    borderRadius: 30,
+    padding: 14,
+    alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
-    fontFamily: 'Poppins-SemiBold',
     color: 'white',
-    letterSpacing: 1,
+    fontSize: 18,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
   },
-  resendContainer: {
+  signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 24,
   },
-  resendText: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
+  signupText: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
     color: BRAND_COLORS.textSecondary,
   },
-  resendLink: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Medium',
-    color: BRAND_COLORS.primary,
+  signupLink: {
+    fontSize: 16,
+    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.secondary,
   },
 });
+
+export default LoginScreen;

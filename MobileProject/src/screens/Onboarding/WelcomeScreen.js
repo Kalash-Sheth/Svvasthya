@@ -31,8 +31,7 @@ export default function WelcomeScreen({navigation}) {
             <Button
               mode="contained"
               onPress={() =>
-                // navigation.navigate('PersonalInfo')
-                navigation.navigate('BankingInfo')
+                navigation.navigate('Agreements')
               }
               style={styles.button}
               contentStyle={styles.buttonContent}

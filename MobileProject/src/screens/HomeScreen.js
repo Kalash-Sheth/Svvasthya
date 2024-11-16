@@ -114,6 +114,7 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
       );
 
       const {upcomingAppointments = [], ongoingAppointments = []} = response.data;
+      console.log(upcomingAppointments,ongoingAppointments);
       setAppointments({
         upcoming: upcomingAppointments,
         ongoing: ongoingAppointments,

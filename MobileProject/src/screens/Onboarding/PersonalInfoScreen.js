@@ -211,7 +211,7 @@ export default function PersonalInfoScreen({ navigation }) {
         mobileNumber: `+91${mobileNumber}`,
         otp: otp,
       });
-
+ 
       console.log('Verify Response:', response.data);
 
       if (response.data.success) {
@@ -246,16 +246,6 @@ export default function PersonalInfoScreen({ navigation }) {
         Alert.alert('Error', 'Please complete all required fields');
         return;
       }
-
-      // Format the date properly
-      const dobDate = new Date(data.dob);
-      if (isNaN(dobDate.getTime())) {
-        Alert.alert('Error', 'Please enter a valid date of birth');
-        return;
-      }
-
-      // Format date as YYYY-MM-DD
-      const formattedDob = dobDate.toISOString().split('T')[0];
 
       const token = await AsyncStorage.getItem('authToken');
 
