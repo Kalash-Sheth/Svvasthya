@@ -34,7 +34,7 @@ export default function DocumentsScreen({route}) {
         return;
       }
 
-      const fullUrl = url.startsWith('http') ? url : `http://${url}`;
+      const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
 
       // For images, show in modal
       if (fullUrl.match(/\.(png|jpe?g|gif)$/i)) {

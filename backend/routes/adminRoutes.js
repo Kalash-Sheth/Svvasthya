@@ -15,4 +15,16 @@ router.post('/available', adminController.fetchAvailableAttendants);
 // Assign an attendant to an appointment
 router.post('/:appointmentId/assign', adminController.assignAttendant);
 
+// Add this new route
+router.get('/appointments/ongoing', adminController.getOngoingAppointments);
+
+// Add this new route
+router.get('/appointments/finished', adminController.getFinishedAppointments);
+
+// Add this new route
+router.get('/customers', adminController.getAllCustomers);
+
+// Add this new route
+router.get('/attendants', adminController.getAllAttendants);
+
 module.exports = router;

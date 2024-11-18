@@ -1,4 +1,9 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import "./App.css";
 import AdminDash from "./components/AdminComponent/AdminDash";
 import Dashboard from "./components/AttendantComponent/Dashboard";
@@ -22,46 +27,50 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import Time from "./pages/Time";
+import AdminDashboard from "./pages/AdminDashboard";
+
+// Create a wrapper component to handle the conditional header rendering
+function AppContent() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="App">
+      <BookingProvider>
+        {!isAdminRoute && <Header />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/SelectOffer" element={<SelectOffer />} />
+          <Route path="/AddressContact" element={<AddressContact />} />
+          <Route path="/ContactDetails" element={<ContactDetails />} />
+          <Route path="/AttendatDetails" element={<AttendantDetails />} />
+          <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
+          <Route path="/nursingservices" element={<NursingServices />} />
+          <Route path="/BookingConfirmation" element={<BookingConfirmation />} />
+          <Route path="/Admin" element={<Admin />} />
+          <Route path="/AdminDash" element={<AdminDash />} />
+          <Route path="/Attendant" element={<Attendant />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/Time" element={<Time />} />
+          <Route path="/Profile" element={<Profile />} />
+          <Route path="/BookingHistory" element={<BookingHistory />} />
+          <Route path="/UpcomingBooking" element={<UpcomingBooking />} />
+          <Route path="/BookingDetails" element={<BookingDetails />} />
+          <Route path="/UserProfile" element={<UserProfile />} />
+          <Route path="/PaymentModal" element={<PaymentModal />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+      </BookingProvider>
+    </div>
+  );
+}
 
 function App() {
   return (
     <Router>
-      <div className="App">
-        <BookingProvider>
-          <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/SelectOffer" element={<SelectOffer />} />
-            <Route path="/AddressContact" element={<AddressContact />} />
-            <Route path="/ContactDetails" element={<ContactDetails />} />
-            <Route path="/AttendatDetails" element={<AttendantDetails />} />
-            <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
-            <Route
-              path="/nursingservices"
-              element={<NursingServices />}
-            ></Route>
-            <Route
-              path="/BookingConfirmation"
-              element={<BookingConfirmation />}
-            ></Route>
-            <Route path="/Admin" element={<Admin />}></Route>
-            <Route path="/AdminDash" element={<AdminDash />}></Route>
-            <Route path="/Attendant" element={<Attendant />}></Route>
-            <Route path="/Dashboard" element={<Dashboard />}></Route>
-            <Route path="/Time" element={<Time />}></Route>
-            <Route path="/Profile" element={<Profile />}></Route>
-            <Route path="/BookingHistory" element={<BookingHistory />}></Route>
-            <Route
-              path="/UpcomingBooking"
-              element={<UpcomingBooking />}
-            ></Route>
-            <Route path="/BookingDetails" element={<BookingDetails />}></Route>
-            <Route path="/UserProfile" element={<UserProfile />}></Route>
-            <Route path="/PaymentModal" element={<PaymentModal />}></Route>
-          </Routes>
-        </BookingProvider>
-      </div>
+      <AppContent />
     </Router>
   );
 }
