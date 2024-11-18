@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,9 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BRAND_COLORS from '../styles/colors';
+import {API_URL} from '../config';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,10 +24,23 @@ const LoginScreen = ({ navigation }) => {
     navigation.navigate('Welcome');
   };
 
+  // if token is present, navigate to home with the bottom navigation bar still there
+
+  const checkToken = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      navigation.navigate('Main');
+    }
+  };
+
+  useEffect(() => {
+    checkToken();
+  }, []);
+
   const handleLogin = async () => {
     setIsLoading(true);
 
-    const apiUrl = 'http://192.168.1.7:5000/api/attendant/login';
+    const apiUrl = `${API_URL}/api/attendant/login`;
     const requestBody = {
       email: email,
       password: password,
@@ -44,7 +58,7 @@ const LoginScreen = ({ navigation }) => {
       const result = await response.json();
 
       if (response.ok) {
-        const { token } = result;
+        const {token} = result;
 
         if (token) {
           await AsyncStorage.setItem('token', token);
@@ -69,8 +83,8 @@ const LoginScreen = ({ navigation }) => {
           `${BRAND_COLORS.primary}15`,
           `${BRAND_COLORS.secondary}15`,
         ]}
-        start={{ x: 0.2, y: 0.2 }}
-        end={{ x: 1, y: 1 }}
+        start={{x: 0.2, y: 0.2}}
+        end={{x: 1, y: 1}}
         style={styles.container}>
         <View style={styles.content}>
           {/* Logo Section */}
@@ -117,7 +131,7 @@ const LoginScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: BRAND_COLORS.primary }]}
+              style={[styles.button, {backgroundColor: BRAND_COLORS.primary}]}
               onPress={handleLogin}
               disabled={isLoading}>
               {isLoading ? (
@@ -136,7 +150,7 @@ const LoginScreen = ({ navigation }) => {
           </View>
         </View>
       </LinearGradient>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 };
 

@@ -139,7 +139,7 @@ export default function SkillsScreen({ navigation }) {
         return;
       }
 
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'Authentication token not found');
         return;

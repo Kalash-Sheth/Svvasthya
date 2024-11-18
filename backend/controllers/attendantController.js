@@ -8,8 +8,8 @@ require("dotenv").config({ path: "backend/config/config.env" });
 const twilio = require("twilio");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = new twilio(accountSid, authToken);
+const token = process.env.TWILIO_AUTH_TOKEN;
+const client = new twilio(accountSid, token);
 
 // function to send otp
 exports.send_otp = async (req, res) => {
@@ -51,12 +51,10 @@ exports.verify_otp = async (req, res) => {
     let attendant = await Attendant.findOne({ mobileNumber });
 
     if (!attendant) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Mobile number not found. Please register first.",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Mobile number not found. Please register first.",
+      });
     }
 
     // Verify OTP and expiration
@@ -90,13 +88,11 @@ exports.verify_otp = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error verifying OTP and logging in",
-        error,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error verifying OTP and logging in",
+      error,
+    });
   }
 };
 
@@ -268,14 +264,14 @@ exports.getAssignedAppointments = async (req, res) => {
       (appointment) => appointment.status === "assigned"
     );
 
-    console.log("Query params:", {
-      attendantId: attendantId,
-      status: "assigned",
-      appointments: assignedAppointments,
-    });
+    // console.log("Query params:", {
+    //   attendantId: attendantId,
+    //   status: "assigned",
+    //   appointments: assignedAppointments,
+    // });
 
-    console.log("Found assigned appointments:", assignedAppointments.length);
-    console.log("Appointments:", assignedAppointments);
+    // console.log("Found assigned appointments:", assignedAppointments.length);
+    // console.log("Appointments:", assignedAppointments);
 
     res.status(200).json({
       success: true,
@@ -374,7 +370,7 @@ exports.getActiveAppointments = async (req, res) => {
       return res.status(404).json({ message: "Attendant not found" });
     }
 
-    console.log("attendant: " + attendant.assignedAppointments);
+    // console.log("attendant: " + attendant.assignedAppointments);
 
     // Filter the assigned appointments into two arrays
     const upcomingAppointments = attendant.assignedAppointments.filter(
@@ -402,39 +398,186 @@ exports.getActiveAppointments = async (req, res) => {
 // Controller to get attendant profile based on the token
 exports.getProfile = async (req, res) => {
   try {
-    // Extract token from the Authorization header
-    const token = req.headers.authorization?.split(" ")[1]; // e.g., 'Bearer <token>'
-
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: "Authorization token missing" });
     }
 
-    // Verify the token and extract the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const attendantId = decoded._id; // Assuming _id is part of the token payload
+    const attendantId = decoded.id;
 
-    // Find attendant by ID
-    const attendant = await Attendant.findById(attendantId);
+    const attendant = await Attendant.findById(attendantId).populate(
+      "assignedAppointments"
+    );
 
     if (!attendant) {
       return res.status(404).json({ message: "Attendant not found" });
     }
 
-    // Respond with the attendant's profile data
-    res.json({
-      firstName: attendant.firstName,
-      lastName: attendant.lastName,
-      mobileNumber: attendant.mobileNumber,
-      email: attendant.email,
-      address: attendant.address,
-      availability: attendant.availability,
-      rating: attendant.rating,
-      role: attendant.role,
-    });
+    // Calculate total missions (completed appointments)
+    const totalMissions =
+      attendant.assignedAppointments?.filter((app) => app.status === "finished")
+        .length || 0;
+
+    // Calculate total earnings (assuming each appointment has a fixed rate of 500)
+    const totalEarnings = totalMissions * 500;
+
+    // Default skills data
+    const defaultSkills = [
+      "Patient Care",
+      "Wound Dressing",
+      "Vital Monitoring",
+      "Emergency Response",
+      "Medical Documentation",
+      "Medication Administration",
+      "Basic Life Support",
+      "First Aid",
+    ];
+
+    // Default languages data
+    const defaultLanguages = ["English", "Hindi", "Gujarati", "Marathi"];
+
+    // Default work preferences
+    const defaultWorkPreferences = {
+      workType: "Full Time",
+      preferredDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      shiftPreferences: ["Morning", "Afternoon", "Night"],
+    };
+
+    // Add dummy documents data
+    const dummyDocuments = [
+      {
+        type: "ID Proof",
+        items: [
+          {
+            name: "Aadhaar Card",
+            url: "uploads/documents/aadhaar-1731665390585-494153894.png",
+            uploadDate: "2024-03-01",
+          },
+          {
+            name: "PAN Card",
+            url: "uploads/certificates/certificate-1731667482147-18886423.pdf",
+            uploadDate: "2024-03-01",
+          },
+          {
+            name: "Driving License",
+            url: "uploads/certificates/certificate-1731667482147-18886423.pdf",
+            uploadDate: "2024-03-01",
+          },
+        ],
+      },
+      {
+        type: "Professional",
+        items: [
+          {
+            name: "Nursing Certificate",
+            url: "uploads/certificates/certificate-1731667482147-18886423.pdf",
+            uploadDate: "2024-03-01",
+          },
+          {
+            name: "BLS Certification",
+            url: "uploads/documents/aadhaar-1731665390585-494153894.png",
+            uploadDate: "2024-03-01",
+          },
+        ],
+      },
+      {
+        type: "Banking",
+        items: [
+          {
+            name: "Cancelled Cheque",
+            url: "uploads/banking/cancelledCheque-1731669138563-995145045.pdf",
+            uploadDate: "2024-03-01",
+          },
+        ],
+      },
+    ];
+
+    // Format the response data with dummy data for missing fields
+    const profileData = {
+      // Personal Info
+      profilePhoto:
+        attendant.profilePhoto ||
+        "uploads/profile/profile-1731665207496-785299262.jpg",
+      firstName: attendant.firstName || "John",
+      lastName: attendant.lastName || "Doe",
+      email: attendant.email || "john.doe@example.com",
+      mobileNumber: attendant.mobileNumber || "+91 9909716609",
+      address: attendant.address || "123 Main Street, City",
+
+      // Professional Info
+      role: attendant.role || "Wound Care",
+      specialization:
+        attendant.professionalInfo?.specialization || "Senior Nurse",
+      yearsOfExperience: attendant.professionalInfo?.yearsOfExperience || 5,
+
+      // Skills Info (use actual data or default)
+      skills:
+        attendant.skillsInfo?.skills?.length > 0
+          ? attendant.skillsInfo.skills
+          : defaultSkills,
+      certifications: attendant.skillsInfo?.certifications || [],
+      languagesKnown:
+        attendant.skillsInfo?.languagesKnown?.length > 0
+          ? attendant.skillsInfo.languagesKnown
+          : defaultLanguages,
+
+      // Stats
+      totalMissions: totalMissions || 45,
+      totalEarnings: totalEarnings || 22500,
+      rating: attendant.rating || 4.5,
+      level: calculateLevel(totalMissions) || "Silver",
+
+      // Dates
+      createdAt: attendant.createdAt || "2024-01-01T00:00:00.000Z",
+
+      // Current Status
+      currentAvailability: attendant.CurrentAvailability || false,
+      currentLocation: attendant.CurrentLocation || null,
+
+      // Work Preferences (use actual data or default)
+      workType:
+        attendant.workPreferences?.workType || defaultWorkPreferences.workType,
+      preferredDays:
+        attendant.workPreferences?.preferredDays?.length > 0
+          ? attendant.workPreferences.preferredDays
+          : defaultWorkPreferences.preferredDays,
+      shiftPreferences:
+        attendant.workPreferences?.shiftPreferences?.length > 0
+          ? attendant.workPreferences.shiftPreferences
+          : defaultWorkPreferences.shiftPreferences,
+      locationPreferences:
+        attendant.workPreferences?.locationPreferences || "Within 10km radius",
+
+      // Add documents data
+      documents: dummyDocuments,
+
+      // Quick Actions Data
+      quickActions: {
+        totalDocuments: dummyDocuments.reduce(
+          (sum, category) => sum + category.items.length,
+          0
+        ),
+        totalEarnings: totalEarnings || 22500,
+        settingsUpdated: "2024-03-15",
+      },
+    };
+
+    console.log("Profile Data:", profileData);
+
+    res.status(200).json(profileData);
   } catch (error) {
     console.error("Error fetching profile:", error);
     res.status(500).json({ message: "Server error. Please try again later." });
   }
+};
+
+// Helper function to calculate level based on total missions
+const calculateLevel = (missions) => {
+  if (missions >= 100) return "Platinum";
+  if (missions >= 50) return "Gold";
+  if (missions >= 25) return "Silver";
+  return "Bronze";
 };
 
 // Add this function to handle finishing appointments

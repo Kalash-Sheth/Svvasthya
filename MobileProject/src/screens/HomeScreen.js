@@ -98,7 +98,7 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
 
   const fetchAppointments = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         console.error('No auth token found');
         return;
@@ -113,8 +113,9 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
         },
       );
 
-      const {upcomingAppointments = [], ongoingAppointments = []} = response.data;
-      console.log(upcomingAppointments,ongoingAppointments);
+      const {upcomingAppointments = [], ongoingAppointments = []} =
+        response.data;
+      console.log(upcomingAppointments, ongoingAppointments);
       setAppointments({
         upcoming: upcomingAppointments,
         ongoing: ongoingAppointments,
@@ -138,15 +139,15 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
 
   const handleStart = async appointmentId => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       await axios.post(
         `${API_URL}/api/attendant/appointments/start`,
-        { appointmentId },
+        {appointmentId},
         {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+          headers: {Authorization: `Bearer ${token}`},
+        },
       );
-      
+
       fetchAppointments(); // Refresh the appointments list
       Alert.alert('Success', 'Appointment started successfully');
     } catch (error) {
@@ -157,15 +158,15 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
 
   const handleFinish = async appointmentId => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       await axios.post(
         `${API_URL}/api/attendant/appointments/finish`,
-        { appointmentId },
+        {appointmentId},
         {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+          headers: {Authorization: `Bearer ${token}`},
+        },
       );
-      
+
       fetchAppointments(); // Refresh the appointments list
       Alert.alert('Success', 'Appointment marked as finished');
     } catch (error) {
@@ -197,7 +198,9 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
               <UserCircle size={50} color={BRAND_COLORS.primary} />
               <View style={styles.userTextContainer}>
                 <Paper.Text style={styles.userName}>{userName}</Paper.Text>
-                <Paper.Text style={styles.userRole}>Healthcare Attendant</Paper.Text>
+                <Paper.Text style={styles.userRole}>
+                  Healthcare Attendant
+                </Paper.Text>
               </View>
             </View>
             <TouchableOpacity
@@ -219,7 +222,9 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
                     navigation.navigate(item.screen);
                   }}>
                   <Icon size={24} color={BRAND_COLORS.textPrimary} />
-                  <Paper.Text style={styles.menuItemText}>{item.title}</Paper.Text>
+                  <Paper.Text style={styles.menuItemText}>
+                    {item.title}
+                  </Paper.Text>
                 </TouchableOpacity>
               );
             })}
@@ -228,7 +233,7 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={async () => {
-              await AsyncStorage.removeItem('authToken');
+              await AsyncStorage.removeItem('token');
               navigation.navigate('Login');
               toggleMenu(false);
             }}>

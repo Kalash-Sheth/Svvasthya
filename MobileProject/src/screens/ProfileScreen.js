@@ -3,7 +3,6 @@
 import React, {useEffect, useState} from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Image,
   ActivityIndicator,
@@ -12,8 +11,20 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
+import * as Paper from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Settings, Clock, Edit2, LogOut, Phone, Mail} from 'lucide-react-native';
+import {
+  Settings,
+  Edit2,
+  Phone,
+  Mail,
+  Star,
+  Calendar,
+  FileText,
+  DollarSign,
+  Award,
+  CheckCircle,
+} from 'lucide-react-native';
 import BRAND_COLORS from '../styles/colors';
 import {API_URL} from '../config';
 
@@ -40,12 +51,15 @@ export default function ProfileScreen({navigation}) {
 
       const data = await response.json();
 
+      console.log('Profile Data:', data);
+
       if (response.ok) {
         setProfileData(data);
       } else {
         Alert.alert('Error', data.message || 'Failed to fetch profile');
       }
     } catch (error) {
+      console.error('Error fetching profile:', error);
       Alert.alert('Error', 'Something went wrong. Please try again later.');
     } finally {
       setLoading(false);
@@ -56,29 +70,39 @@ export default function ProfileScreen({navigation}) {
     fetchProfileData();
   }, []);
 
-  const ActionButton = ({
-    icon: Icon,
-    title,
-    onPress,
-    color = BRAND_COLORS.primary,
-  }) => {
-    const [isPressed, setIsPressed] = useState(false);
+  const StatCard = ({icon: Icon, title, value, color}) => (
+    <View style={styles.statCard}>
+      <View
+        style={[
+          styles.iconContainer,
+          {backgroundColor: color ? `${color}10` : '#F3F4F6'},
+        ]}>
+        <Icon size={22} color={color || BRAND_COLORS.textSecondary} />
+      </View>
+      <Paper.Text style={styles.statValue}>{value || '0'}</Paper.Text>
+      <Paper.Text style={styles.statTitle}>{title}</Paper.Text>
+    </View>
+  );
 
-    return (
-      <TouchableOpacity
-        style={[styles.actionButton, isPressed && styles.actionButtonPressed]}
-        onPress={onPress}
-        onPressIn={() => setIsPressed(true)}
-        onPressOut={() => setIsPressed(false)}
-        activeOpacity={0.7}>
-        <View style={[styles.iconContainer, {backgroundColor: `${color}10`}]}>
-          <Icon size={22} color={color} />
-        </View>
-        <View style={styles.buttonTextContainer}>
-          <Text style={[styles.actionButtonText, {color}]}>{title}</Text>
-        </View>
-      </TouchableOpacity>
-    );
+  const handleViewDocuments = () => {
+    if (!profileData.documents) {
+      Alert.alert('Error', 'No documents available');
+      return;
+    }
+
+    const formattedDocuments = profileData.documents.map(category => ({
+      type: category.type,
+      items: category.items.map(doc => ({
+        name: doc.name,
+        url: `${API_URL}/${doc.url}`,
+        uploadDate: doc.uploadDate,
+      })),
+    }));
+
+    navigation.navigate('Documents', {
+      documents: formattedDocuments,
+      totalDocuments: profileData.quickActions?.totalDocuments || 0,
+    });
   };
 
   if (loading) {
@@ -92,7 +116,9 @@ export default function ProfileScreen({navigation}) {
   if (!profileData) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>No profile data available.</Text>
+        <Paper.Text style={styles.errorText}>
+          No profile data available.
+        </Paper.Text>
       </View>
     );
   }
@@ -100,10 +126,16 @@ export default function ProfileScreen({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={{uri: 'https://via.placeholder.com/150'}}
+              source={
+                // uri: profileData.profilePhoto
+                // ? `${API_URL}/${profileData.profilePhoto}`
+                // :
+                'https://via.placeholder.com/150'
+              }
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editImageButton}>
@@ -111,67 +143,225 @@ export default function ProfileScreen({navigation}) {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>
+          <Paper.Text style={styles.profileName}>
             {profileData.firstName} {profileData.lastName}
-          </Text>
-          <Text style={styles.designation}>Healthcare Attendant</Text>
+          </Paper.Text>
+          <Paper.Text style={styles.designation}>
+            {profileData.role} - {profileData.specialization}
+          </Paper.Text>
+          <View style={styles.ratingContainer}>
+            <Star
+              size={16}
+              color={BRAND_COLORS.warning}
+              fill={BRAND_COLORS.warning}
+            />
+            <Paper.Text style={styles.ratingText}>
+              {profileData.rating}/5
+            </Paper.Text>
+          </View>
         </View>
 
-        <View style={styles.infoSection}>
+        {/* Stats Section */}
+        <View style={styles.statsContainer}>
+          <StatCard
+            icon={CheckCircle}
+            title="Missions"
+            value={profileData.totalMissions}
+            color={BRAND_COLORS.success}
+          />
+          <StatCard
+            icon={DollarSign}
+            title="Earnings"
+            value={`₹${profileData.quickActions?.totalEarnings || 0}`}
+            color={BRAND_COLORS.primary}
+          />
+          <StatCard
+            icon={Award}
+            title="Level"
+            value={profileData.level}
+            color={BRAND_COLORS.warning}
+          />
+        </View>
+
+        {/* Basic Info Section */}
+        <View style={styles.section}>
+          <Paper.Text style={styles.sectionTitle}>Basic Information</Paper.Text>
           <View style={styles.infoCard}>
-            <Text style={styles.sectionTitle}>Personal Information</Text>
             <View style={styles.infoItem}>
-              <View style={styles.infoRow}>
-                <Phone size={20} color={BRAND_COLORS.textSecondary} />
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Mobile</Text>
-                  <Text style={styles.infoValue}>
-                    {profileData.mobileNumber}
-                  </Text>
-                </View>
+              <Phone size={20} color={BRAND_COLORS.textSecondary} />
+              <View style={styles.infoContent}>
+                <Paper.Text style={styles.infoLabel}>Mobile</Paper.Text>
+                <Paper.Text style={styles.infoValue}>
+                  {profileData.mobileNumber}
+                </Paper.Text>
               </View>
             </View>
             <View style={styles.infoItem}>
-              <View style={styles.infoRow}>
-                <Mail size={20} color={BRAND_COLORS.textSecondary} />
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Email</Text>
-                  <Text style={styles.infoValue}>{profileData.email}</Text>
-                </View>
+              <Mail size={20} color={BRAND_COLORS.textSecondary} />
+              <View style={styles.infoContent}>
+                <Paper.Text style={styles.infoLabel}>Email</Paper.Text>
+                <Paper.Text style={styles.infoValue}>
+                  {profileData.email}
+                </Paper.Text>
+              </View>
+            </View>
+            <View style={styles.infoItem}>
+              <Calendar size={20} color={BRAND_COLORS.textSecondary} />
+              <View style={styles.infoContent}>
+                <Paper.Text style={styles.infoLabel}>Active Since</Paper.Text>
+                <Paper.Text style={styles.infoValue}>
+                  {new Date(profileData.createdAt).toLocaleDateString()}
+                </Paper.Text>
               </View>
             </View>
           </View>
         </View>
 
-        <View style={styles.actionsContainer}>
-          <ActionButton
-            icon={Edit2}
-            title="Edit Profile"
-            onPress={() => {}}
-            color={BRAND_COLORS.primary}
-          />
-          <ActionButton
-            icon={Clock}
-            title="Work History"
-            onPress={() => {}}
-            color={BRAND_COLORS.secondary}
-          />
-          <ActionButton
-            icon={Settings}
-            title="Settings"
-            onPress={() => {}}
-            color={BRAND_COLORS.textPrimary}
-          />
-          <ActionButton
-            icon={LogOut}
-            title="Logout"
-            onPress={async () => {
-              await AsyncStorage.removeItem('token');
-              navigation.navigate('Login');
-            }}
-            color={BRAND_COLORS.primary}
-          />
+        {/* Skills Section */}
+        <View style={styles.section}>
+          <Paper.Text style={styles.sectionTitle}>
+            Skills & Languages
+          </Paper.Text>
+          <View style={styles.infoCard}>
+            <Paper.Text style={styles.subTitle}>Skills</Paper.Text>
+            <View style={styles.skillsContainer}>
+              {profileData.skills?.length > 0 ? (
+                profileData.skills.map((skill, index) => (
+                  <Paper.Chip
+                    key={index}
+                    style={styles.skillChip}
+                    textStyle={styles.skillChipText}>
+                    {skill}
+                  </Paper.Chip>
+                ))
+              ) : (
+                <Paper.Text style={styles.emptyText}>
+                  No skills added yet
+                </Paper.Text>
+              )}
+            </View>
+            <View style={styles.divider} />
+            <Paper.Text style={styles.subTitle}>Languages</Paper.Text>
+            <View style={styles.skillsContainer}>
+              {profileData.languagesKnown?.length > 0 ? (
+                profileData.languagesKnown.map((language, index) => (
+                  <Paper.Chip
+                    key={index}
+                    style={styles.languageChip}
+                    textStyle={styles.languageChipText}>
+                    {language}
+                  </Paper.Chip>
+                ))
+              ) : (
+                <Paper.Text style={styles.emptyText}>
+                  No languages added yet
+                </Paper.Text>
+              )}
+            </View>
+          </View>
         </View>
+
+        {/* Work Preferences Section */}
+        <View style={styles.section}>
+          <Paper.Text style={styles.sectionTitle}>Work Preferences</Paper.Text>
+          <View style={styles.infoCard}>
+            <View style={styles.workTypeContainer}>
+              <Paper.Text style={styles.infoLabel}>Work Type</Paper.Text>
+              <Paper.Chip
+                style={styles.workTypeChip}
+                textStyle={styles.workTypeChipText}>
+                {profileData.workType || 'Not specified'}
+              </Paper.Chip>
+            </View>
+
+            <Paper.Text style={[styles.infoLabel, styles.marginTop]}>
+              Preferred Days
+            </Paper.Text>
+            <View style={styles.skillsContainer}>
+              {profileData.preferredDays?.length > 0 ? (
+                profileData.preferredDays.map((day, index) => (
+                  <Paper.Chip
+                    key={index}
+                    style={styles.dayChip}
+                    textStyle={styles.dayChipText}>
+                    {day}
+                  </Paper.Chip>
+                ))
+              ) : (
+                <Paper.Text style={styles.emptyText}>
+                  No preferred days set
+                </Paper.Text>
+              )}
+            </View>
+
+            <Paper.Text style={[styles.infoLabel, styles.marginTop]}>
+              Shift Preferences
+            </Paper.Text>
+            <View style={styles.skillsContainer}>
+              {profileData.shiftPreferences?.length > 0 ? (
+                profileData.shiftPreferences.map((shift, index) => (
+                  <Paper.Chip
+                    key={index}
+                    style={styles.shiftChip}
+                    textStyle={styles.shiftChipText}>
+                    {shift}
+                  </Paper.Chip>
+                ))
+              ) : (
+                <Paper.Text style={styles.emptyText}>
+                  No shift preferences set
+                </Paper.Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* Actions Section */}
+        <View style={styles.section}>
+          <Paper.Text style={styles.sectionTitle}>Quick Actions</Paper.Text>
+          <View style={styles.actionsContainer}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={handleViewDocuments}>
+              <FileText size={24} color={BRAND_COLORS.primary} />
+              <Paper.Text style={styles.actionCount}>
+                {profileData.quickActions?.totalDocuments || 0}
+              </Paper.Text>
+              <Paper.Text style={styles.actionText}>Documents</Paper.Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Earnings')}>
+              <DollarSign size={24} color={BRAND_COLORS.primary} />
+              <Paper.Text style={styles.actionAmount}>
+                ₹{profileData.quickActions?.totalEarnings || 0}
+              </Paper.Text>
+              <Paper.Text style={styles.actionText}>Earnings</Paper.Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Settings')}>
+              <Settings size={24} color={BRAND_COLORS.textPrimary} />
+              <Paper.Text style={styles.actionUpdate}></Paper.Text>
+              <Paper.Text style={styles.actionText}>Settings</Paper.Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Logout Button */}
+        <Paper.Button
+          mode="contained"
+          onPress={async () => {
+            await AsyncStorage.removeItem('token');
+            navigation.navigate('Login');
+          }}
+          style={styles.logoutButton}
+          contentStyle={styles.logoutButtonContent}
+          labelStyle={styles.logoutButtonText}>
+          Logout
+        </Paper.Button>
       </ScrollView>
     </SafeAreaView>
   );
@@ -181,23 +371,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  errorText: {
-    color: BRAND_COLORS.primary,
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
   },
   header: {
     alignItems: 'center',
@@ -221,96 +394,163 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     bottom: 0,
-    backgroundColor: BRAND_COLORS.background,
+    backgroundColor: '#fff',
     padding: 8,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: BRAND_COLORS.border,
+    elevation: 2,
   },
   profileName: {
     fontSize: 24,
     fontFamily: 'Poppins-Bold',
     color: BRAND_COLORS.textPrimary,
     marginBottom: 5,
-    fontWeight: '900',
   },
   designation: {
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BRAND_COLORS.warning + '10',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  ratingText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.warning,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 15,
+    marginHorizontal: 5,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: BRAND_COLORS.border,
+    elevation: 2,
+  },
+  statValue: {
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    color: BRAND_COLORS.textPrimary,
+    marginVertical: 4,
+  },
+  statTitle: {
+    fontSize: 12,
     fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
-    marginBottom: 10,
   },
-  infoSection: {
+  section: {
     padding: 20,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'Poppins-Bold',
-    color: BRAND_COLORS.secondary,
-    marginBottom: 20,
-    fontWeight: '900',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 15,
+    fontWeight: '800',
   },
   infoCard: {
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 12,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
     borderWidth: 1,
     borderColor: BRAND_COLORS.border,
+    elevation: 2,
   },
   infoItem: {
-    marginBottom: 15,
-  },
-  infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 15,
   },
   infoContent: {
     marginLeft: 12,
     flex: 1,
   },
   infoLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-Regular',
     color: BRAND_COLORS.textSecondary,
-    marginBottom: 4,
   },
   infoValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Poppins-Medium',
     color: BRAND_COLORS.textPrimary,
   },
   actionsContainer: {
-    padding: 20,
-    gap: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   actionButton: {
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
+    padding: 15,
+    marginHorizontal: 5,
     backgroundColor: '#fff',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: BRAND_COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
     elevation: 2,
   },
-  actionButtonPressed: {
-    transform: [{scale: 0.98}],
-    backgroundColor: BRAND_COLORS.background,
+  actionText: {
+    marginTop: 8,
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.textPrimary,
+  },
+  logoutButton: {
+    margin: 20,
+    marginBottom: 30,
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: BRAND_COLORS.primary,
+    elevation: 0,
+    shadowColor: 'transparent',
+  },
+  logoutButtonContent: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoutButtonText: {
+    color: BRAND_COLORS.primary,
+    fontSize: 18,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  errorText: {
+    color: BRAND_COLORS.primary,
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
   },
   iconContainer: {
     width: 40,
@@ -318,24 +558,95 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: `${BRAND_COLORS.primary}10`,
   },
-  buttonTextContainer: {
-    flex: 1,
-    marginLeft: 12,
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
   },
-  actionButtonText: {
-    fontSize: 16,
+  skillChip: {
+    margin: 4,
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+  },
+  skillChipText: {
+    color: BRAND_COLORS.primary,
+  },
+  languageChip: {
+    margin: 4,
+    backgroundColor: `${BRAND_COLORS.secondary}10`,
+  },
+  languageChipText: {
+    color: BRAND_COLORS.secondary,
+  },
+  dayChip: {
+    margin: 4,
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+  },
+  dayChipText: {
+    color: BRAND_COLORS.primary,
+  },
+  shiftChip: {
+    margin: 4,
+    backgroundColor: `${BRAND_COLORS.secondary}10`,
+  },
+  shiftChipText: {
+    color: BRAND_COLORS.secondary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: BRAND_COLORS.border,
+    marginVertical: 15,
+  },
+  subTitle: {
+    fontSize: 20,
     fontFamily: 'Poppins-SemiBold',
+    color: BRAND_COLORS.textPrimary,
+    marginBottom: 8,
+    fontWeight: '700',
   },
-  arrowContainer: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+  marginTop: {
+    marginTop: 15,
   },
-  arrowIcon: {
-    fontSize: 24,
-    fontWeight: '600',
-    opacity: 0.5,
+  emptyText: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    width: '100%',
+    marginVertical: 10,
+  },
+  actionCount: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.secondary,
+    marginTop: 4,
+  },
+  actionAmount: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+    color: BRAND_COLORS.secondary,
+    marginTop: 4,
+  },
+  actionUpdate: {
+    fontSize: 10,
+    fontFamily: 'Poppins-Regular',
+    color: BRAND_COLORS.textSecondary,
+    marginTop: 4,
+  },
+  workTypeContainer: {
+    marginBottom: 15,
+  },
+  workTypeChip: {
+    marginTop: 8,
+    backgroundColor: `${BRAND_COLORS.primary}10`,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  workTypeChipText: {
+    color: BRAND_COLORS.primary,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
   },
 });

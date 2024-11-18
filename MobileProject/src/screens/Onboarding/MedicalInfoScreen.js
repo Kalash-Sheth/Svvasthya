@@ -43,7 +43,7 @@ export default function MedicalInfoScreen({navigation}) {
 
   const onSubmit = async data => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'Authentication token not found');
         return;

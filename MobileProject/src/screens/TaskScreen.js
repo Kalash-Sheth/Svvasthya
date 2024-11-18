@@ -14,7 +14,7 @@ export default function TaskScreen({navigation}) {
 
   const fetchAppointments = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'You are not logged in.');
         navigation.navigate('Login');
@@ -45,12 +45,12 @@ export default function TaskScreen({navigation}) {
   useFocusEffect(
     React.useCallback(() => {
       fetchAppointments();
-    }, [])
+    }, []),
   );
 
   const handleAccept = async appointmentId => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       await axios.post(
         `${API_URL}/api/attendant/appointments/accept`,
         {appointmentId},
@@ -58,12 +58,12 @@ export default function TaskScreen({navigation}) {
           headers: {Authorization: `Bearer ${token}`},
         },
       );
-      
+
       // Refresh both screens
       fetchAppointments();
       // Navigate to Home tab and trigger a refresh
-      navigation.navigate('Home', { refresh: Date.now() });
-      
+      navigation.navigate('Home', {refresh: Date.now()});
+
       Alert.alert('Success', 'Appointment accepted successfully');
     } catch (error) {
       Alert.alert('Error', 'Failed to accept appointment');
@@ -72,7 +72,7 @@ export default function TaskScreen({navigation}) {
 
   const handleReject = async appointmentId => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
       await axios.post(
         `${API_URL}/api/attendant/appointments/reject`,
         {appointmentId},

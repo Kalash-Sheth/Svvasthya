@@ -25,7 +25,8 @@ import AgreementScreen from './src/screens/Onboarding/AgreementScreen';
 import ConfirmationScreen from './src/screens/Onboarding/ConfirmationScreen';
 import UpdateAvailabilityScreen from './src/screens/UpdateAvailabilityScreen';
 import ProfessionalInfoScreen from './src/screens/Onboarding/ProfessionalInfoScreen';
-import { Home, Clock, DollarSign, User } from 'lucide-react-native';
+import DocumentsScreen from './src/screens/DocumentsScreen';
+import {Home, Clock, DollarSign, User} from 'lucide-react-native';
 import BRAND_COLORS from './src/styles/colors';
 
 const Stack = createNativeStackNavigator();
@@ -63,21 +64,21 @@ const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({color, size}) => <Home size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Tasks"
         component={TaskScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Clock size={size} color={color} />,
+          tabBarIcon: ({color, size}) => <Clock size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Earnings"
         component={EarningsScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <DollarSign size={size} color={color} />
           ),
         }}
@@ -86,7 +87,7 @@ const TabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({color, size}) => <User size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
@@ -128,6 +129,8 @@ const App = () => {
             <Stack.Screen name="BankingInfo" component={BankingInfoScreen} />
             <Stack.Screen name="Agreements" component={AgreementScreen} />
             <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
+            <Stack.Screen name="Documents" component={DocumentsScreen} />
+
             <Stack.Screen
               name="Main"
               component={TabNavigator}

@@ -211,7 +211,7 @@ export default function PersonalInfoScreen({ navigation }) {
         mobileNumber: `+91${mobileNumber}`,
         otp: otp,
       });
- 
+
       console.log('Verify Response:', response.data);
 
       if (response.data.success) {
@@ -219,9 +219,9 @@ export default function PersonalInfoScreen({ navigation }) {
         Alert.alert('Success', 'Mobile number verified successfully');
 
         // Store the token in AsyncStorage
-        const { token } = response.data;
+        const {token} = response.data;
         console.log(token);
-        await AsyncStorage.setItem('authToken', token);
+        await AsyncStorage.setItem('token', token);
 
         console.log('Token stored successfully');
       } else {
@@ -235,7 +235,7 @@ export default function PersonalInfoScreen({ navigation }) {
       Alert.alert(
         'Error',
         error.response?.data?.message ||
-        'Failed to verify OTP. Please try again.',
+          'Failed to verify OTP. Please try again.',
       );
     }
   };
@@ -247,7 +247,7 @@ export default function PersonalInfoScreen({ navigation }) {
         return;
       }
 
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem('token');
 
       // Create FormData object
       const formData = new FormData();
@@ -296,7 +296,10 @@ export default function PersonalInfoScreen({ navigation }) {
       if (response.data.success) {
         navigation.navigate('Document');
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to save information');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to save information',
+        );
       }
     } catch (error) {
       console.error('Error saving personal info:', error);
