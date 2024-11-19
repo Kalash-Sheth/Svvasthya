@@ -53,24 +53,24 @@ export default function ConfirmationScreen({navigation}) {
               ],
             },
           ]}>
-          <Text style={styles.title}>Registration Complete!</Text>
+          <Text style={styles.title}>Application Submitted!</Text>
           <Text style={styles.subtitle}>
-            Thank you for joining Svvasthya. Our team will review your
-            application and contact you shortly.
+            Your application is currently under process. The Svvasthya team will
+            reach out to you soon for the next steps.
           </Text>
           <Text style={styles.info}>
-            Meanwhile, you can explore the app and familiarize yourself with our
-            services.
+            Please ensure your contact details are up to date. We appreciate
+            your patience during the review process.
           </Text>
         </Animated.View>
 
         <Button
           mode="contained"
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('Confirmation')}
           style={styles.button}
           contentStyle={styles.buttonContent}
           labelStyle={styles.buttonText}>
-          Go to Dashboard
+          Close
         </Button>
       </View>
     </View>

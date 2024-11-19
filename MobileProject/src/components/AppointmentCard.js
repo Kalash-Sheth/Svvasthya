@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import * as Paper from 'react-native-paper';
 import {Calendar, Clock, MapPin} from 'lucide-react-native';
 import BRAND_COLORS from '../styles/colors';
+import AppointmentCompletionForm from './AppointmentCompletionForm';
 
 const AppointmentCard = ({
   appointment,
@@ -12,6 +13,8 @@ const AppointmentCard = ({
   onStart,
   onFinish,
 }) => {
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
+
   const getStatusColor = status => {
     switch (status) {
       case 'requested':
@@ -33,94 +36,111 @@ const AppointmentCard = ({
     return diffInHours <= 1 && diffInHours > 0;
   };
 
+  const handleFormSubmit = (formData) => {
+    console.log('Appointment ID:', appointment._id);
+    console.log('Form Data:', formData);
+    // Here you can call your API to submit the form data
+    if (onFinish) {
+      onFinish(appointment._id, formData);
+    }
+  };
+
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <View>
-          <Paper.Text style={styles.serviceType}>
-            {appointment.mainService} - {appointment.subService}
-          </Paper.Text>
-          <Paper.Text style={styles.appointmentId}>
-            ID: {appointment.appointmentID.slice(0, 8)}...
+    <>
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <View>
+            <Paper.Text style={styles.serviceType}>
+              {appointment.mainService} - {appointment.subService}
+            </Paper.Text>
+            <Paper.Text style={styles.appointmentId}>
+              ID: {appointment.appointmentID.slice(0, 8)}...
+            </Paper.Text>
+          </View>
+          <Paper.Text
+            style={[
+              styles.statusBadge,
+              {backgroundColor: getStatusColor(appointment.status)},
+            ]}>
+            {appointment.status.charAt(0).toUpperCase() +
+              appointment.status.slice(1)}
           </Paper.Text>
         </View>
-        <Paper.Text
-          style={[
-            styles.statusBadge,
-            {backgroundColor: getStatusColor(appointment.status)},
-          ]}>
-          {appointment.status.charAt(0).toUpperCase() +
-            appointment.status.slice(1)}
-        </Paper.Text>
-      </View>
 
-      <View style={styles.detail}>
-        <Calendar size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {new Date(appointment.startTime).toLocaleDateString()}
-        </Paper.Text>
-      </View>
+        <View style={styles.detail}>
+          <Calendar size={16} color={BRAND_COLORS.textSecondary} />
+          <Paper.Text style={styles.detailText}>
+            {new Date(appointment.startTime).toLocaleDateString()}
+          </Paper.Text>
+        </View>
 
-      <View style={styles.detail}>
-        <Clock size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {`${new Date(
-            appointment.startTime,
-          ).toLocaleTimeString()} - ${new Date(
-            appointment.endTime,
-          ).toLocaleTimeString()}`}
-        </Paper.Text>
-      </View>
+        <View style={styles.detail}>
+          <Clock size={16} color={BRAND_COLORS.textSecondary} />
+          <Paper.Text style={styles.detailText}>
+            {`${new Date(
+              appointment.startTime,
+            ).toLocaleTimeString()} - ${new Date(
+              appointment.endTime,
+            ).toLocaleTimeString()}`}
+          </Paper.Text>
+        </View>
 
-      <View style={styles.detail}>
-        <MapPin size={16} color={BRAND_COLORS.textSecondary} />
-        <Paper.Text style={styles.detailText}>
-          {appointment.address.fullAddress}
-        </Paper.Text>
-      </View>
+        <View style={styles.detail}>
+          <MapPin size={16} color={BRAND_COLORS.textSecondary} />
+          <Paper.Text style={styles.detailText}>
+            {appointment.address.fullAddress}
+          </Paper.Text>
+        </View>
 
-      <View style={styles.durationContainer}>
-        <Paper.Text style={styles.durationText}>
-          Duration: {appointment.duration} hours
-        </Paper.Text>
-      </View>
+        <View style={styles.durationContainer}>
+          <Paper.Text style={styles.durationText}>
+            Duration: {appointment.duration} hours
+          </Paper.Text>
+        </View>
 
-      {type === 'assigned' && (
-        <View style={styles.buttonContainer}>
+        {type === 'assigned' && (
+          <View style={styles.buttonContainer}>
+            <Paper.Button
+              mode="contained"
+              onPress={() => onAccept(appointment._id)}
+              style={[styles.button, styles.acceptButton]}>
+              Accept
+            </Paper.Button>
+            <Paper.Button
+              mode="outlined"
+              onPress={() => onReject(appointment._id)}
+              style={[styles.button, styles.rejectButton]}
+              textColor={BRAND_COLORS.error}>
+              Reject
+            </Paper.Button>
+          </View>
+        )}
+
+        {type === 'upcoming' && canShowStartButton() && (
           <Paper.Button
             mode="contained"
-            onPress={() => onAccept(appointment._id)}
-            style={[styles.button, styles.acceptButton]}>
-            Accept
+            onPress={() => onStart(appointment._id)}
+            style={styles.startButton}>
+            Start Appointment
           </Paper.Button>
+        )}
+
+        {type === 'ongoing' && (
           <Paper.Button
-            mode="outlined"
-            onPress={() => onReject(appointment._id)}
-            style={[styles.button, styles.rejectButton]}
-            textColor={BRAND_COLORS.error}>
-            Reject
+            mode="contained"
+            onPress={() => setShowCompletionForm(true)}
+            style={styles.finishButton}>
+            Finish Appointment
           </Paper.Button>
-        </View>
-      )}
+        )}
+      </View>
 
-      {type === 'upcoming' && canShowStartButton() && (
-        <Paper.Button
-          mode="contained"
-          onPress={() => onStart(appointment._id)}
-          style={styles.startButton}>
-          Start Appointment
-        </Paper.Button>
-      )}
-
-      {type === 'ongoing' && (
-        <Paper.Button
-          mode="contained"
-          onPress={() => onFinish(appointment._id)}
-          style={styles.finishButton}>
-          Finish Appointment
-        </Paper.Button>
-      )}
-    </View>
+      <AppointmentCompletionForm
+        visible={showCompletionForm}
+        onClose={() => setShowCompletionForm(false)}
+        onSubmit={handleFormSubmit}
+      />
+    </>
   );
 };
 

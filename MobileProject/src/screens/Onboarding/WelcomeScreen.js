@@ -30,9 +30,7 @@ export default function WelcomeScreen({navigation}) {
             </Text>
             <Button
               mode="contained"
-              onPress={() =>
-                navigation.navigate('Agreements')
-              }
+              onPress={() => navigation.navigate('PersonalInfo')}
               style={styles.button}
               contentStyle={styles.buttonContent}
               labelStyle={styles.buttonText}>

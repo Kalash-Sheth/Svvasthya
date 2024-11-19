@@ -264,15 +264,6 @@ exports.getAssignedAppointments = async (req, res) => {
       (appointment) => appointment.status === "assigned"
     );
 
-    // console.log("Query params:", {
-    //   attendantId: attendantId,
-    //   status: "assigned",
-    //   appointments: assignedAppointments,
-    // });
-
-    // console.log("Found assigned appointments:", assignedAppointments.length);
-    // console.log("Appointments:", assignedAppointments);
-
     res.status(200).json({
       success: true,
       assignedAppointments,

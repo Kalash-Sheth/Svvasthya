@@ -156,23 +156,11 @@ export default function HomeScreen({navigation, userName = 'Attendant'}) {
     }
   };
 
-  const handleFinish = async appointmentId => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      await axios.post(
-        `${API_URL}/api/attendant/appointments/finish`,
-        {appointmentId},
-        {
-          headers: {Authorization: `Bearer ${token}`},
-        },
-      );
-
-      fetchAppointments(); // Refresh the appointments list
-      Alert.alert('Success', 'Appointment marked as finished');
-    } catch (error) {
-      console.error('Error finishing appointment:', error);
-      Alert.alert('Error', 'Failed to finish appointment');
-    }
+  const handleFinish = async (appointmentId, formData) => {
+    console.log('Finishing appointment:', appointmentId);
+    console.log('Form data:', formData);
+    // Here you can implement the API call to submit the form data
+    // and update the appointment status
   };
 
   const renderSidebar = () => (
