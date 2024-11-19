@@ -7,11 +7,11 @@ const onBoardingController = require('../controllers/onBoardingController');
 router.post('/send-otp', attendantController.send_otp);
 router.post('/verify-otp', attendantController.verify_otp);
 router.post('/login', attendantController.loginAttendant);
-
+ 
 // Profile and availability routes
 router.get('/profile', attendantController.getProfile);
-router.get('/availability', attendantController.getAvailability);
-router.post('/availability', attendantController.updateAvailability);
+router.get('/fetchavailability', attendantController.getAvailability);
+router.post('/updateavailability', attendantController.updateAvailability);
 
 // Onboarding routes 
 router.post('/onboarding/personal-info', onBoardingController.savePersonalInfo);
