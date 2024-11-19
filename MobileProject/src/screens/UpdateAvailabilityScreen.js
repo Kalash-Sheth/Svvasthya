@@ -96,7 +96,7 @@ const UpdateAvailabilityScreen = ({navigation}) => {
     }
     if (selectedDate) {
       const currentDate = selectedDate || startDate;
-      if (currentDate < new Date()) {
+      if (currentDate <= new Date()) {
         Alert.alert('Error', 'Start date cannot be in the past.');
         return;
       }
@@ -110,8 +110,9 @@ const UpdateAvailabilityScreen = ({navigation}) => {
     }
     if (selectedTime) {
       selectedTime.setMinutes(0, 0, 0);
+      selectedTime.setSeconds(0);
       const currentTime = selectedTime || startTime;
-      if (currentTime < new Date()) {
+      if (currentTime <= new Date()) {
         Alert.alert('Error', 'Start Time cannot be in the past.');
         return;
       }
@@ -125,7 +126,7 @@ const UpdateAvailabilityScreen = ({navigation}) => {
     }
     if (selectedDate) {
       const currentDate = selectedDate || endDate;
-      if (currentDate < startDate) {
+      if (currentDate <= startDate) {
         Alert.alert('Error', 'End Date must be after the Start Date.');
         return;
       }
@@ -139,6 +140,7 @@ const UpdateAvailabilityScreen = ({navigation}) => {
     }
     if (selectedTime) {
       selectedTime.setMinutes(0, 0, 0);
+      selectedTime.setSeconds(0);
 
       const currentTime = selectedTime || endTime;
       if (currentTime <= startTime) {

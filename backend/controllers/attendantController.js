@@ -145,10 +145,23 @@ exports.getAvailability = async (req, res) => {
   try {
     // Verify the token and extract the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const attendantId = decoded._id; // Assuming _id is part of the token payload
+    const attendantId = decoded.id; // Assuming _id is part of the token payload
 
-    // Find the attendant by ID
-    const attendant = await Attendant.findById(attendantId);
+    const now = new Date();
+    
+    // Remove past availabilities and get updated document
+    const attendant = await Attendant.findByIdAndUpdate(
+      attendantId,
+      { 
+        $pull: { 
+          availability: { 
+            endTime: { $lt: now } 
+          } 
+        } 
+      },
+      { new: true }
+    );
+
     if (!attendant) {
       return res.status(404).json({ message: "Attendant not found" });
     }
@@ -173,7 +186,7 @@ exports.updateAvailability = async (req, res) => {
   try {
     // Verify the token and extract the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const attendantId = decoded._id; // Assuming _id is part of the token payload
+    const attendantId = decoded.id; // Assuming _id is part of the token payload
 
     // Fetch the attendant's record
     let attendant = await Attendant.findById(attendantId);
