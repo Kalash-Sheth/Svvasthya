@@ -28,11 +28,13 @@ import Profile from "./pages/Profile";
 import Services from "./pages/Services";
 import Time from "./pages/Time";
 import AdminDashboard from "./pages/AdminDashboard";
+import Waiting from "./components/services/Waiting";
+import AssignedAttendant from './components/services/AssignedAttendant';
 
 // Create a wrapper component to handle the conditional header rendering
 function AppContent() {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <div className="App">
@@ -47,7 +49,10 @@ function AppContent() {
           <Route path="/AttendatDetails" element={<AttendantDetails />} />
           <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
           <Route path="/nursingservices" element={<NursingServices />} />
-          <Route path="/BookingConfirmation" element={<BookingConfirmation />} />
+          <Route
+            path="/BookingConfirmation"
+            element={<BookingConfirmation />}
+          />
           <Route path="/Admin" element={<Admin />} />
           <Route path="/AdminDash" element={<AdminDash />} />
           <Route path="/Attendant" element={<Attendant />} />
@@ -61,6 +66,8 @@ function AppContent() {
           <Route path="/PaymentModal" element={<PaymentModal />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/waiting" element={<Waiting />} />
+          <Route path="/assigned-attendant" element={<AssignedAttendant />} />
         </Routes>
       </BookingProvider>
     </div>

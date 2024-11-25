@@ -1,20 +1,27 @@
 const jwt = require('jsonwebtoken');
+const Customer = require("../models/Customer");
 
-const authMiddleware = (req, res, next) => {
-    const token = req.cookies.token; // Extract token from cookies
+const verifyToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-        return res.status(403).json({ message: 'No token provided' });
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
+      });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => { // Use environment variable for the secret
-        if (err) {
-            return res.status(500).json({ message: 'Failed to authenticate token' });
-        }
-
-        req.user = decoded; // Set user information in req.user
-        next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+      error: error.message,
     });
+  }
 };
 
-module.exports = authMiddleware;
+module.exports = { verifyToken };

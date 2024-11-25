@@ -224,7 +224,7 @@ exports.getAcceptedAppointments = async (req, res) => {
   try {
     // Verify the token and extract the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const attendantId = decoded._id; // Assuming _id is part of the token payload
+    const attendantId = decoded.id; // Assuming _id is part of the token payload
 
     // Fetch the attendant's record
     let attendant = await Attendant.findById(attendantId);

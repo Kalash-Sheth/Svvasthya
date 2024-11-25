@@ -17,46 +17,43 @@ const BannerComponent = ({
 }) => {
   return (
     <div
-      className="wrap-container flex flex-col md:flex-row items-center p-8 rounded-3xl mb-8"
+      className="wrap-container flex flex-col lg:flex-row items-center p-4 sm:p-6 md:p-8 rounded-3xl mb-8"
       style={{ backgroundColor: bgColor }}
     >
       <div className="flex-1 text-white">
-        <h2 className="text-3xl md:text-7xl font-bold mb-4">{title}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-bold mb-4 text-center lg:text-left">
+          {title}
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
           {points.map((point, index) => (
             <div key={index} className="flex flex-col">
               <hr className="border-t-1 border-gray-200 w-11/12" />
-              <div
-                className="text-white bg-opacity-30 rounded-md p-2 overflow-hidden"
-                style={{
-                  maxWidth: "90%",
-                  boxSizing: "border-box",
-                  wordSpacing: "0.2rem",
-                  wordBreak: "break-word",
-                  maxHeight: "512px",
-                  padding: "2%",
-                }}
-              >
-                <h3 className="text-3xl font-bold">Point {index + 1}</h3>
-                <p className="text-2xl overflow-auto font-normal text-justify">
+              <div className="text-white bg-opacity-30 rounded-md p-2 overflow-hidden">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
+                  Point {index + 1}
+                </h3>
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-normal text-justify">
                   {point}
                 </p>
               </div>
             </div>
           ))}
         </div>
-        <button
-          className="mt-4 py-2 px-4 bg-white rounded-3xl h-12 w-44 font-bold text-xl"
-          style={{ color: buttonColor }}
-        >
-          <Link to="/nursingservices">Book Now</Link>
-        </button>
+        <div className="flex justify-center lg:justify-start mt-6">
+          <Link
+            to="/nursingservices"
+            className="py-2 px-6 bg-white rounded-full text-lg sm:text-xl font-bold transition-all hover:opacity-90"
+            style={{ color: buttonColor }}
+          >
+            Book Now
+          </Link>
+        </div>
       </div>
-      <div className="flex mt-4 md:mt-0 md:ml-6 banner_img">
+      <div className="flex mt-6 lg:mt-0 lg:ml-6 banner_img">
         <img
           src={imageUrl}
           alt={title}
-          className=" rounded-lg w-full max-w-xs md:max-w-md mx-auto"
+          className="rounded-lg w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto object-cover"
           style={{ marginBottom: marginBottom }}
         />
       </div>
@@ -108,19 +105,18 @@ function Explore() {
   ];
 
   return (
-    <>
-      {/* <Header /> */}
-      <h1 className="text-5xl md:text-7xl mt-6 font-extrabold text-[#3C3B6E] mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-8">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-[#3C3B6E] mb-6 text-center">
         EXPLORE OUR SERVICES
       </h1>
 
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8">
         {banners.map((banner, index) => (
           <BannerComponent key={index} {...banner} />
         ))}
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 

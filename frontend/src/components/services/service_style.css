@@ -1,52 +1,45 @@
 .wrap-container {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.wrap-container::before {
   content: "";
-  /* position: absolute; */
+  position: absolute;
   left: 0;
   width: 100%;
   height: 100%;
   background: url("/src/assets/services_img/watermarkedit.svg") no-repeat bottom;
   background-size: contain;
   z-index: 0;
+  opacity: 0.1;
 }
 
 .banner_img {
   position: relative;
-  background-size: cover;
-  float: right;
+  z-index: 1;
+  transition: transform 0.3s ease;
 }
 
-/* .container {
-  background: linear-gradient(
-    78.83deg,
-    rgba(239, 91, 42, 0.1) 0%,
-    rgba(250, 174, 66, 0.1) 33%,
-    rgba(139, 197, 65, 0.1) 66%,
-    rgba(3, 147, 71, 0.1) 100%
-  );
-} */
-
-/* .container_nurse {
-  background: url("/src/assets/services_img/watermarkedit.svg") no-repeat top
-    center;
-  background-size: contain;
-  z-index: 0;
-} */
+.banner_img:hover {
+  transform: scale(1.02);
+}
 
 .container_nurse {
-  position: relative; /* Make sure the container is positioned relative */
-  overflow: hidden; /* Ensure content doesn't overflow */
+  position: relative;
+  overflow: hidden;
 }
 
 .container_nurse::before {
-  content: ""; /* Required for pseudo-elements */
+  content: "";
   position: absolute;
-  /* top: 0; */
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("/src/assets/services_img/watermarkedit.svg") no-repeat bottom
-    center;
+  background: url("/src/assets/services_img/watermarkedit.svg") no-repeat bottom center;
   background-size: contain;
-  transform: rotate(180deg); /* Adjust rotation as needed */
-  z-index: 0; /* Ensure it's behind content */
+  transform: rotate(180deg);
+  z-index: 0;
+  opacity: 0.1;
 }

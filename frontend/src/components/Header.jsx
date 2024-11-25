@@ -68,7 +68,7 @@ const Header = () => {
         <ul className="flex list-none m-0 gap-6 p-0 text-2xl text-[#262163] font-normal">
           <li className="mx-4">
             <a
-              href="#home"
+              href="/"
               className="text-midnightblue font-inter-tight hover:border-b-2"
             >
               Home

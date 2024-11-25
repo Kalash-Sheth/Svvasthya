@@ -2,7 +2,7 @@ import BackgroundActions from 'react-native-background-actions';
 import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { API_URL } from '../../config';
+import {API_URL} from '../config';
 
 const locationUpdateTask = async (taskDataArguments) => {
   const { delay } = taskDataArguments;

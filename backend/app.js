@@ -14,7 +14,10 @@ mongoose.connect('mongodb://localhost:27017/svvasthya', {
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Enable CORS
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
 // Parse JSON bodies
 app.use(express.json());
