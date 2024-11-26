@@ -18,8 +18,8 @@ const TransactionSchema = new mongoose.Schema({
   },
   attendantID: {
     type: mongoose.Schema.Types.ObjectId, // Reference to the Attendant model
-    required: true,
     ref: 'Attendant',
+    required: false,
   },
   totalAmountReceived: {
     type: Number, // Total amount paid by the patient
@@ -28,7 +28,7 @@ const TransactionSchema = new mongoose.Schema({
   },
   amountReceivedByAttendant: {
     type: Number, // Amount credited to the attendant after platform deductions
-    required: true,
+    required: false,
     min: 0,
   },
   status: {

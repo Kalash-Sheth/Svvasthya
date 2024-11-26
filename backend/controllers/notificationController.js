@@ -153,9 +153,9 @@ exports.sendAttendantArrivalNotification = async (
 };
 
 // Send payment confirmation
-exports.sendPaymentConfirmation = async (customer, bookingDetails, amount) => {
+exports.sendPaymentConfirmation = async (customer, appointmentId, amount) => {
   try {
-    const message = `Payment of ₹${amount} received for appointment (ID: ${bookingDetails.appointmentID}). Thank you for using Svvasthya services.`;
+    const message = `Payment of ₹${amount} received for appointment (ID: ${appointmentId}). Thank you for using Svvasthya services.`;
 
     await sendSMS(customer.mobileNumber, message);
     return { success: true, message: "Payment confirmation sent" };
