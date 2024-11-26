@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import axios from "axios";
 import React, { useState } from "react";
-=======
-import React from "react";
->>>>>>> d48cda7dde5058282eeb77f7646e1df52c36f78b
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import { useBookingContext } from "./BookingContext";
