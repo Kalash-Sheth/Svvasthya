@@ -1,165 +1,72 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "slick-carousel/slick/slick-theme.css";
-import "slick-carousel/slick/slick.css";
 import { useBookingContext } from "./BookingContext";
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
+
+const TimeSlot = ({ time, isSelected, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`
+      w-full p-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300
+      ${
+        isSelected
+          ? "bg-[#282261] text-white shadow-lg transform scale-105"
+          : "bg-white text-gray-700 hover:bg-gray-50"
+      }
+    `}
+  >
+    {time}
+  </button>
+);
+
+const DateButton = ({
+  date,
+  dayName,
+  isSelected,
+  onClick,
+  isToday,
+  isCurrentMonth,
+  disabled,
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`
+      flex flex-col items-center p-2 sm:p-3 rounded-lg transition-all duration-300
+      ${
+        isSelected
+          ? "bg-[#282261] text-white transform scale-105"
+          : disabled
+          ? "opacity-50 cursor-not-allowed"
+          : !isCurrentMonth
+          ? "text-gray-400"
+          : "hover:bg-gray-50"
+      }
+    `}
+  >
+    <span className="text-xs font-medium">{dayName}</span>
+    <span
+      className={`text-lg sm:text-xl font-bold ${
+        isToday ? "text-orange-500" : ""
+      }`}
+    >
+      {date}
+    </span>
+  </button>
+);
 
 function CustomDatePicker() {
-  const { setBookingData, bookingData } = useBookingContext();
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [currentWeekIndex, setCurrentWeekIndex] = useState(0); // Track the current week index
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedDateTime, setSelectedDateTime] = useState("");
-
   const navigate = useNavigate();
+  const { bookingData, setBookingData } = useBookingContext();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  const [startTime, setStartTime] = useState({
-    hours: "12",
-    minutes: "00",
-    period: "AM",
-  });
-
-  const [endTime, setEndTime] = useState({
-    hours: "12",
-    minutes: "00",
-    period: "AM",
-  });
-
-  const [isEndSelected, setIsEndSelected] = useState(false);
-  const [endTimeString, setEndTimeString] = useState("");
-
-  useEffect(() => {
-    if (selectedDate) {
-      const startDateTime = new Date(
-        currentYear,
-        currentMonth,
-        selectedDate,
-        parseInt(startTime.hours) + (startTime.period === "PM" ? 12 : 0),
-        parseInt(startTime.minutes)
-      );
-
-      // Format the start time to the desired string format
-      const startTimeFormatted = startDateTime
-        .toISOString()
-        .replace("Z", "+00:00");
-      setSelectedDateTime(startTimeFormatted);
-
-      // Calculate the end time based on the duration from bookingData
-      const duration = bookingData.duration || 0; // Default to 0 if no duration
-      const endDateTime = new Date(startDateTime);
-      endDateTime.setHours(endDateTime.getHours() + duration);
-
-      // Format the end time to the desired string format
-      const endTimeFormatted = endDateTime.toISOString().replace("Z", "+00:00");
-      setEndTimeString(endTimeFormatted);
-
-      // Update endTime state
-      const endHours = endDateTime.getHours();
-      const endMinutes = endDateTime.getMinutes();
-
-      setEndTime({
-        hours:
-          endHours % 12 === 0
-            ? "12"
-            : (endHours % 12).toString().padStart(2, "0"),
-        minutes: endMinutes.toString().padStart(2, "0"),
-        period: endHours >= 12 ? "PM" : "AM",
-      });
-    }
-  }, [
-    selectedDate,
-    startTime,
-    currentMonth,
-    currentYear,
-    bookingData.duration,
-  ]);
-
-  const handleNext = () => {
-    // Update booking data with selected date and time
-    setBookingData((prevData) => ({
-      ...prevData,
-      startTime: selectedDateTime, // Set formatted start time
-      endTime: endTimeString, // Set formatted end time
-    }));
-    navigate("/AddressContact");
-  };
-
-  // Days of the week
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-  // Function to get the number of days in a month
-  const getDaysInMonth = (month, year) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-
-  // Function to get the first day of the month (0 - Sunday, 1 - Monday, ...)
-  const getFirstDayOfMonth = (month, year) => {
-    return new Date(year, month, 1).getDay();
-  };
-
-  // Function to generate the weeks for the current month
-  const generateWeeksForMonth = () => {
-    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
-
-    const weeks = [];
-    let currentWeek = [];
-    let dayCounter = 1 - firstDay; // Start before the first day if it doesn't start on Monday
-
-    while (dayCounter <= daysInMonth) {
-      for (let i = 0; i < 7; i++) {
-        if (dayCounter > 0 && dayCounter <= daysInMonth) {
-          currentWeek.push(dayCounter);
-        } else {
-          currentWeek.push(null);
-        }
-        dayCounter++;
-      }
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-
-    return weeks;
-  };
-
-  // Get weeks for the current month
-  const weeks = generateWeeksForMonth();
-  const dates = weeks[currentWeekIndex] || [];
-
-  // Function to handle changing to the previous week
-  const handlePreviousWeek = () => {
-    if (currentWeekIndex === 0) {
-      // Go to the last week of the previous month
-      if (currentMonth === 0) {
-        setCurrentMonth(11);
-        setCurrentYear(currentYear - 1);
-      } else {
-        setCurrentMonth(currentMonth - 1);
-      }
-      setCurrentWeekIndex(generateWeeksForMonth().length - 1); // Set to the last week of the new month
-    } else {
-      setCurrentWeekIndex(currentWeekIndex - 1);
-    }
-  };
-
-  // Function to handle changing to the next week
-  const handleNextWeek = () => {
-    if (currentWeekIndex === weeks.length - 1) {
-      // Go to the first week of the next month
-      if (currentMonth === 11) {
-        setCurrentMonth(0);
-        setCurrentYear(currentYear + 1);
-      } else {
-        setCurrentMonth(currentMonth + 1);
-      }
-      setCurrentWeekIndex(0); // Set to the first week of the new month
-    } else {
-      setCurrentWeekIndex(currentWeekIndex + 1);
-    }
-  };
-
-  // Format month and year for display
   const monthNames = [
     "January",
     "February",
@@ -174,201 +81,223 @@ function CustomDatePicker() {
     "November",
     "December",
   ];
-  const displayMonthYear = `${monthNames[currentMonth]} ${currentYear}`;
 
-  const timeRangeRef = useRef(null);
+  // Generate time slots from 6 AM to 10 PM
+  const timeSlots = Array.from({ length: 17 }, (_, i) => {
+    const hour = i + 6;
+    const period = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:00 ${period}`;
+  });
 
-  useEffect(() => {
-    if (selectedDate && timeRangeRef.current) {
-      timeRangeRef.current.scrollIntoView({ behavior: "smooth" });
+  // Generate calendar grid for current month
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+
+    const today = new Date();
+    const calendar = [];
+    let day = 1;
+
+    for (let i = 0; i < 6; i++) {
+      const week = [];
+      for (let j = 0; j < 7; j++) {
+        if (i === 0 && j < startingDay) {
+          // Previous month days
+          const prevMonthLastDay = new Date(year, month, 0).getDate();
+          const prevMonthDay = prevMonthLastDay - (startingDay - j - 1);
+          week.push({
+            date: prevMonthDay,
+            isCurrentMonth: false,
+            fullDate: new Date(year, month - 1, prevMonthDay),
+          });
+        } else if (day > daysInMonth) {
+          // Next month days
+          const nextMonthDay = day - daysInMonth;
+          week.push({
+            date: nextMonthDay,
+            isCurrentMonth: false,
+            fullDate: new Date(year, month + 1, nextMonthDay),
+          });
+          day++;
+        } else {
+          // Current month days
+          const currentDay = new Date(year, month, day);
+          week.push({
+            date: day,
+            isCurrentMonth: true,
+            isToday: currentDay.toDateString() === today.toDateString(),
+            fullDate: currentDay,
+            disabled: currentDay < today,
+          });
+          day++;
+        }
+      }
+      calendar.push(week);
+      if (day > daysInMonth && i !== 0) break;
     }
-  }, [selectedDate]);
+    return calendar;
+  };
 
-  const handleTimeChange = (e, type) => {
-    const { name, value } = e.target;
-    if (type === "start") {
-      setStartTime((prevTime) => ({ ...prevTime, [name]: value }));
-    } else {
-      setEndTime((prevTime) => ({ ...prevTime, [name]: value }));
+  const handlePrevMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+    );
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+    );
+  };
+
+  const handleDateSelect = (date) => {
+    if (!date.disabled) {
+      setSelectedDate(date.fullDate);
     }
   };
 
-  const handleSubmit = () => {
-    setIsEndSelected(true);
+  const handleNext = () => {
+    if (!selectedDate || !selectedTime) {
+      alert("Please select both date and time");
+      return;
+    }
+
+    const [hours, minutes, period] = selectedTime
+      .match(/(\d+):(\d+) (AM|PM)/)
+      .slice(1);
+    let hour = parseInt(hours);
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
+
+    const startTime = new Date(selectedDate);
+    startTime.setHours(hour, 0, 0, 0);
+
+    const endTime = new Date(startTime);
+    endTime.setHours(
+      startTime.getHours() + (parseInt(bookingData?.duration) || 1)
+    );
+
+    setBookingData((prev) => ({
+      ...prev,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+    }));
+
+    navigate("/AddressContact");
   };
 
-  //
+  const calendar = generateCalendarDays();
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <>
-      {/* <Header /> */}
-      <div
-        style={{
-          background:
-            "linear-gradient(78.83deg, rgba(239, 91, 42, 0.1) 0%, rgba(250, 174, 66, 0.1) 33%, rgba(139, 197, 65, 0.1) 66%, rgba(3, 147, 71, 0.1) 100%)",
-          minHeight: "100vh",
-        }}
-      >
-        <div className="mx-auto flex justify-center h-full px-4">
-          {/* Original Date Picker Design */}
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mt-8 sm:mt-16 w-full max-w-full lg:max-w-[1020px]">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#282261] mb-4">
-              Select Date
+    <div className="min-h-[calc(100vh-96px)] bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#282261]">
+              Select Date & Time
             </h2>
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
-              <select
-                className="border border-green-500 text-white bg-green-600 text-base sm:text-lg md:text-xl font-bold rounded-lg px-3 py-2"
-                value={displayMonthYear}
-                readOnly
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handlePrevMonth}
+                className="p-2 rounded-lg hover:bg-gray-100"
               >
-                <option>{displayMonthYear}</option>
-              </select>
-              <div className="flex items-center space-x-2 sm:space-x-4">
-                <button
-                  className="border rounded-md p-2 md:p-3 border-green-500 text-green-600"
-                  onClick={handlePreviousWeek}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5 sm:w-6 sm:h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 19.5L8.25 12l7.5-7.5"
-                    />
-                  </svg>
-                </button>
-                <button
-                  className="border rounded-md p-2 md:p-3 border-green-500 text-green-600"
-                  onClick={handleNextWeek}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5 sm:w-6 sm:h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
-                </button>
-              </div>
+                <FaChevronLeft className="text-[#282261]" />
+              </button>
+              <span className="text-lg font-medium">
+                {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+              </span>
+              <button
+                onClick={handleNextMonth}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <FaChevronRight className="text-[#282261]" />
+              </button>
             </div>
-            {/* Calendar Navigation */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 text-center text-gray-600 text-sm">
-              {dates.map((day, index) => (
-                <button
-                  key={index}
-                  className={`group p-2 sm:p-3 rounded-lg font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-green-600 ${
-                    day
-                      ? selectedDate === day
-                        ? "bg-green-600 text-white"
-                        : "border border-green-500 hover:bg-green-600"
-                      : "border border-transparent"
-                  }`}
-                  onClick={() => setSelectedDate(day)}
-                  disabled={!day}
-                  style={{
-                    minWidth: "60px",
-                    minHeight: "60px",
-                    display: "flex",
-                    flexDirection: "column", // Add this line to stack day and date
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="mb-8">
+            {/* Days of week header */}
+            <div className="grid grid-cols-7 mb-2">
+              {daysOfWeek.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-sm font-medium text-gray-500"
                 >
-                  {/* Display day of the week */}
-                  <span className="text-green-600 text-base sm:text-lg md:text-xl font-medium group-hover:text-white">
-                    {daysOfWeek[index % 7]}{" "}
-                    {/* Assuming `dates` starts on Sunday and `daysOfWeek` is ordered */}
-                  </span>
-                  {/* Display date */}
-                  <span className="text-green-600 group-hover:text-white">
-                    {day}
-                  </span>
-                </button>
+                  {day}
+                </div>
               ))}
             </div>
 
-            {selectedDate && (
-              <>
-                <div className={timeRangeRef}>
-                  <h2 className="text-2xl font-bold text-left mb-4">
-                    Select Time
-                  </h2>
-
-                  {/* Starting Time */}
-                  <div className="mb-4">
-                    <label className="block text-lg font-medium mb-1 text-[#282261;]">
-                      Start Time:
-                    </label>
-                    <div className="flex space-x-2 text-2xl font-bold text-[#282261;]">
-                      <select
-                        name="hours"
-                        value={startTime.hours}
-                        onChange={(e) => handleTimeChange(e, "start")}
-                        className="w-1/3 px-3 py-2 border rounded-lg shadow-sm focus:outline-none"
-                      >
-                        {Array.from({ length: 12 }, (_, i) => {
-                          const hour = i + 1;
-                          return (
-                            <option
-                              key={hour}
-                              value={hour.toString().padStart(2, "0")}
-                            >
-                              {hour}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      <select
-                        name="minutes"
-                        value={startTime.minutes}
-                        onChange={(e) => handleTimeChange(e, "start")}
-                        className="w-1/3 px-3 py-2 border rounded-lg shadow-sm focus:outline-none"
-                      >
-                        {["00", "15", "30", "45"].map((minute) => (
-                          <option key={minute} value={minute}>
-                            {minute}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        name="period"
-                        value={startTime.period}
-                        onChange={(e) => handleTimeChange(e, "start")}
-                        className="w-1/3 px-3 py-2 border rounded-lg shadow-sm focus:outline-none"
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    // onClick={handleSubmit}
-                    onClick={handleNext}
-                    className="w-full bg-[#EF5A2A] text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none"
-                  >
-                    Next
-                  </button>
+            {/* Calendar grid */}
+            <div className="border rounded-lg overflow-hidden">
+              {calendar.map((week, i) => (
+                <div key={i} className="grid grid-cols-7">
+                  {week.map((day, j) => (
+                    <DateButton
+                      key={`${i}-${j}`}
+                      date={day.date}
+                      dayName=""
+                      isSelected={
+                        selectedDate?.toDateString() ===
+                        day.fullDate.toDateString()
+                      }
+                      isToday={day.isToday}
+                      isCurrentMonth={day.isCurrentMonth}
+                      disabled={day.disabled}
+                      onClick={() => handleDateSelect(day)}
+                    />
+                  ))}
                 </div>
-              </>
-            )}
+              ))}
+            </div>
           </div>
+
+          {/* Time Slots */}
+          {selectedDate && (
+            <div>
+              <h3 className="text-xl font-semibold text-[#282261] mb-4">
+                Select Time
+              </h3>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {timeSlots.map((time, index) => (
+                  <TimeSlot
+                    key={index}
+                    time={time}
+                    isSelected={selectedTime === time}
+                    onClick={() => setSelectedTime(time)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Button */}
+          <button
+            onClick={handleNext}
+            disabled={!selectedDate || !selectedTime}
+            className={`w-full mt-8 py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105
+              ${
+                selectedDate && selectedTime
+                  ? "bg-[#282261] text-white hover:bg-opacity-90"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }
+            `}
+          >
+            Continue
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

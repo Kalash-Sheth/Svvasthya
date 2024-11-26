@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BackButton from "../BackButton";
-import {
-  FaCamera,
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaMapMarkerAlt,
-  FaCity,
-  FaGlobe,
-} from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCity, FaGlobe, FaBirthdayCake, FaCamera } from "react-icons/fa";
+
+const InputField = ({ icon: Icon, label, error, ...props }) => (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <Icon className="w-5 h-5" />
+      </div>
+      <input
+        {...props}
+        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+          error ? 'border-red-500' : 'border-gray-300'
+        } focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all`}
+      />
+    </div>
+    {error && <p className="text-red-500 text-sm">{error}</p>}
+  </div>
+);
 
 const UserProfile = () => {
   const [profile, setProfile] = useState({
@@ -27,6 +37,7 @@ const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [originalProfile, setOriginalProfile] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     fetchUserProfile();
@@ -34,11 +45,10 @@ const UserProfile = () => {
 
   const fetchUserProfile = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         "http://localhost:5000/api/customer/profile",
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.data.success) {
@@ -48,42 +58,32 @@ const UserProfile = () => {
     } catch (error) {
       console.error("Error fetching profile:", error);
       alert("Failed to load profile");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      [name]: value,
-    }));
-  };
-
-  const handleEdit = (e) => {
-    e.preventDefault();
-    setIsEditing(true);
-  };
-
-  const handleCancel = (e) => {
-    e.preventDefault();
-    setProfile(originalProfile);
-    setIsEditing(false);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!profile.firstname) newErrors.firstname = "First name is required";
+    if (!profile.lastname) newErrors.lastname = "Last name is required";
+    if (!profile.email) newErrors.email = "Email is required";
+    if (!profile.mobileNumber) newErrors.mobileNumber = "Mobile number is required";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isEditing) {
-      return;
-    }
+    if (!isEditing || !validateForm()) return;
 
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await axios.put(
         "http://localhost:5000/api/customer/profile",
         profile,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.data.success) {
@@ -100,14 +100,22 @@ const UserProfile = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-[calc(100vh-96px)] bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-purple-800">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#282261]">
                 User Profile
               </h2>
               <p className="text-gray-600 mt-1">
@@ -117,173 +125,141 @@ const UserProfile = () => {
             <BackButton />
           </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Profile Picture Section */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Picture */}
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <img
                   src={profile.profilePicture}
                   alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-purple-100"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-purple-100"
                 />
                 {isEditing && (
                   <button
                     type="button"
                     className="absolute bottom-0 right-0 bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-all"
                   >
-                    <FaCamera className="text-lg" />
+                    <FaCamera className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 )}
               </div>
             </div>
 
             {/* Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="space-y-4">
-                <div className="relative">
-                  <FaUser className="absolute top-3 left-4 text-purple-500" />
-                  <input
-                    type="text"
-                    name="firstname"
-                    placeholder="First Name"
-                    value={profile.firstname || ""}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                      isEditing
-                        ? "bg-white border border-purple-200 focus:border-purple-400"
-                        : "bg-gray-50"
-                    }`}
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <InputField
+                icon={FaUser}
+                label="First Name"
+                name="firstname"
+                placeholder="First Name"
+                value={profile.firstname || ""}
+                onChange={(e) => setProfile({ ...profile, firstname: e.target.value })}
+                disabled={!isEditing}
+                error={errors.firstname}
+              />
 
-                <div className="relative">
-                  <FaUser className="absolute top-3 left-4 text-purple-500" />
-                  <input
-                    type="text"
-                    name="lastname"
-                    placeholder="Last Name"
-                    value={profile.lastname || ""}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                      isEditing
-                        ? "bg-white border border-purple-200 focus:border-purple-400"
-                        : "bg-gray-50"
-                    }`}
-                  />
-                </div>
+              <InputField
+                icon={FaUser}
+                label="Last Name"
+                name="lastname"
+                placeholder="Last Name"
+                value={profile.lastname || ""}
+                onChange={(e) => setProfile({ ...profile, lastname: e.target.value })}
+                disabled={!isEditing}
+                error={errors.lastname}
+              />
 
-                <div className="relative">
-                  <FaEnvelope className="absolute top-3 left-4 text-purple-500" />
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={profile.email || ""}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                      isEditing
-                        ? "bg-white border border-purple-200 focus:border-purple-400"
-                        : "bg-gray-50"
-                    }`}
-                  />
-                </div>
-              </div>
+              <InputField
+                icon={FaEnvelope}
+                label="Email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={profile.email || ""}
+                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                disabled={!isEditing}
+                error={errors.email}
+              />
 
-              <div className="space-y-4">
-                <div className="relative">
-                  <FaPhone className="absolute top-3 left-4 text-purple-500" />
-                  <input
-                    type="text"
-                    name="mobileNumber"
-                    placeholder="Mobile Number"
-                    value={profile.mobileNumber || ""}
-                    disabled
-                    className="w-full pl-12 pr-4 py-3 rounded-lg outline-none bg-gray-50"
-                  />
-                </div>
+              <InputField
+                icon={FaPhone}
+                label="Mobile Number"
+                name="mobileNumber"
+                placeholder="Mobile Number"
+                value={profile.mobileNumber || ""}
+                onChange={(e) => setProfile({ ...profile, mobileNumber: e.target.value })}
+                disabled={!isEditing}
+                error={errors.mobileNumber}
+              />
 
-                <div className="relative">
-                  <FaMapMarkerAlt className="absolute top-3 left-4 text-purple-500" />
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Address"
-                    value={profile.address || ""}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                      isEditing
-                        ? "bg-white border border-purple-200 focus:border-purple-400"
-                        : "bg-gray-50"
-                    }`}
-                  />
-                </div>
+              <InputField
+                icon={FaMapMarkerAlt}
+                label="Address"
+                name="address"
+                placeholder="Address"
+                value={profile.address || ""}
+                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                disabled={!isEditing}
+              />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <FaCity className="absolute top-3 left-4 text-purple-500" />
-                    <input
-                      type="text"
-                      name="city"
-                      placeholder="City"
-                      value={profile.city || ""}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                        isEditing
-                          ? "bg-white border border-purple-200 focus:border-purple-400"
-                          : "bg-gray-50"
-                      }`}
-                    />
-                  </div>
+              <InputField
+                icon={FaCity}
+                label="City"
+                name="city"
+                placeholder="City"
+                value={profile.city || ""}
+                onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                disabled={!isEditing}
+              />
 
-                  <div className="relative">
-                    <FaGlobe className="absolute top-3 left-4 text-purple-500" />
-                    <input
-                      type="text"
-                      name="state"
-                      placeholder="State"
-                      value={profile.state || ""}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-lg outline-none ${
-                        isEditing
-                          ? "bg-white border border-purple-200 focus:border-purple-400"
-                          : "bg-gray-50"
-                      }`}
-                    />
-                  </div>
-                </div>
-              </div>
+              <InputField
+                icon={FaGlobe}
+                label="State"
+                name="state"
+                placeholder="State"
+                value={profile.state || ""}
+                onChange={(e) => setProfile({ ...profile, state: e.target.value })}
+                disabled={!isEditing}
+              />
+
+              <InputField
+                icon={FaBirthdayCake}
+                label="Date of Birth"
+                name="dob"
+                type="date"
+                value={profile.dob || ""}
+                onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                disabled={!isEditing}
+              />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-4 mt-8">
               {isEditing ? (
                 <>
                   <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all disabled:opacity-50"
-                  >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
                     type="button"
-                    onClick={handleCancel}
-                    className="px-8 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all"
+                    onClick={() => {
+                      setProfile(originalProfile);
+                      setIsEditing(false);
+                      setErrors({});
+                    }}
+                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                   >
                     Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-[#282261] text-white rounded-lg hover:bg-opacity-90 transition-colors"
+                  >
+                    Save Changes
                   </button>
                 </>
               ) : (
                 <button
                   type="button"
-                  onClick={handleEdit}
-                  className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                  onClick={() => setIsEditing(true)}
+                  className="px-6 py-2 bg-[#282261] text-white rounded-lg hover:bg-opacity-90 transition-colors"
                 >
                   Edit Profile
                 </button>

@@ -2,11 +2,32 @@ import { useFormik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import Header from "../Header";
 import axios from "axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { FaUser, FaPhone, FaLock } from "react-icons/fa";
 
-export default function ContactDetails({ onSubmit }) {
+const InputField = ({ icon: Icon, error, touched, ...props }) => (
+  <div className="flex flex-col space-y-1">
+    <div className="relative">
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <Icon className="w-5 h-5" />
+      </div>
+      <input
+        {...props}
+        className={`w-full pl-12 pr-4 py-3 rounded-lg border ${
+          error && touched
+            ? "border-red-500 bg-red-50"
+            : "border-gray-300 focus:border-purple-500"
+        } focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all`}
+      />
+    </div>
+    {error && touched && (
+      <span className="text-red-500 text-sm ml-1">{error}</span>
+    )}
+  </div>
+);
+
+export default function ContactDetails() {
   const navigate = useNavigate();
   const [otpSent, setOtpSent] = useState(false);
 
@@ -33,24 +54,24 @@ export default function ContactDetails({ onSubmit }) {
     }),
     onSubmit: async (values) => {
       try {
-        const response = await axios.post("http://localhost:5000/api/auth/verify_otp_and_signup_login", {
-          mobileNumber: `+91${values.mobileNumber}`,
-          otp: values.otp,
-          firstname: values.firstName,
-          lastname: values.lastName,
-        });
-        const token = response.data.token;
-
-
-        Cookies.set('token', token, { expires: 7, path: '/' });
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/verify_otp_and_signup_login",
+          {
+            mobileNumber: `+91${values.mobileNumber}`,
+            otp: values.otp,
+            firstname: values.firstName,
+            lastname: values.lastName,
+          }
+        );
 
         if (response.data.success) {
+          Cookies.set("token", response.data.token, { expires: 7, path: "/" });
           navigate("/CustomDatePicker");
         } else {
           alert(response.data.error);
         }
       } catch (error) {
-        console.error("Error during OTP verification and signup/login:", error);
+        console.error("Error:", error);
         alert("Something went wrong. Please try again.");
       }
     },
@@ -67,8 +88,6 @@ export default function ContactDetails({ onSubmit }) {
         if (response.status === 200) {
           setOtpSent(true);
           alert("OTP sent successfully");
-        } else {
-          alert("Failed to send OTP. Please try again.");
         }
       } catch (error) {
         console.error("Error sending OTP:", error);
@@ -80,116 +99,89 @@ export default function ContactDetails({ onSubmit }) {
   };
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#ef5b2a1a] to-[#03a3491a]">
-        <div className="container mx-auto px-4 flex justify-center items-center h-screen">
-          <div className="bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 w-full max-w-5xl">
-            <h2
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-left mb-4 sm:mb-6"
-              style={{ color: "#282261" }}
-            >
-              Enter Contact Details
+    <div className="min-h-[calc(100vh-96px)] bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#282261]">
+              Contact Details
             </h2>
-
-            <form
-              onSubmit={formik.handleSubmit}
-              className="grid grid-cols-1 gap-6 md:grid-cols-2"
-            >
-              <div className="flex flex-col">
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="First Name"
-                  className="border border-gray-300 rounded-3xl px-3 py-2 h-16 w-full md:w-[468px]"
-                  value={formik.values.firstName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.firstName && formik.errors.firstName ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.firstName}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col">
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last Name"
-                  className="border border-gray-300 rounded-3xl px-3 py-2 h-16 w-full md:w-[468px]"
-                  value={formik.values.lastName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.lastName && formik.errors.lastName ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.lastName}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="relative flex flex-col">
-                <input
-                  type="text"
-                  name="mobileNumber"
-                  placeholder="Mobile Number"
-                  className="border border-gray-300 rounded-3xl px-3 py-2 h-16 w-full md:w-[468px]"
-                  value={formik.values.mobileNumber}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.mobileNumber && formik.errors.mobileNumber ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.mobileNumber}
-                  </div>
-                ) : null}
-                <button
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm sm:text-base text-[#282261] font-semibold hover:underline"
-                  type="button"
-                  onClick={handleSendOtp}
-                >
-                  {otpSent ? "Resend OTP" : "Send OTP"}
-                </button>
-              </div>
-
-              <div className="relative flex flex-col">
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  className="border border-gray-300 rounded-3xl px-3 py-2 h-16 w-full md:w-[468px]"
-                  value={formik.values.otp}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.otp && formik.errors.otp ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.otp}
-                  </div>
-                ) : null}
-                <div className="flex justify-end mt-2">
-                  <a
-                    href="/"
-                    className="text-blue-500 text-sm sm:text-base hover:underline"
-                  >
-                    Resend OTP
-                  </a>
-                </div>
-              </div>
-
-              <div className="col-span-1 md:col-span-2 flex justify-center">
-                <button
-                  className="bg-[#EF5A2A] text-white font-semibold py-2 px-4 sm:py-3 sm:px-6 rounded-3xl transition-all w-full"
-                  type="submit"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
+            <p className="text-gray-600 mt-2">
+              Please enter your details to continue
+            </p>
           </div>
+
+          {/* Form */}
+          <form onSubmit={formik.handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <InputField
+                icon={FaUser}
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={formik.values.firstName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.errors.firstName}
+                touched={formik.touched.firstName}
+              />
+
+              <InputField
+                icon={FaUser}
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={formik.values.lastName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.errors.lastName}
+                touched={formik.touched.lastName}
+              />
+            </div>
+
+            <div className="relative">
+              <InputField
+                icon={FaPhone}
+                type="text"
+                name="mobileNumber"
+                placeholder="Mobile Number"
+                value={formik.values.mobileNumber}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.errors.mobileNumber}
+                touched={formik.touched.mobileNumber}
+              />
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors"
+              >
+                {otpSent ? "Resend OTP" : "Send OTP"}
+              </button>
+            </div>
+
+            <InputField
+              icon={FaLock}
+              type="text"
+              name="otp"
+              placeholder="Enter OTP"
+              value={formik.values.otp}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.errors.otp}
+              touched={formik.touched.otp}
+            />
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-[#282261] text-white rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 font-medium"
+            >
+              Continue
+            </button>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }

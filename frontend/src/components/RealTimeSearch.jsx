@@ -87,7 +87,7 @@ const RealTimeSearch = () => {
   };
 
   return (
-    <div className="text-center w-[95%] p-5 bg-orange-600 text-white rounded-2xl relative mx-auto left-0 right-0 pt-10 sm:mt-10 md:mt-15 lg:mt-20">
+    <div className="text-center w-[95%] p-5 bg-orange-600 text-white rounded-2xl relative mx-auto left-0 right-0 pt-10 sm:mt-10 md:mt-15 lg:mt-20 max-sm:mb-60">
       <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-white font-black -mt-10 leading-tight">
         MEET SPECIALIST
       </h1>
