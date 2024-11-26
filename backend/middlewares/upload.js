@@ -5,10 +5,11 @@ const fs = require("fs");
 // Create uploads directory if it doesn't exist
 const createUploadDirectories = () => {
   const directories = [
-    "profilePhotos", 
-    "documents", 
+    "profilePhotos",
+    "documents",
     "certificates",
-    "bankingDocuments"
+    "bankingDocuments",
+    "healthRecords"
   ];
   directories.forEach((dir) => {
     const dirPath = `uploads/${dir}`;
@@ -30,6 +31,8 @@ const storage = multer.diskStorage({
       uploadDir = "uploads/certificates";
     } else if (file.fieldname === "cancelledCheque") {
       uploadDir = "uploads/bankingDocuments";
+    } else if (file.fieldname === "healthRecord") { // Handle healthRecord
+      uploadDir = "uploads/healthRecords";
     }
 
     // Create directory if it doesn't exist
@@ -81,7 +84,7 @@ const fileFilter = (req, file, cb) => {
 const multerInstance = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, 
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: fileFilter,
 });

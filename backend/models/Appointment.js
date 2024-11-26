@@ -74,6 +74,9 @@ const AppointmentSchema = new mongoose.Schema({
         ref: 'Customer',
         required: true
     },
+    healthRecord:{
+        type: String,
+    },
     status: {
         type: String,
         enum: ['requested', 'assigned', 'accepted', 'ongoing', 'finished', 'rejected', 'cancelled'],

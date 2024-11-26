@@ -1,5 +1,7 @@
 // controllers/attendantController.js
 const bcrypt = require("bcryptjs");
+const fs = require('fs').promises;
+const upload = require('../middlewares/upload');
 const jwt = require("jsonwebtoken");
 const Attendant = require("../models/Attendant");
 const Appointment = require("../models/Appointment");
@@ -132,6 +134,50 @@ exports.loginAttendant = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.uploadHealthRecord = (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded! Please upload a health record file.",
+      });
+    }
+
+    const { path: filePath, filename, mimetype } = req.file;
+
+    const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedMimeTypes.includes(mimetype)) {
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Error cleaning up invalid file:", err);
+      });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type! Only JPEG, PNG, and PDF are allowed.",
+      });
+    }
+
+    // Respond with the file URL
+    const fileUrl = `${req.protocol}://${req.get("host")}/${filePath}`;
+    res.status(200).json({
+      success: true,
+      message: "Health record uploaded successfully!",
+      data: {
+        filePath,
+        filename,
+        fileUrl, 
+      },
+    });
+  } catch (error) {
+    console.error("Error uploading health record:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while uploading the health record.",
+      error: error.message,
+    });
+  }
+};
+
 
 // Function to update availability
 exports.getAvailability = async (req, res) => {

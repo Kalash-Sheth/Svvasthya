@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import { useBookingContext } from "./BookingContext";
@@ -8,18 +8,47 @@ import {
   FaMapMarkerAlt,
   FaCalendar,
   FaMoneyBillWave,
+  FaUpload,
 } from "react-icons/fa";
 
 const BookingConfirmation = () => {
   const { bookingData } = useBookingContext();
+  const [file, setFile] = useState(null);
   const navigate = useNavigate();
 
   const handleConfirm = async () => {
     try {
+      // Upload file if exists
+      let fileUrl = null;
+      if (file) {
+        try {
+          const formData = new FormData();
+          formData.append("healthRecord", file); 
+
+          const uploadResponse = await axios.post(
+            "http://localhost:5000/api/attendant/upload-healthrecord",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          if (uploadResponse.data.success) {
+            fileUrl = uploadResponse.data.data.fileUrl; 
+          } else {
+            console.error(uploadResponse.data.message);
+          }
+        } catch (error) {
+          console.error("Error uploading file:", error.response?.data || error.message);
+        }
+      }
+
       const response = await axios.post(
         "http://localhost:5000/api/appointment/appointments",
         {
-          mobileNumber: "+919910470485",
+          mobileNumber: "+919510822738",
           mainService: bookingData.mainService,
           subService: bookingData.subService,
           duration: bookingData.duration,
@@ -27,6 +56,7 @@ const BookingConfirmation = () => {
           endTime: bookingData.endTime,
           address: bookingData.address,
           location: bookingData.location,
+          healthRecord: fileUrl,
         },
         {
           withCredentials: true,
@@ -144,6 +174,33 @@ const BookingConfirmation = () => {
               </p>
             </div>
           </div>
+
+          {/* Upload Prescription */}
+          <div className="bg-gray-50 rounded-xl p-6 mb-6">
+            <h3 className="text-xl font-semibold text-[#282261] mb-4">
+              Upload Prescription or Health Record
+            </h3>
+            <div className="flex items-center gap-4">
+              <label
+                htmlFor="healthRecord"
+                className="flex items-center gap-2 bg-purple-100 text-purple-600 py-2 px-4 rounded-full cursor-pointer"
+              >
+                <FaUpload />
+                <span>Choose File</span>
+              </label>
+              <input
+                id="healthRecord"
+                type="file"
+                className="hidden"
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+              {file && (
+                <p className="text-gray-600">{file.name}</p>
+              )}
+            </div>
+          </div>
+
 
           {/* Action Buttons */}
           <div className="flex gap-4 justify-center">
