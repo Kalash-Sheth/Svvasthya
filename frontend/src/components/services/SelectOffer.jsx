@@ -87,7 +87,18 @@ function SelectOffer() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 py-4 sm:py-6 md:py-8">
+    <div
+      className="min-h-screen py-4 sm:py-6 md:py-8"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
           <div className="text-center mb-6 sm:mb-8">

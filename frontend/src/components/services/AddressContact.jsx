@@ -171,7 +171,18 @@ function AddressContact() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-96px)] bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4">
+    <div
+      className="min-h-screen py-8 px-4"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#282261] text-center mb-8">
@@ -200,7 +211,9 @@ function AddressContact() {
                       className="p-4 hover:bg-gray-50 cursor-pointer border-b transition-colors"
                     >
                       <p className="font-medium">{result.mainText}</p>
-                      <p className="text-sm text-gray-600">{result.secondaryText}</p>
+                      <p className="text-sm text-gray-600">
+                        {result.secondaryText}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -221,7 +234,9 @@ function AddressContact() {
               <form onSubmit={handleSaveAddress} className="space-y-4">
                 {selectedAddress && (
                   <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                    <p className="font-medium text-gray-700">{selectedAddress}</p>
+                    <p className="font-medium text-gray-700">
+                      {selectedAddress}
+                    </p>
                   </div>
                 )}
 

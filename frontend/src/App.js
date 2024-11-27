@@ -40,35 +40,37 @@ function AppContent() {
     <div className="App">
       <BookingProvider>
         {!isAdminRoute && <Header />}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/SelectOffer" element={<SelectOffer />} />
-          <Route path="/AddressContact" element={<AddressContact />} />
-          <Route path="/ContactDetails" element={<ContactDetails />} />
-          <Route path="/AttendatDetails" element={<AttendantDetails />} />
-          <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
-          <Route path="/nursingservices" element={<NursingServices />} />
-          <Route
-            path="/BookingConfirmation"
-            element={<BookingConfirmation />}
-          />
-          <Route path="/Admin" element={<Admin />} />
-          <Route path="/AdminDash" element={<AdminDash />} />
-          <Route path="/Attendant" element={<Attendant />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/Time" element={<Time />} />
-          <Route path="/Profile" element={<Profile />} />
-          <Route path="/BookingHistory" element={<BookingHistory />} />
-          <Route path="/UpcomingBooking" element={<UpcomingBooking />} />
-          <Route path="/BookingDetails" element={<BookingDetails />} />
-          <Route path="/UserProfile" element={<UserProfile />} />
-          <Route path="/PaymentModal" element={<PaymentModal />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/waiting" element={<Waiting />} />
-          <Route path="/assigned-attendant" element={<AssignedAttendant />} />
-        </Routes>
+        <div className="relative pt-20">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/SelectOffer" element={<SelectOffer />} />
+            <Route path="/AddressContact" element={<AddressContact />} />
+            <Route path="/ContactDetails" element={<ContactDetails />} />
+            <Route path="/AttendatDetails" element={<AttendantDetails />} />
+            <Route path="/CustomDatePicker" element={<CustomDatePicker />} />
+            <Route path="/nursingservices" element={<NursingServices />} />
+            <Route
+              path="/BookingConfirmation"
+              element={<BookingConfirmation />}
+            />
+            <Route path="/Admin" element={<Admin />} />
+            <Route path="/AdminDash" element={<AdminDash />} />
+            <Route path="/Attendant" element={<Attendant />} />
+            <Route path="/Dashboard" element={<Dashboard />} />
+            <Route path="/Time" element={<Time />} />
+            <Route path="/Profile" element={<Profile />} />
+            <Route path="/BookingHistory" element={<BookingHistory />} />
+            <Route path="/UpcomingBooking" element={<UpcomingBooking />} />
+            <Route path="/BookingDetails" element={<BookingDetails />} />
+            <Route path="/UserProfile" element={<UserProfile />} />
+            <Route path="/PaymentModal" element={<PaymentModal />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/waiting" element={<Waiting />} />
+            <Route path="/assigned-attendant" element={<AssignedAttendant />} />
+          </Routes>
+        </div>
       </BookingProvider>
     </div>
   );

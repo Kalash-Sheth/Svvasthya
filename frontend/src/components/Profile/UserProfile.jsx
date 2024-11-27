@@ -109,7 +109,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-96px)] bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           {/* Header */}
@@ -153,7 +153,9 @@ const UserProfile = () => {
                 name="firstname"
                 placeholder="First Name"
                 value={profile.firstname || ""}
-                onChange={(e) => setProfile({ ...profile, firstname: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, firstname: e.target.value })
+                }
                 disabled={!isEditing}
                 error={errors.firstname}
               />
@@ -164,7 +166,9 @@ const UserProfile = () => {
                 name="lastname"
                 placeholder="Last Name"
                 value={profile.lastname || ""}
-                onChange={(e) => setProfile({ ...profile, lastname: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, lastname: e.target.value })
+                }
                 disabled={!isEditing}
                 error={errors.lastname}
               />
@@ -176,7 +180,9 @@ const UserProfile = () => {
                 type="email"
                 placeholder="Email"
                 value={profile.email || ""}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, email: e.target.value })
+                }
                 disabled={!isEditing}
                 error={errors.email}
               />
@@ -187,7 +193,9 @@ const UserProfile = () => {
                 name="mobileNumber"
                 placeholder="Mobile Number"
                 value={profile.mobileNumber || ""}
-                onChange={(e) => setProfile({ ...profile, mobileNumber: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, mobileNumber: e.target.value })
+                }
                 disabled={!isEditing}
                 error={errors.mobileNumber}
               />
@@ -198,7 +206,9 @@ const UserProfile = () => {
                 name="address"
                 placeholder="Address"
                 value={profile.address || ""}
-                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, address: e.target.value })
+                }
                 disabled={!isEditing}
               />
 
@@ -208,7 +218,9 @@ const UserProfile = () => {
                 name="city"
                 placeholder="City"
                 value={profile.city || ""}
-                onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, city: e.target.value })
+                }
                 disabled={!isEditing}
               />
 
@@ -218,7 +230,9 @@ const UserProfile = () => {
                 name="state"
                 placeholder="State"
                 value={profile.state || ""}
-                onChange={(e) => setProfile({ ...profile, state: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, state: e.target.value })
+                }
                 disabled={!isEditing}
               />
 
@@ -228,7 +242,9 @@ const UserProfile = () => {
                 name="dob"
                 type="date"
                 value={profile.dob || ""}
-                onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, dob: e.target.value })
+                }
                 disabled={!isEditing}
               />
             </div>

@@ -105,7 +105,18 @@ function Explore() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-8">
+    <div
+      className="min-h-screen pt-8"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-[#3C3B6E] mb-6 text-center">
         EXPLORE OUR SERVICES
       </h1>

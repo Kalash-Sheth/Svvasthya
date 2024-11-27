@@ -23,7 +23,18 @@ const Waiting = () => {
   }, [navigate, redirectTo, redirectDelay, booking]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <div className="flex-grow flex flex-col items-center justify-center px-4 py-12">
         <div className="max-w-4xl w-full">
           {/* Success Card */}

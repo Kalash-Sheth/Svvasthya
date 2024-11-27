@@ -76,7 +76,18 @@ const NursingServices = () => {
 
   return (
     <>
-      <div className="p-4 sm:p-6 md:p-8 bg-white min-h-screen">
+      <div
+        className="p-4 sm:p-6 md:p-8 min-h-screen"
+        style={{
+          background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+        }}
+      >
         <h2 className="text-4xl sm:text-5xl md:text-7xl text-center font-bold text-[#282261] mb-8 sm:mb-12">
           HOW WE WORK
         </h2>

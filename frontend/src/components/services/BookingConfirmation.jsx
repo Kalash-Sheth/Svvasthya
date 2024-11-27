@@ -187,7 +187,18 @@ const BookingConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 pt-8">
+    <div
+      className="min-h-screen pt-8"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 mx-4 sm:mx-6 lg:mx-8">
           {/* Header */}

@@ -38,7 +38,18 @@ const AssignedAttendant = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{
+        background: `linear-gradient(
+        78.83deg,
+        rgba(239, 91, 42, 0.151),
+        rgba(250, 174, 66, 0.151) 33%,
+        rgba(139, 197, 65, 0.151) 66%,
+        rgba(3, 147, 71, 0.151)
+      )`,
+      }}
+    >
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="flex flex-col md:flex-row">
