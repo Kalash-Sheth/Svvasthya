@@ -16,6 +16,7 @@ exports.createAppointment = async (req, res) => {
       endTime,
       address,
       location,
+      healthRecord
     } = req.body;
 
     if (
@@ -26,7 +27,8 @@ exports.createAppointment = async (req, res) => {
       !startTime ||
       !endTime ||
       !address ||
-      !location
+      !location ||
+      !healthRecord
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -43,6 +45,7 @@ exports.createAppointment = async (req, res) => {
       endTime: new Date(endTime),
       address,
       location,
+      healthRecord,
       requestByCustomer: customer,
     });
 
