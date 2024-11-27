@@ -9,7 +9,7 @@ import {
   FaMoneyBillWave,
   FaUpload,
 } from "react-icons/fa";
-
+import axios from "axios";
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -77,8 +77,8 @@ const BookingConfirmation = () => {
       );
 
       // Check if appointment was created successfully
-      if (response.data && response.data.appointment) {
-        const appointmentId = response.data.appointment._id;
+      if (appointmentResponse.data && appointmentResponse.data.appointment) {
+        const appointmentId = appointmentResponse.data.appointment._id;
 
         // Load Razorpay script
         const isLoaded = await loadRazorpayScript();
