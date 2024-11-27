@@ -78,8 +78,8 @@ const BookingConfirmation = () => {
       );
 
       // Check if appointment was created successfully
-      if (appointmentResponse.data && appointmentResponse.data.appointment) {
-        const appointmentId = appointmentResponse.data.appointment._id;
+      if (response.data && response.data.appointment) {
+        const appointmentId = response.data.appointment._id;
 
         // Load Razorpay script
         const isLoaded = await loadRazorpayScript();
