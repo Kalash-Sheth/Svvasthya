@@ -56,9 +56,23 @@
   position: relative;
   display: none;
   z-index: 1;
-  animation: moveUpContent 1s ease-out forwards;
   width: 60%;
   text-align: center;
+}
+
+/* Animation for larger screens */
+@media screen and (min-width: 484px) {
+  .hero-content {
+    animation: moveUpContent 1s ease-out forwards;
+  }
+}
+
+/* Animation for mobile screens */
+@media screen and (max-width: 483px) {
+  .hero-content {
+    width: 90%; /* Make content wider on mobile */
+    animation: moveUpContentMobile 1.2s ease-out forwards;
+  }
 }
 
 h1 {
@@ -232,6 +246,7 @@ h1 {
   animation-fill-mode: forwards; /* Keep the final state after animation */
 }
 
+/* Existing animation for larger screens */
 @keyframes moveUpContent {
   0% {
     transform: translateY(100%);
@@ -242,7 +257,23 @@ h1 {
     opacity: 0.5;
   }
   100% {
-    transform: translateY(35%);
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+/* New animation for mobile screens */
+@keyframes moveUpContentMobile {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(40%);
     opacity: 1;
   }
 }
