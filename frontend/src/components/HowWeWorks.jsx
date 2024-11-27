@@ -52,16 +52,20 @@ const HowWeWorks = () => {
       </div>
 
       {/* Right Section */}
-      <div className="flex-1 text-center relative mt-8 lg:mt-0">
-        <img
-          src={howitworks}
-          alt="Healthcare Support"
-          className="w-full h-auto object-cover"
-        />
-        <p className="text-white p-2 sm:p-4 text-base sm:text-xl md:text-2xl lg:text-3xl font-bold rounded-lg absolute bottom-2 left-2 right-2 bg-black bg-opacity-50">
-          Discover comprehensive health care support services conveniently
-          tailored to meet all your needs in one place.
-        </p>
+      <div className="flex-1 relative w-full lg:w-1/2 px-4 lg:px-0">
+        <div className="relative aspect-[3/4] w-full">
+          <img
+            src={howitworks}
+            alt="Healthcare Support"
+            className="w-full h-full object-cover rounded-lg shadow-lg"
+          />
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg">
+            <p className="text-white text-sm sm:text-base md:text-lg lg:text-xl font-medium">
+              Discover comprehensive health care support services conveniently
+              tailored to meet all your needs in one place.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
