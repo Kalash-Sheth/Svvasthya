@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
@@ -35,7 +34,7 @@ const BookingConfirmation = () => {
       if (file) {
         try {
           const formData = new FormData();
-          formData.append("healthRecord", file); 
+          formData.append("healthRecord", file);
 
           const uploadResponse = await axios.post(
             "http://localhost:5000/api/attendant/upload-healthrecord",
@@ -48,12 +47,15 @@ const BookingConfirmation = () => {
           );
 
           if (uploadResponse.data.success) {
-            fileUrl = uploadResponse.data.data.fileUrl; 
+            fileUrl = uploadResponse.data.data.fileUrl;
           } else {
             console.error(uploadResponse.data.message);
           }
         } catch (error) {
-          console.error("Error uploading file:", error.response?.data || error.message);
+          console.error(
+            "Error uploading file:",
+            error.response?.data || error.message
+          );
         }
       }
 
@@ -100,7 +102,9 @@ const BookingConfirmation = () => {
         );
 
         if (!orderResponse.data.success) {
-          throw new Error(orderResponse.data.message || "Failed to create payment order");
+          throw new Error(
+            orderResponse.data.message || "Failed to create payment order"
+          );
         }
 
         const { orderId, amount, currency, keyId } = orderResponse.data.data;
@@ -146,7 +150,10 @@ const BookingConfirmation = () => {
               }
             } catch (error) {
               console.error("Payment verification error:", error);
-              alert(error.response?.data?.message || "Payment verification failed. Please contact support.");
+              alert(
+                error.response?.data?.message ||
+                  "Payment verification failed. Please contact support."
+              );
             }
           },
           modal: {
@@ -170,9 +177,10 @@ const BookingConfirmation = () => {
       if (error.response?.status === 401) {
         alert("Please login to make a booking");
       } else {
-        const errorMessage = error.response?.data?.message || 
-                            error.message || 
-                            "There was an error creating your appointment. Please try again.";
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "There was an error creating your appointment. Please try again.";
         alert(errorMessage);
       }
     }
@@ -294,12 +302,9 @@ const BookingConfirmation = () => {
                 accept=".pdf,.png,.jpg,.jpeg"
                 onChange={(e) => setFile(e.target.files[0])}
               />
-              {file && (
-                <p className="text-gray-600">{file.name}</p>
-              )}
+              {file && <p className="text-gray-600">{file.name}</p>}
             </div>
           </div>
-
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
