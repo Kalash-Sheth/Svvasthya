@@ -2,22 +2,22 @@ import React from "react";
 import Partner from "../assets/Partner.png";
 
 const CaregiverCard = ({ name, degree, image, rating }) => (
-  <div className="relative w-full sm:w-[280px] md:w-[300px] h-[350px] sm:h-[400px] group transform transition-transform duration-300 hover:scale-105">
+  <div className="relative w-full h-[280px] group transform transition-transform duration-300 hover:scale-105">
     <img
       src={image}
       alt={name}
       className="w-full h-full object-cover rounded-lg shadow-lg"
     />
 
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#282261] to-transparent text-white p-4 sm:p-6 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-      <h3 className="text-lg sm:text-xl font-bold text-left mb-1">{name}</h3>
-      <p className="text-sm sm:text-md text-left text-gray-200">({degree})</p>
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#282261] to-transparent text-white p-4 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <h3 className="text-lg font-bold text-left mb-1">{name}</h3>
+      <p className="text-sm text-left text-gray-200">({degree})</p>
 
       <div className="flex mt-2">
         {Array.from({ length: Math.floor(rating) }, (_, i) => (
           <svg
             key={i}
-            className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400"
+            className="w-4 h-4 text-yellow-400"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -26,7 +26,7 @@ const CaregiverCard = ({ name, degree, image, rating }) => (
         ))}
         {rating % 1 !== 0 && (
           <svg
-            className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-400"
+            className="w-4 h-4 text-yellow-400"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -47,12 +47,12 @@ const FeaturedPartners = () => {
   ];
 
   return (
-    <div className="text-center p-4 sm:p-5 mt-8 sm:mt-12">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#3C3B6E] mb-4 sm:mb-6">
+    <div className="text-center px-4 py-8 md:py-12">
+      <h1 className="text-2xl md:text-4xl font-bold text-[#3C3B6E] mb-8">
         OUR BEST HIGHLY PERFORM CAREGIVER
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mt-6 max-w-7xl mx-auto px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
         {caregivers.map((caregiver, index) => (
           <CaregiverCard
             key={index}
