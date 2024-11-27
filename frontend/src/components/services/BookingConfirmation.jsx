@@ -9,7 +9,6 @@ import {
   FaMoneyBillWave,
   FaUpload,
 } from "react-icons/fa";
-import axios from "axios";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -59,7 +58,7 @@ const BookingConfirmation = () => {
         }
       }
 
-      const response = await axios.post(
+      const appointmentResponse = await axios.post(
         "http://localhost:5000/api/appointment/appointments",
         {
           mobileNumber: "+919510822738",
